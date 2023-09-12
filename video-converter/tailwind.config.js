@@ -30,9 +30,11 @@ module.exports = {
     extend: {
       fontSize: {
         '15px': '15px',
+        '13px': '13px',
       },
       colors: {
         'gray-color': '#5a5a5a',
+        'light-gray': '#a5a5a5',
       },
     },
   },

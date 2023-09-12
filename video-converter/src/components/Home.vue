@@ -26,7 +26,7 @@
         </div>
       </div>
       <p v-if="fileSizeExceeded" class="mt-5 text-center text-red-600">File size exceeded the limit of 25 MB</p>
-      <div class="flex justify-center bg-[#f9f9f9] px-20 py-10 lg:py-7">
+      <div class="flex justify-center bg-[#f9f9f9] px-20 py-5">
         <div class="fileUpload relative flex w-48 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-[#b53836ff] py-4 text-xl text-white duration-300 hover:font-semibold hover:shadow-2xl">
           <input type="file" name="videoFile" class="upload absolute bottom-0 left-0 right-0 top-0 m-0 cursor-pointer p-0 opacity-0 filter-none" @change="checkFileSize" required />
           <svg :class="fileSize === null ? 'hidden' : 'block'" xmlns="http://www.w3.org/2000/svg" class="mr-2 h-7 w-7" fill="currentColor" viewBox="0 0 104.69 122.88" style="enable-background: new 0 0 104.69 122.88" xml:space="preserve">
@@ -40,7 +40,7 @@
           <span>Upload</span>
         </div>
       </div>
-      <div class="bg-[#f9f9f9] px-20 py-10 lg:py-7">
+      <div class="bg-[#f9f9f9] px-20 py-5">
         <div class="mb-20 bg-white">
           <h3 class="text-gray-color flex items-center justify-start px-10 py-5 text-lg font-semibold">
             <img src="../assets/images/wrench.png" alt="" class="mr-5 h-5 w-5" />
@@ -51,30 +51,23 @@
             <img src="../assets/images/video-camera.png" alt="" class="mr-5 h-5 w-5" />
             Video
           </h3>
-          <div class="grid gap-8 px-10 py-7 md:grid-cols-2">
-            <div class="text-gray-color grid grid-cols-4 items-center justify-center">
-              <label for="">Resolution</label>
-              <select name="ResolutionMenu" class="col-span-3 w-full rounded-lg border px-4 py-2 outline-none">
-                <option v-for="(option, index) in resolutionOptions" :key="index" :value="option.value">{{ option.label }}</option>
-              </select>
+          <!-- vdideo options -->
+          <div class="coxl:grid-cols-2 grid gap-x-8 gap-y-6 px-10 py-7">
+            <div v-for="(field, index) in fields" :key="index" class="text-gray-color grid grid-cols-4 justify-center">
+              <label :for="field.name" class="text-15px mr-2 mt-2">{{ field.label }}</label>
+              <div class="col-span-3 flex flex-col">
+                <select :name="field.name" class="w-full rounded-lg border px-4 py-2 outline-none">
+                  <option v-for="(option, optionIndex) in field.options" :key="optionIndex" :value="option.value" :selected="option.selected">{{ option.label }}</option>
+                </select>
+                <span class="text-light-gray mt-2 text-xs">{{ field.description }}</span>
+              </div>
             </div>
-            <div class="text-gray-color grid grid-cols-4 items-center justify-center">
-              <label for="">Aspect&nbsp;Ratio</label>
-              <select name="AspectRatioSelect" class="col-span-3 w-full rounded-lg border px-4 py-2 outline-none">
-                <option v-for="(option, index) in aspectRatioOptions" :key="index" :value="option.value">{{ option.label }}</option>
-              </select>
-            </div>
-            <div class="text-gray-color grid grid-cols-4 items-center justify-center">
-              <label for="">Constant&nbsp;Quality (CRF)</label>
-              <select name="ConstantQualitySelect" class="col-span-3 w-full rounded-lg border px-4 py-2 outline-none">
-                <option v-for="(option, index) in constantQualityOptions" :key="index" :value="option.value">{{ option.label }}</option>
-              </select>
-            </div>
-            <div class="text-gray-color grid grid-cols-4 items-center justify-center">
-              <label for="">Video&nbsp;Codec</label>
-              <select name="videotCodecSelect" class="col-span-3 w-full rounded-lg border px-4 py-2 outline-none">
-                <option v-for="(option, index) in videotCodecOptions" :key="index" :value="option.value">{{ option.label }}</option>
-              </select>
+            <div class="text-gray-color grid grid-cols-4 justify-center">
+              <label for="">Fps</label>
+              <div class="col-span-3 flex flex-col">
+                <input type="text" name="StartingTime" id="" class="w-full rounded-lg border px-4 py-2 outline-none" placeholder="" />
+                <span class="text-light-gray mt-2 text-xs">Change the video frame rate.</span>
+              </div>
             </div>
           </div>
           <!--  -->
@@ -121,7 +114,7 @@ import axios from 'axios';
 
 // resolution
 const resolutionOptions = ref([
-  { value: 'no change', label: 'no change' },
+  { value: 'no change', label: 'no change', selected: 'no changes' },
   { value: '320x240', label: '320x240 (240p)' },
   { value: '640x480', label: '640x480 (480p)' },
   { value: '854x480', label: '854x480' },
@@ -135,7 +128,7 @@ const resolutionOptions = ref([
 ]);
 // aspect ratio
 const aspectRatioOptions = ref([
-  { value: '', label: 'no change' },
+  { value: 'no change', label: 'no change', selected: 'no changes' },
   { value: '16:9', label: '16:9' },
   { value: '14:9', label: '14:9' },
   { value: '4:3', label: '4:3' },
@@ -165,7 +158,7 @@ const constantQualityOptions = ref([
   { value: '20', label: '20' },
   { value: '21', label: '21' },
   { value: '22', label: '22' },
-  { value: '23', label: '23 (normal quality)' },
+  { value: '23', label: '23 (normal quality)', selected: '23 (normal quality)' },
   { value: '24', label: '24' },
   { value: '25', label: '25' },
   { value: '26', label: '26' },
@@ -197,12 +190,132 @@ const constantQualityOptions = ref([
 ]);
 //  video COdec
 const videotCodecOptions = ref([
-  { value: 'libx264', label: 'x264' },
   { value: 'copy', label: 'Copy (No Re-encoding)' },
+  { value: 'libx264', label: 'x264', selected: 'x264' },
   { value: 'libx265', label: 'x265' },
   { value: 'libvpx', label: 'vp8' },
   { value: 'libvpx-vp9', label: 'vp9' },
   { value: 'libaom-av1', label: 'av1' },
+]);
+// preset
+const PresetOptions = ref([
+  { value: 'ultrafast', label: 'ultrafast' },
+  { value: 'superfast', label: 'superfast' },
+  { value: 'veryfast', label: 'veryfast' },
+  { value: 'faster', label: 'faster' },
+  { value: 'fast', label: 'fast' },
+  { value: 'medium', label: 'medium', selected: 'medium' },
+  { value: 'slow', label: 'slow' },
+  { value: 'slower', label: 'slower' },
+  { value: 'veryslow', label: 'veryslow' },
+]);
+// tune
+const TuneOptions = ref([
+  { value: 'none', label: 'none', selected: 'none' },
+  { value: 'film', label: 'film' },
+  { value: 'animation', label: 'animation' },
+  { value: 'grain', label: 'grain' },
+  { value: 'stillimage', label: 'stillimage' },
+  { value: 'fastdecode', label: 'fastdecode' },
+  { value: 'zerolatency', label: 'zerolatency' },
+  { value: 'psnr', label: 'psnr' },
+  { value: 'ssim', label: 'ssim' },
+]);
+// profile
+const ProfileOptions = ref([
+  { value: 'none', label: 'none', selected: 'none' },
+  { value: 'baseline', label: 'baseline' },
+  { value: 'main', label: 'main' },
+  { value: 'high', label: 'high' },
+  { value: 'high10', label: 'high10' },
+  { value: 'high422', label: 'high422' },
+  { value: 'high444', label: 'high444' },
+]);
+// level
+const LevelOptions = ref([
+  { value: 'none', label: 'none', selected: 'none' },
+  { value: '1', label: '1' },
+  { value: '1b', label: '1b' },
+  { value: '1.1', label: '1.1' },
+  { value: '1.2', label: '1.2' },
+  { value: '1.3', label: '1.3' },
+  { value: '2.0', label: '2.0' },
+  { value: '2.1', label: '2.1' },
+  { value: '2.2', label: '2.2' },
+  { value: '3.0', label: '3.0' },
+  { value: '3.1', label: '3.1' },
+  { value: '3.2', label: '3.2' },
+  { value: '4.0', label: '4.0' },
+  { value: '4.1', label: '4.1' },
+  { value: '4.2', label: '4.2' },
+  { value: '5.0', label: '5.0' },
+  { value: '5.1', label: '5.1' },
+  { value: '5.2', label: '5.2' },
+]);
+// fit
+const FitOptions = ref([
+  { value: 'max', label: 'max' },
+  { value: 'crop', label: 'crop' },
+  { value: 'scale', label: 'scale', selected: 'scale' },
+  { value: 'pad', label: 'pad' },
+]);
+
+// for video-options
+const fields = ref([
+  {
+    name: 'ResolutionMenu',
+    label: 'Resolution',
+    options: resolutionOptions.value,
+    description: 'By default we keep the current resolution.',
+  },
+  {
+    name: 'AspectRatioSelect',
+    label: 'Aspect Ratio',
+    options: aspectRatioOptions.value,
+    description: 'Change the video aspect ratio, for example to 16:9 or 4:3.',
+  },
+  {
+    name: 'ConstantQualitySelect',
+    label: 'Constant Quality (CRF)',
+    options: constantQualityOptions.value,
+    description: 'The CRF value sets the video quality and can be from 0–63. Lower values mean better quality but longer conversion times. Recommended values range from 15–35.',
+  },
+  {
+    name: 'videotCodecSelect',
+    label: 'Video Codec',
+    options: videotCodecOptions.value,
+    description: 'Codec to encode the video. Use "copy" to copy the stream without re-encoding.',
+  },
+  {
+    name: 'presetSelect',
+    label: 'Preset',
+    options: PresetOptions.value,
+    description: 'The preset is a collection of options that will provide a certain encoding speed to compression ratio.',
+  },
+  {
+    name: 'tuneSelect',
+    label: 'Tune',
+    options: TuneOptions.value,
+    description: 'Settings based upon the specifics of your input.',
+  },
+  {
+    name: 'profileSelect',
+    label: 'Profile',
+    options: ProfileOptions.value,
+    description: 'Set output to a specific H264 compatibility profile.',
+  },
+  {
+    name: 'levelSelect',
+    label: 'Level',
+    options: LevelOptions.value,
+    description: 'Set output to a specific H264 compatibility profile level.',
+  },
+  {
+    name: 'fitSelect',
+    label: 'Fit',
+    options: FitOptions.value,
+    description: 'Sets the mode of sizing the video. "Max" resizes the video to fit within the width and height, but will not increase the size of the image if it is smaller than width or height. "Crop" resizes the video to fill the width and height dimensions and crops any excess video data. "Scale" enforces the video width and height by scaling. "Pad" resizes the video to the width and height dimensions and keeps the aspect ratio by adding black bars if necessary.',
+  },
 ]);
 
 // file size check
@@ -219,7 +332,6 @@ const checkFileSize = (event) => {
   }
 };
 
-const showDownloadButton = ref(false);
 const formSubmitted = ref(false);
 const downloadUrlNode = ref('');
 const downloadName = ref('');
@@ -227,6 +339,7 @@ const sendFile = () => {
   const form = document.querySelector('form');
   const formData = new FormData(form);
 
+  // sending data
   axios
     .post('http://localhost:4000/convert', formData, {
       headers: {
@@ -237,14 +350,13 @@ const sendFile = () => {
         console.log(`Upload progress: ${percentCompleted}%`);
       },
     })
+    // receiving data
     .then((response) => {
       console.log(response.data);
       console.log(response.data.downloadUrl);
 
       downloadUrlNode.value = 'http://localhost:4000/' + response.data.downloadUrl;
       downloadName.value = response.data.fileName;
-
-      const showDownloadButton = ref(false);
     });
   // .delete(`http://localhost:4000/delete-file/example.mp4`);
   // .catch((error) => {

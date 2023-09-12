@@ -89,3 +89,30 @@
 //     }
 //   });
 // });
+
+// --------------------------------------------------------------------------------------------------------------------
+
+// <!-- <div class="text-gray-color grid grid-cols-4 items-center justify-center">
+// <label for="">Resolution</label>
+// <select name="ResolutionMenu" class="col-span-3 w-full rounded-lg border px-4 py-2 outline-none">
+//   <option v-for="(option, index) in resolutionOptions" :key="index" :value="option.value">{{ option.label }}</option>
+// </select>
+// </div>
+// <div class="text-gray-color grid grid-cols-4 items-center justify-center">
+// <label for="">Aspect&nbsp;Ratio</label>
+// <select name="AspectRatioSelect" class="col-span-3 w-full rounded-lg border px-4 py-2 outline-none">
+//   <option v-for="(option, index) in aspectRatioOptions" :key="index" :value="option.value">{{ option.label }}</option>
+// </select>
+// </div>
+// <div class="text-gray-color grid grid-cols-4 items-center justify-center">
+// <label for="">Constant&nbsp;Quality (CRF)</label>
+// <select name="ConstantQualitySelect" class="col-span-3 w-full rounded-lg border px-4 py-2 outline-none">
+//   <option v-for="(option, index) in constantQualityOptions" :key="index" :value="option.value" :selected="option.label === '23 (normal quality)'">{{ option.label }}</option>
+// </select>
+// </div>
+// <div class="text-gray-color grid grid-cols-4 items-center justify-center">
+// <label for="">Video&nbsp;Codec</label>
+// <select name="videotCodecSelect" class="col-span-3 w-full rounded-lg border px-4 py-2 outline-none">
+//   <option v-for="(option, index) in videotCodecOptions" :key="index" :value="option.value" :selected="option.label === 'x264'">{{ option.label }}</option>
+// </select>
+// </div> -->

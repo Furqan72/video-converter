@@ -6,6 +6,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 const fs = require('fs');
 const cors = require('cors');
+const { log } = require('console');
 
 const app = express();
 app.use(cors());
@@ -37,6 +38,12 @@ app.post('/convert', (req, res) => {
   let videoCOdec = req.body.videotCodecSelect;
   let aspectRatio = req.body.AspectRatioSelect;
   let qualityConstant = req.body.ConstantQualitySelect;
+  let presetValue = req.body.presetSelect;
+  let tuning = req.body.tuneSelect;
+  let profileValue = req.body.profileSelect;
+  let levelValue = req.body.levelSelect;
+  let fitValue = req.body.LevelOptions;
+  console.log(fitValue);
 
   io.emit('message', 'File Upload Started');
   inputFile.mv('temp-files/' + inputFile.name, function (err) {
@@ -77,26 +84,44 @@ app.post('/convert', (req, res) => {
         command.setStartTime(startingTime);
         command.setDuration(endingTime);
       }
+      // videoCodec with copy
       if (videoCOdec === 'copy') {
         command.videoCodec('copy');
       } else {
-        command.videoCodec(videoCOdec);
         // Add video filters only if not using stream copy
-        if (resolution !== 'no change') {
-          command.videoFilters(`scale=${widthValue}:${heightValue}`);
-        }
-        if (aspectRatio !== 'no change') {
-          command.videoFilters(`setdar=${aspectRatio}`);
-        }
-        if (aspectRatio !== 'no change') {
-          command.videoFilters(`setdar=${aspectRatio}`);
-        }
+        // videoCodec without copy
+        command.videoCodec(videoCOdec);
+        let videoFilters = [];
 
-        if (constantQuality === 'no change') {
-        } else {
-          command.videoCodec('libx264');
-          command.addOptions([`-crf ${qualityConstant}`]);
+        if (resolution !== 'no change') {
+          // `${fitValue}`
+          videoFilters.push(`scale=${widthValue}:${heightValue}`);
+          if (aspectRatio !== 'no change') {
+            videoFilters.push(`setdar=${aspectRatio}`);
+          }
+        } else if (aspectRatio !== 'no change') {
+          videoFilters.push(`setdar=${aspectRatio}`);
         }
+        if (videoFilters.length > 0) {
+          command.videoFilters(`${videoFilters.join(',')}`);
+        }
+        // console.log(videoFilters.join(','));
+        // tune
+        if (tuning !== 'none') {
+          command.addOptions([`-tune ${tuning}`]);
+        }
+        // profile
+        if (profileValue !== 'none') {
+          command.addOptions([`-profile:v ${profileValue}`]);
+        }
+        // level
+        if (levelValue !== 'none') {
+          command.addOptions([`-level ${levelValue}`]);
+        }
+        // CRF
+        command.addOptions([`-crf ${qualityConstant}`]);
+        // Preset
+        command.addOptions([`-preset ${presetValue}`]);
       }
       command.save(outputPath);
     }
