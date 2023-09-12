@@ -1,6 +1,7 @@
 <template>
   <div>
-    <form @submit.prevent="sendFile" method="post" action="../../../api/index.js">
+    <form @submit.prevent="sendFile">
+      <!-- <form action="http://localhost:4000/convert" enctype="multipart/form-data" method="post"> -->
       <div class="grid h-[350px] grid-cols-2 bg-[#363636ff] px-20 pt-20 text-white">
         <div>
           <h1 class="text-3xl font-bold">Transform MP4 Files into a Variety of Formats.</h1>
@@ -69,35 +70,16 @@
         </div>
       </div>
     </form>
+    <!-- <a href="" id="downloadBtn">download link</a> -->
+    <a :href="downloadUrlNode" id="downloadBtn" :download="downloadName">download link</a>
   </div>
 </template>
 
-<!--
 <script setup>
 import { ref } from 'vue';
-// import VueSocketIO from 'vue-socket.io';
-
-// const socket = io.connect('http://localhost:4000/');
-// socket.on('message', (data) => {
-//   console.log('Received message from server:', data);
-//   const progressDiv = document.getElementById('progress');
-//   progressDiv.textContent = data;
-// });
-
-// const socket = VueSocketIO();
-// socket.on('message', (message) => {
-//   if (message.startsWith('File Upload')) {
-//     startLoading();
-//   } else if (message === 'Conversion Finished.' || message.startsWith('Conversion Error')) {
-//     stopLoading();
-//   }
-// });
-</script> -->
-
-<script setup>
-import { ref } from 'vue';
-import { io } from 'socket.io-client';
 import axios from 'axios';
+// import { io } from 'socket.io-client';
+// const newSocket = io;
 
 const fileSizeExceeded = ref(false);
 const fileSize = ref(null);
@@ -113,6 +95,8 @@ const checkFileSize = (event) => {
   }
 };
 
+const downloadUrlNode = ref('');
+const downloadName = ref('');
 const sendFile = () => {
   const form = document.querySelector('form');
   const formData = new FormData(form);
@@ -128,31 +112,15 @@ const sendFile = () => {
       },
     })
     .then((response) => {
-      console.log('Server response:', response.data);
-    })
-    .catch((error) => {
-      console.error('Error:', error);
+      console.log(response.data);
+      console.log(response.data.downloadUrl);
+
+      downloadUrlNode.value = 'http://localhost:4000/' + response.data.downloadUrl;
+      downloadName.value = response.data.fileName;
     });
+  // .delete(`http://localhost:4000/delete-file/example.mp4`);
+  // .catch((error) => {
+  //   console.error('Error:', error);
+  // });
 };
-
-const loading = ref(false);
-const progress = ref(0);
-
-// const socket = io.connect('http://localhost:4000/convert');
-// socket.on('uploadProgress', (data) => {
-//   loading.value = true;
-//   progress.value = data.percentCompleted;
-// });
-
-// socket.on('uploadComplete', () => {
-//   loading.value = false;
-//   // progress.value = 0;
-// });
-
-const socket = io.connect('http://localhost:4000/');
-socket.on('message', (data) => {
-  console.log('Received message from server:', data);
-  const progressDiv = document.getElementById('progress');
-  progressDiv.textContent = data;
-});
 </script>
