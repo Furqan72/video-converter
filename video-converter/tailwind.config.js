@@ -31,6 +31,9 @@ module.exports = {
       fontSize: {
         '15px': '15px',
       },
+      colors: {
+        'gray-color': '#5a5a5a',
+      },
     },
   },
   plugins: [],
