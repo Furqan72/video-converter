@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
 const fs = require('fs');
 const path = require('path');
-const { Console } = require('console');
+const { Console, log } = require('console');
 // const { log } = require('console');
 
 const app = express();
@@ -80,7 +80,7 @@ app.post('/convert', (req, res) => {
   let videoVolume = req.body.VolumeSelect;
   let SampleRate = req.body.SampleRateSelect;
   let AudioBitrateValue = req.body.AudioBitrate;
-  // let imageWatermark = req.files.waterMarkImage;
+  let imageWatermark = req.files.waterMarkImage;
   // console.log(imageWatermark);
   let desiredKeyframeInterval = req.body.KeyframeInterval;
   let subtitlesType = req.body.subtitleType;
@@ -88,8 +88,8 @@ app.post('/convert', (req, res) => {
   deleteFilesInDirectory('./temp-files/');
   deleteFilesInDirectory('./temp-output/');
 
+  // subtitle upload
   let subtitlePath = '';
-
   if (subtitleFiles) {
     subtitleFiles.mv('temp-files/' + subtitleFiles.name, function (err) {
       if (err) {
@@ -100,6 +100,22 @@ app.post('/convert', (req, res) => {
         io.emit('message', 'Subtitle File Uploaded Successfully.');
 
         subtitlePath = `./temp-files/${subtitleFiles.name}`;
+      }
+    });
+  }
+
+  // watermarks upload
+  let imageWatermarkPath = '';
+  if (imageWatermark) {
+    imageWatermark.mv('temp-files/' + imageWatermark.name, function (err) {
+      if (err) {
+        console.error('Subtitle File Upload Error:', err);
+        io.emit('message', 'Subtitle File Upload Error: ' + err.message);
+        return;
+      } else {
+        io.emit('message', 'Subtitle File Uploaded Successfully.');
+
+        imageWatermarkPath = `./temp-files/${imageWatermark.name}`;
       }
     });
   }
@@ -152,7 +168,9 @@ app.post('/convert', (req, res) => {
           io.emit('message', 'Conversion Finished.');
         })
         // covnersion error
-        .on('error', (err) => {
+        .on('error', (err, stdout, stderr) => {
+          console.error('Error:', err);
+          console.error('FFmpeg stderr:', stderr);
           io.emit('message', 'Conversion Error: ' + err.message);
           res.status(500).send('Conversion Error: ' + err.message);
         });
@@ -191,20 +209,37 @@ app.post('/convert', (req, res) => {
       } else {
         // videoCodec without 'copy'
         command.videoCodec(videoCOdec);
-        let videoFilters = [];
+        let filtersForVideo = [];
 
         if (resolution !== 'no change') {
-          createVideoFilters(fitValue, widthValue, heightValue, videoFilters);
+          filtersForVideo.push(createComplexVideoFilter(fitValue, widthValue, heightValue));
 
           if (aspectRatio !== 'no change') {
-            videoFilters.push(`setdar=${aspectRatio}`);
+            filtersForVideo.push(`setdar=${aspectRatio}`);
           }
         } else if (aspectRatio !== 'no change') {
-          videoFilters.push(`setdar=${aspectRatio}`);
+          filtersForVideo.push(`setdar=${aspectRatio}`);
         }
-        if (videoFilters.length > 0) {
-          command.videoFilters(`${videoFilters.join(',')}`);
+
+        if (filtersForVideo.length > 0) {
+          const complexFilterExpression = filtersForVideo.join(';');
+          command.complexFilter(complexFilterExpression);
         }
+        // let filtersForVideo = [];
+
+        // if (resolution !== 'no change') {
+        //   filtersForVideo.push(createVideoFilters(fitValue, widthValue, heightValue));
+
+        //   if (aspectRatio !== 'no change') {
+        //     filtersForVideo.push(`setdar=${aspectRatio}`);
+        //   }
+        // } else if (aspectRatio !== 'no change') {
+        //   filtersForVideo.push(`setdar=${aspectRatio}`);
+        // }
+        // if (filtersForVideo.length > 0) {
+        //   command.complexFilter(filtersForVideo);
+        //   // command.videoFilters(`${filtersForVideo.join(',')}`);
+        // }
         // video options
         if (tuning !== 'none') {
           command.addOptions([`-tune ${tuning}`]);
@@ -230,6 +265,8 @@ app.post('/convert', (req, res) => {
         // Preset
         command.addOptions([`-preset ${presetValue}`]);
       }
+
+      // Audio Settings
       if (AudioCodecSelect === 'copy') {
         command.audioCodec('copy');
       } else if (AudioCodecSelect !== '') {
@@ -248,17 +285,31 @@ app.post('/convert', (req, res) => {
         }
       }
 
-      // // subtitles
+      // Subtitles
       if (subtitlesType !== 'none' && subtitleFiles) {
+        let complexFilter = [];
         if (subtitlesType === 'soft') {
-          command.videoFilters(`subtitles=${subtitlePath}`);
+          complexFilter.push(`[0:v][0:s]overlay[v]`);
         } else if (subtitlesType === 'hard') {
-          command.videoFilters(`subtitles=${subtitlePath}:force_style='Fontsize=24'`);
-        } else if (subtitlesType === 'copy') {
-          command.outputOption('-c:s copy');
+          complexFilter.push(`[0:v][0:s]subtitles=${subtitlePath}:force_style='Fontsize=24'[v]`);
         }
-      }
+        complexFilter.push('-map "[v]"');
 
+        command.complexFilter(complexFilter);
+      }
+      // Watermark Handling
+      if (imageWatermark) {
+        let watermarkFilter = '';
+        if (resolution === 'no change') {
+          watermarkFilter = `[0:v][1:v]overlay=(W-w)/2:(H-h)/2[out]`;
+        } else {
+          // watermarkFilter = `[0:v][1:v]scale=${widthValue}:${heightValue}[watermark];[watermark]overlay=(W-w)/2:(H-h)/2[out]`;
+          watermarkFilter = `[1:v]scale=960:720[watermark];[0:v][watermark]overlay=(W-w)/2:(H-h)/2[out]`;
+        }
+
+        command.input(imageWatermarkPath);
+        command.complexFilter(watermarkFilter, 'out', { map: '[out]' });
+      }
       command.save(outputPath);
     }
   });
@@ -301,24 +352,50 @@ function formatTime(seconds) {
 }
 
 // checking values for Fit (in video options)
-function createVideoFilters(fitValue, widthValue, heightValue, existingFilters) {
+function createComplexVideoFilter(fitValue, widthValue, heightValue) {
+  let complexFilter = [];
+
   switch (fitValue) {
     case 'scale':
-      existingFilters.push(`scale=${widthValue}:${heightValue}`);
+      complexFilter.push(`scale=${widthValue}:${heightValue}`);
       break;
     case 'max':
-      existingFilters.push(`scale=w=min(iw\\,${widthValue}):h=min(ih\\,${heightValue}):force_original_aspect_ratio=decrease`);
+      complexFilter.push(`scale=w=min(iw\\,${widthValue}):h=min(ih\\,${heightValue}):force_original_aspect_ratio=decrease`);
       break;
     case 'pad':
-      existingFilters.push(`scale=${widthValue}:${heightValue}:force_original_aspect_ratio=decrease,pad=${widthValue}:${heightValue}:(ow-iw)/2:(oh-ih)/2`);
+      complexFilter.push(`scale=${widthValue}:${heightValue}:force_original_aspect_ratio=decrease`);
+      complexFilter.push(`pad=${widthValue}:${heightValue}:(ow-iw)/2:(oh-ih)/2`);
       break;
     case 'crop':
-      existingFilters.push(`scale=${widthValue}:${heightValue}:force_original_aspect_ratio=decrease,pad=${widthValue}:${heightValue}:(ow-iw)/2:(oh-ih)/2`);
+      complexFilter.push(`crop=${widthValue}:${heightValue}`);
       break;
     default:
       break;
   }
+
+  return complexFilter;
 }
+
+// function createVideoFilters(fitValue, widthValue, heightValue) {
+//   let filter = '';
+//   switch (fitValue) {
+//     case 'scale':
+//       filter = `scale=${widthValue}:${heightValue}`;
+//       break;
+//     case 'max':
+//       filter = `scale=w=min(iw\\,${widthValue}):h=min(ih\\,${heightValue}):force_original_aspect_ratio=decrease`;
+//       break;
+//     case 'pad':
+//       filter = `scale=${widthValue}:${heightValue}:force_original_aspect_ratio=decrease,pad=${widthValue}:${heightValue}:(ow-iw)/2:(oh-ih)/2`;
+//       break;
+//     case 'crop':
+//       filter = `crop=${widthValue}:${heightValue}`;
+//       break;
+//     default:
+//       break;
+//   }
+//   return filter;
+// }
 
 io.on('connection', (socket) => {
   console.log('A client connected');
