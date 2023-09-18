@@ -116,3 +116,493 @@
 //   <option v-for="(option, index) in videotCodecOptions" :key="index" :value="option.value" :selected="option.label === 'x264'">{{ option.label }}</option>
 // </select>
 // </div> -->
+
+// ----------------------------------------------------------------------------------------------------------------------------------------------------
+
+// const express = require('express');
+// const http = require('http');
+// const socketIo = require('socket.io');
+// const cors = require('cors');
+// const ffmpeg = require('fluent-ffmpeg');
+// const bodyParser = require('body-parser');
+// const fileUpload = require('express-fileupload');
+// // const fs = require('fs');
+// // const { log } = require('console');
+
+// const app = express();
+// const server = http.createServer(app);
+// const io = socketIo(server, {
+//   cors: {
+//     origin: 'http://localhost:5173',
+//     methods: ['*'],
+//   },
+// });
+
+// const AllowedDomains = {
+//   origin: 'http://localhost:5173',
+//   optionsSuccessStatus: 200,
+// };
+
+// app.use(cors(AllowedDomains));
+// app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(bodyParser.json());
+
+// app.use(
+//   fileUpload({
+//     useTempFiles: true,
+//     tempFileDir: './temp-files/',
+//   })
+// );
+// app.use('/temp-output', express.static('temp-output'));
+
+// app.get('/video-converter', (req, res) => {
+//   res.sendFile(__dirname + '../video-converter/index.html');
+// });
+
+// app.post('/convert', (req, res) => {
+//   let inputFile = req.files.videoFile;
+//   let selectMenuValues = req.body.selectMenu;
+//   let startingTime = req.body.StartingTime;
+//   let endingTime = req.body.EndingTime;
+//   let resolution = req.body.ResolutionMenu;
+//   let [widthValue, heightValue] = resolution.split('x');
+//   let videoCOdec = req.body.videotCodecSelect;
+//   let aspectRatio = req.body.AspectRatioSelect;
+//   let qualityConstant = req.body.ConstantQualitySelect;
+//   let presetValue = req.body.presetSelect;
+//   let tuning = req.body.tuneSelect;
+//   let profileValue = req.body.profileSelect;
+//   let levelValue = req.body.levelSelect;
+//   let fitValue = req.body.fitSelect;
+//   // let fps
+//   let imageWatermark = req.files.waterMarkImage;
+
+//   io.emit('message', 'File Upload Started');
+//   inputFile.mv('temp-files/' + inputFile.name, async function (err) {
+//     if (err) {
+//       io.emit('message', 'File Upload Error: ' + err.message);
+//       return res.status(500).send(err);
+//     } else {
+//       io.emit('message', 'File Uploaded Successfully.');
+
+//       const inputPath = `./temp-files/${inputFile.name}`;
+//       const lastDotIndex = inputFile.name.lastIndexOf('.');
+//       const fileNameWithoutExtension = inputFile.name.substring(0, lastDotIndex);
+//       const outputPath = `./temp-output/converted-${fileNameWithoutExtension + selectMenuValues}`;
+//       let errorMessage = '';
+//       let watermarkPath = '';
+
+//       if (imageWatermark) {
+//         io.emit('message', 'Saving WaterMark');
+//         imageWatermark.mv('temp-files/' + imageWatermark.name, function (err) {
+//           console.log('imageWatermark saved');
+//           if (err) {
+//             io.emit('message', 'WaterMark Saved Error: ' + err.message);
+//             return res.status(500).send(err);
+//           } else {
+//             io.emit('message', 'WaterMark Saved Successfully.');
+//           }
+//         });
+//         watermarkPath = `./temp-files/${imageWatermark.name}`;
+//       }
+
+//       let originalWidth, originalHeight;
+//       const command = new ffmpeg(inputPath);
+//       // trimming
+//       try {
+//         const metadata = await getVideoMetadata(inputPath);
+//         console.log(metadata);
+//         const totalVideoDurationInSeconds = metadata.format.duration;
+//         originalWidth = metadata.streams[0].width;
+//         originalHeight = metadata.streams[0].height;
+//         console.log('Video Duration: ', totalVideoDurationInSeconds, 'seconds');
+
+//         let startingInSeconds = parseTime(startingTime);
+//         let endingInSeconds = parseTime(endingTime);
+
+//         if (startingInSeconds < 0 || endingInSeconds < 0) {
+//           errorMessage = 'Start and end times must be non-negative values.';
+//         } else if (startingInSeconds >= endingInSeconds || totalVideoDurationInSeconds <= startingInSeconds || totalVideoDurationInSeconds < endingInSeconds) {
+//           errorMessage = 'Invalid start or end time.';
+//         } else if (startingTime && endingTime && endingTime !== '00:00:00') {
+//           let totalDuration = calculateDuration(startingTime, endingTime);
+//           command.setStartTime(startingTime);
+//           command.setDuration(totalDuration);
+//         }
+//       } catch (err) {
+//         errorMessage = 'Error retrieving video metadata.';
+//       }
+
+//       let complexFilter = '';
+//       if (imageWatermark && resolution !== 'no change') {
+//         complexFilter = `[0:v]scale=${widthValue}:${heightValue}[scaled];[scaled][1:v]overlay=(W-w)/2:(H-h)/2`;
+//       } else if (imageWatermark) {
+//         complexFilter = `[0:v]scale=${originalWidth}:${originalHeight}[scaled];[scaled][1:v]overlay=(W-w)/2:(H-h)/2`;
+//       } else if (resolution !== 'no change') {
+//         complexFilter = `[0:v]scale=${widthValue}:${heightValue}`;
+//       }
+
+//       if (videoCOdec === 'copy') {
+//         command.videoCodec('copy');
+//       } else {
+//         // videoCodec without 'copy'
+//         command.videoCodec(videoCOdec);
+//         // let videoFilters = [];
+//         if (complexFilter) {
+//           // command.complexFilter([complexFilter]);
+//           command.input(watermarkPath); // Add the second input video stream
+
+//           // Update the complex filter to use [1:v] for the second input stream
+//           complexFilter = `[0:v]scale=${widthValue}:${heightValue}[scaled];[scaled][1:v]overlay=(W-w)/2:(H-h)/2`;
+
+//           // Set the complex filter in the command
+//           command.complexFilter([complexFilter]);
+//         }
+//         // videoFilters.push(`scale=${resolution}`);
+//         // if (aspectRatio !== 'no change') {
+//         //   videoFilters.push(`setdar=${aspectRatio}`);
+//         // }
+//         // if (aspectRatio !== 'no change') {
+//         //   videoFilters.push(`setdar=${aspectRatio}`);
+//         // }
+//         // if (imageWatermark) {
+//         //   command.input(watermarkPath).complexFilter(`[0:v][1:v]overlay=(W-w)/2:(H-h)/2`);
+//         // }
+//         // if (videoFilters.length > 0) {
+//         //   command.videoFilters(`${videoFilters.join(',')}`);
+//         // }
+//         // tune
+//         if (tuning !== 'none') {
+//           command.addOptions([`-tune ${tuning}`]);
+//         }
+//         // profile
+//         if (profileValue !== 'none') {
+//           command.addOptions([`-profile:v ${profileValue}`]);
+//         }
+//         // level
+//         if (levelValue !== 'none') {
+//           command.addOptions([`-level ${levelValue}`]);
+//         }
+//         // CRF
+//         command.addOptions([`-crf ${qualityConstant}`]);
+//         // Preset
+//         command.addOptions([`-preset ${presetValue}`]);
+//       }
+//       // covnersion start
+//       command.on('start', () => {
+//         io.emit('message', 'Conversion Started.');
+//       });
+//       // covnersion in progress
+//       command.on('progress', (progress) => {
+//         if (progress.percent !== undefined) {
+//           const progressPercent = progress.percent.toFixed(2);
+//           io.emit('progress', progressPercent);
+//         }
+//       });
+//       // covnersion end
+//       command.on('end', () => {
+//         progressPercent = 100;
+//         io.emit('progress', progressPercent);
+//         io.emit('message', 'Conversion Finished.');
+//       });
+//       // covnersion error
+//       command.on('error', (err) => {
+//         io.emit('message', 'Conversion Error: ' + err.message);
+//         res.status(500).send('Conversion Error: ' + err.message);
+//       });
+
+//       res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + selectMenuValues, message: errorMessage });
+//       if (errorMessage !== '') {
+//         return;
+//       }
+//       // videoCodec with 'copy'   =>  no other filters work with 'copy' as it encodes according to the previous settings of the video
+
+//       command.save(outputPath);
+//     }
+//   });
+// });
+
+// function getVideoMetadata(inputPath) {
+//   return new Promise((resolve, reject) => {
+//     ffmpeg.ffprobe(inputPath, (err, metadata) => {
+//       if (err) {
+//         reject(err);
+//       } else {
+//         console.log(metadata);
+//         resolve(metadata);
+//       }
+//     });
+//   });
+// }
+
+// function parseTime(time) {
+//   const [hours, minutes, seconds] = time.split(':').map(Number);
+//   return hours * 3600 + minutes * 60 + seconds;
+// }
+
+// function calculateDuration(startTime, endTime) {
+//   const start = parseTime(startTime);
+//   const end = parseTime(endTime);
+//   const durationInSeconds = end - start;
+//   return formatTime(durationInSeconds);
+// }
+
+// function formatTime(seconds) {
+//   const hours = Math.floor(seconds / 3600);
+//   const minutes = Math.floor((seconds % 3600) / 60);
+//   const remainingSeconds = seconds % 60;
+//   return `${hours}:${minutes}:${remainingSeconds}`;
+// }
+
+// io.on('connection', (socket) => {
+//   console.log('A client connected');
+//   socket.on('disconnect', () => {
+//     console.log('A client disconnected');
+//   });
+// });
+
+// server.listen(4000, () => {
+//   console.log('server running on 4000 port');
+// });
+
+// --------------------Most-----Current-----Code------------------------------------------------------------------------------------------------------------------------
+
+// const express = require('express');
+// const http = require('http');
+// const socketIo = require('socket.io');
+// const cors = require('cors');
+// const ffmpeg = require('fluent-ffmpeg');
+// const bodyParser = require('body-parser');
+// const fileUpload = require('express-fileupload');
+// // const fs = require('fs');
+// // const { log } = require('console');
+
+// const app = express();
+// const server = http.createServer(app);
+// const io = socketIo(server, {
+//   cors: {
+//     origin: 'http://localhost:5173',
+//     methods: ['*'],
+//   },
+// });
+
+// const AllowedDomains = {
+//   origin: 'http://localhost:5173',
+//   optionsSuccessStatus: 200,
+// };
+
+// app.use(cors(AllowedDomains));
+// app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(bodyParser.json());
+
+// app.use(
+//   fileUpload({
+//     useTempFiles: true,
+//     tempFileDir: './temp-files/',
+//   })
+// );
+// app.use('/temp-output', express.static('temp-output'));
+
+// app.get('/video-converter', (req, res) => {
+//   res.sendFile(__dirname + '../video-converter/index.html');
+// });
+
+// app.post('/convert', (req, res) => {
+//   let inputFile = req.files.videoFile;
+//   let selectMenuValues = req.body.selectMenu;
+//   let startingTime = req.body.StartingTime;
+//   let endingTime = req.body.EndingTime;
+//   let resolution = req.body.ResolutionMenu;
+//   let [widthValue, heightValue] = resolution.split('x');
+//   let videoCOdec = req.body.videotCodecSelect;
+//   let aspectRatio = req.body.AspectRatioSelect;
+//   let qualityConstant = req.body.ConstantQualitySelect;
+//   let presetValue = req.body.presetSelect;
+//   let tuning = req.body.tuneSelect;
+//   let profileValue = req.body.profileSelect;
+//   let levelValue = req.body.levelSelect;
+//   let fitValue = req.body.fitSelect;
+//   // let fps
+//   let imageWatermark = req.files.waterMarkImage;
+
+//   io.emit('message', 'File Upload Started');
+//   inputFile.mv('temp-files/' + inputFile.name, async function (err) {
+//     if (err) {
+//       io.emit('message', 'File Upload Error: ' + err.message);
+//       return res.status(500).send(err);
+//     } else {
+//       io.emit('message', 'File Uploaded Successfully.');
+
+//       const inputPath = `./temp-files/${inputFile.name}`;
+//       const lastDotIndex = inputFile.name.lastIndexOf('.');
+//       const fileNameWithoutExtension = inputFile.name.substring(0, lastDotIndex);
+//       const outputPath = `./temp-output/converted-${fileNameWithoutExtension + selectMenuValues}`;
+//       let errorMessage = '';
+
+//       let originalWidth, originalHeight;
+//       const command = new ffmpeg(inputPath);
+//       try {
+//         const metadata = await getVideoMetadata(inputPath);
+//         const totalVideoDurationInSeconds = metadata.format.duration;
+//         originalWidth = metadata.streams[0].width;
+//         originalHeight = metadata.streams[0].height;
+//         console.log('Video Duration: ', totalVideoDurationInSeconds, 'seconds');
+
+//         let startingInSeconds = parseTime(startingTime);
+//         let endingInSeconds = parseTime(endingTime);
+
+//         if (startingInSeconds < 0 || endingInSeconds < 0) {
+//           errorMessage = 'Start and end times must be non-negative values.';
+//         } else if (startingInSeconds >= endingInSeconds || totalVideoDurationInSeconds <= startingInSeconds || totalVideoDurationInSeconds < endingInSeconds) {
+//           errorMessage = 'Invalid start or end time.';
+//         } else if (startingTime && endingTime && endingTime !== '00:00:00') {
+//           // trimming
+//           let totalDuration = calculateDuration(startingTime, endingTime);
+//           command.setStartTime(startingTime);
+//           command.setDuration(totalDuration);
+//         }
+//       } catch (err) {
+//         errorMessage = 'Error retrieving video metadata.';
+//       }
+
+//       if (videoCOdec === 'copy') {
+//         command.videoCodec('copy');
+//       } else {
+//         // videoCodec without 'copy'
+//         command.videoCodec(videoCOdec);
+//         let videoFilters = [];
+//         videoFilters.push(`scale=${widthValue}:${heightValue}`);
+//         if (aspectRatio !== 'no change') {
+//           videoFilters.push(`setdar=${aspectRatio}`);
+//         }
+//         if (aspectRatio !== 'no change') {
+//           videoFilters.push(`setdar=${aspectRatio}`);
+//         }
+//         if (videoFilters.length > 0) {
+//           command.videoFilters(`${videoFilters.join(',')}`);
+//         }
+//         // tune
+//         if (tuning !== 'none') {
+//           command.addOptions([`-tune ${tuning}`]);
+//         }
+//         // profile
+//         if (profileValue !== 'none') {
+//           command.addOptions([`-profile:v ${profileValue}`]);
+//         }
+//         // level
+//         if (levelValue !== 'none') {
+//           command.addOptions([`-level ${levelValue}`]);
+//         }
+//         // CRF
+//         command.addOptions([`-crf ${qualityConstant}`]);
+//         // Preset
+//         command.addOptions([`-preset ${presetValue}`]);
+//       }
+//       // covnersion start
+//       command.on('start', () => {
+//         io.emit('message', 'Conversion Started.');
+//       });
+//       // covnersion in progress
+//       command.on('progress', (progress) => {
+//         if (progress.percent !== undefined) {
+//           const progressPercent = progress.percent.toFixed(2);
+//           io.emit('progress', progressPercent);
+//         }
+//       });
+//       // covnersion end
+//       command.on('end', () => {
+//         progressPercent = 100;
+//         io.emit('progress', progressPercent);
+//         io.emit('message', 'Conversion Finished.');
+//       });
+//       // covnersion error
+//       command.on('error', (err) => {
+//         io.emit('message', 'Conversion Error: ' + err.message);
+//         res.status(500).send('Conversion Error: ' + err.message);
+//       });
+
+//       res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + selectMenuValues, message: errorMessage });
+//       if (errorMessage !== '') {
+//         return;
+//       }
+//       // videoCodec with 'copy'   =>  no other filters work with 'copy' as it encodes according to the previous settings of the video
+
+//       command.save(outputPath);
+//     }
+//   });
+// });
+
+// function getVideoMetadata(inputPath) {
+//   return new Promise((resolve, reject) => {
+//     ffmpeg.ffprobe(inputPath, (err, metadata) => {
+//       if (err) {
+//         reject(err);
+//       } else {
+//         // console.log(metadata);
+//         resolve(metadata);
+//       }
+//     });
+//   });
+// }
+
+// function parseTime(time) {
+//   const [hours, minutes, seconds] = time.split(':').map(Number);
+//   return hours * 3600 + minutes * 60 + seconds;
+// }
+
+// function calculateDuration(startTime, endTime) {
+//   const start = parseTime(startTime);
+//   const end = parseTime(endTime);
+//   const durationInSeconds = end - start;
+//   return formatTime(durationInSeconds);
+// }
+
+// function formatTime(seconds) {
+//   const hours = Math.floor(seconds / 3600);
+//   const minutes = Math.floor((seconds % 3600) / 60);
+//   const remainingSeconds = seconds % 60;
+//   return `${hours}:${minutes}:${remainingSeconds}`;
+// }
+
+// io.on('connection', (socket) => {
+//   console.log('A client connected');
+//   socket.on('disconnect', () => {
+//     console.log('A client disconnected');
+//   });
+// });
+
+// server.listen(4000, () => {
+//   console.log('server running on 4000 port');
+// });
+
+// --------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>---------------------------------------------------------------------
+// checking for error in the format
+command
+  .on('start', (commandLine) => {
+    console.log('FFmpeg command: ' + commandLine);
+    io.emit('message', 'Conversion Started.');
+  })
+  .on('stderr', (stderrLine) => {
+    commandError += stderrLine + '\n';
+  })
+  .on('end', () => {
+    io.emit('message', 'Conversion Finished.');
+    console.log('FFmpeg command finished.');
+    console.log('FFmpeg output:', commandOutput);
+    console.log('FFmpeg error:', commandError);
+  })
+  .on('error', (err, stdout, stderr) => {
+    console.error('Error:', err);
+    console.error('FFmpeg stderr:', stderr);
+    io.emit('message', 'Conversion Error: ' + err.message);
+    res.status(500).send('Conversion Error: ' + err.message);
+  })
+  .on('progress', (progress) => {
+    if (progress.percent !== undefined) {
+      const progressPercent = progress.percent.toFixed(2);
+      io.emit('progress', progressPercent);
+    }
+  })
+  .on('codecData', (data) => {
+    commandOutput += data + '\n';
+  });

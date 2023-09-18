@@ -3,9 +3,9 @@
     <div class="flex items-center gap-x-24">
       <div class="flex cursor-pointer items-center text-xl">
         <img src="../assets/images/nav_icon.png" alt="" class="mr-2 w-12" />
-        <p>Wodwes <span class="font-bold">Video Converter</span></p>
+        <p class="font-bold">Video Converter</p>
       </div>
-      <ul class="maxlg:hidden font-semibol flex justify-between gap-x-10 [&>*]:flex [&>*]:cursor-pointer [&>*]:items-center">
+      <ul class="font-semibol flex justify-between gap-x-10 maxlg:hidden [&>*]:flex [&>*]:cursor-pointer [&>*]:items-center">
         <li class=""><span class="mr-2">Tools</span><ChevronDownIcon /></li>
         <li class=""><span class="mr-2">Api</span><ChevronDownIcon /></li>
         <li class="">Pricing</li>
@@ -20,5 +20,7 @@
 </template>
 
 <script setup>
-import ChevronDownIcon from '../assets/icons/ChevronDownIcon.vue';
+// icons
+import DownloadIcon from '../../src/assets/icons/DownloadIcon.vue';
+import ChevronDownIcon from '../../src/assets/icons/ChevronDownIcon.vue';
 </script>
