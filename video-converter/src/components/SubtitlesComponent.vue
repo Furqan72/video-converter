@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Subtitles -->
-    <h3 class="flex items-center justify-start bg-[#f1f1f1ff] px-10 py-3 text-lg font-semibold text-gray-color">
+    <h3 class="flex items-center justify-start bg-[#f1f1f1f1] px-10 py-3 text-lg font-semibold text-gray-color">
       <img src="../assets/images/stamp.png" alt="" class="mr-5 h-5 w-5" />
       Subtitles
     </h3>

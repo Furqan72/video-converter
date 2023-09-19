@@ -36,23 +36,23 @@ app.use(
 );
 app.use('/temp-output', express.static('temp-output'));
 
-// deleting all files
-function deleteFilesInDirectory(directory) {
-  fs.readdir(directory, (err, files) => {
-    if (err) throw err;
+// // deleting all files
+// function deleteFilesInDirectory(directory) {
+//   fs.readdir(directory, (err, files) => {
+//     if (err) throw err;
 
-    for (const file of files) {
-      const filePath = path.join(directory, file);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath, (err) => {
-          if (err) throw err;
-        });
-      } else {
-        console.error('File does not exist:', filePath);
-      }
-    }
-  });
-}
+//     for (const file of files) {
+//       const filePath = path.join(directory, file);
+//       if (fs.existsSync(filePath)) {
+//         fs.unlinkSync(filePath, (err) => {
+//           if (err) throw err;
+//         });
+//       } else {
+//         console.error('File does not exist:', filePath);
+//       }
+//     }
+//   });
+// }
 
 app.get('/video-converter', (req, res) => {
   res.sendFile(__dirname + '../video-converter/index.html');
@@ -68,11 +68,25 @@ app.post('/convert', (req, res) => {
   let [widthValue, heightValue] = resolution.split('x');
   let videoCOdec = req.body.videotCodecSelect;
   let aspectRatio = req.body.AspectRatioSelect;
-  let qualityConstant = req.body.ConstantQualitySelect;
-  let presetValue = req.body.presetSelect;
-  let tuning = req.body.tuneSelect;
-  let profileValue = req.body.profileSelect;
-  let levelValue = req.body.levelSelect;
+  let qualityConstant;
+  if (selectMenuValues !== '.wmv') {
+    qualityConstant = req.body.ConstantQualitySelect;
+  } else {
+    qualityConstant = '';
+  }
+  let presetValue, tuning, profileValue, levelValue;
+  if (selectMenuValues === '.avi' || selectMenuValues === '.flv' || selectMenuValues === '.mkv' || selectMenuValues === '.mov' || selectMenuValues === '.mp4') {
+    presetValue = req.body.presetSelect;
+    tuning = req.body.tuneSelect;
+    profileValue = req.body.profileSelect;
+    levelValue = req.body.levelSelect;
+  } else {
+    presetValue = '';
+    tuning = '';
+    profileValue = '';
+    levelValue = '';
+  }
+
   let fitValue = req.body.fitSelect;
   let framePersecond = req.body.Fps;
   let AudioCodecSelect = req.body.AudioCodec;
@@ -81,12 +95,17 @@ app.post('/convert', (req, res) => {
   let SampleRate = req.body.SampleRateSelect;
   let AudioBitrateValue = req.body.AudioBitrate;
   let imageWatermark = req.files.waterMarkImage;
-  // console.log(imageWatermark);
   let desiredKeyframeInterval = req.body.KeyframeInterval;
   let subtitlesType = req.body.subtitleType;
+  let QscaleValue;
+  if (selectMenuValues === '.wmv') {
+    QscaleValue = req.body.Qscale;
+  } else {
+    QscaleValue = '';
+  }
 
-  deleteFilesInDirectory('./temp-files/');
-  deleteFilesInDirectory('./temp-output/');
+  // deleteFilesInDirectory('./temp-output/');
+  // deleteFilesInDirectory('./temp-files/');
 
   // subtitle upload
   let subtitlePath = '';
@@ -134,6 +153,7 @@ app.post('/convert', (req, res) => {
       const fileNameWithoutExtension = inputFile.name.substring(0, lastDotIndex);
       const outputPath = `./temp-output/converted-${fileNameWithoutExtension + selectMenuValues}`;
       let errorMessage = '';
+      let hasEmbeddedSubtitles = '';
 
       // audio filter chain
       let audioFilterValues = '';
@@ -171,6 +191,7 @@ app.post('/convert', (req, res) => {
         .on('error', (err, stdout, stderr) => {
           console.error('Error:', err);
           console.error('FFmpeg stderr:', stderr);
+          console.error('FFmpeg stdout:', stdout);
           io.emit('message', 'Conversion Error: ' + err.message);
           res.status(500).send('Conversion Error: ' + err.message);
         });
@@ -179,6 +200,7 @@ app.post('/convert', (req, res) => {
         const metadata = await getVideoMetadata(inputPath);
         const totalVideoDurationInSeconds = metadata.format.duration;
         console.log('Video Duration: ', totalVideoDurationInSeconds, 'seconds');
+        hasEmbeddedSubtitles = metadata.streams.some((stream) => stream.codec_type === 'subtitle');
 
         let startingInSeconds = parseTime(startingTime);
         let endingInSeconds = parseTime(endingTime);
@@ -205,51 +227,33 @@ app.post('/convert', (req, res) => {
       }
       // videoCodec with 'copy'   =>  no other filters work with 'copy' as it encodes according to the previous settings of the video
       if (videoCOdec === 'copy' || selectMenuValues === 'wmv') {
-        command.videoCodec('copy');
+        command.videoCodec(videoCOdec);
       } else {
         // videoCodec without 'copy'
         command.videoCodec(videoCOdec);
         let filtersForVideo = [];
 
         if (resolution !== 'no change') {
-          filtersForVideo.push(createComplexVideoFilter(fitValue, widthValue, heightValue));
-
-          if (aspectRatio !== 'no change') {
-            filtersForVideo.push(`setdar=${aspectRatio}`);
-          }
+          filtersForVideo.push(createComplexVideoFilter(fitValue, widthValue, heightValue, aspectRatio));
         } else if (aspectRatio !== 'no change') {
           filtersForVideo.push(`setdar=${aspectRatio}`);
         }
-
+        // adding all available filters
         if (filtersForVideo.length > 0) {
           const complexFilterExpression = filtersForVideo.join(';');
           command.complexFilter(complexFilterExpression);
         }
-        // let filtersForVideo = [];
-
-        // if (resolution !== 'no change') {
-        //   filtersForVideo.push(createVideoFilters(fitValue, widthValue, heightValue));
-
-        //   if (aspectRatio !== 'no change') {
-        //     filtersForVideo.push(`setdar=${aspectRatio}`);
-        //   }
-        // } else if (aspectRatio !== 'no change') {
-        //   filtersForVideo.push(`setdar=${aspectRatio}`);
-        // }
-        // if (filtersForVideo.length > 0) {
-        //   command.complexFilter(filtersForVideo);
-        //   // command.videoFilters(`${filtersForVideo.join(',')}`);
-        // }
         // video options
-        if (tuning !== 'none') {
+        if (tuning !== '' && tuning !== 'none') {
+          console.log('what');
           command.addOptions([`-tune ${tuning}`]);
         }
         // Profile
-        if (profileValue !== 'none') {
-          command.addOptions([`-profile:v ${profileValue}`]);
+        if (profileValue !== '' && profileValue !== 'none' && videoCOdec !== 'libx265' && videoCOdec !== 'libxvid') {
+          command.addOption(`-profile:v ${profileValue}`);
         }
         // Levels
-        if (levelValue !== 'none') {
+        if (levelValue !== '' && levelValue !== 'none') {
           command.addOptions([`-level ${levelValue}`]);
         }
         // FPS
@@ -260,15 +264,23 @@ app.post('/convert', (req, res) => {
         if (desiredKeyframeInterval !== '') {
           command.addOption(`-g ${desiredKeyframeInterval}`);
         }
+        // Key Frame Interval
+        if (QscaleValue !== '' && selectMenuValues === '.wmv') {
+          command.addOption(`-q:v ${QscaleValue}`);
+        }
         // CRF
-        command.addOptions([`-crf ${qualityConstant}`]);
+        if (qualityConstant !== '') {
+          command.addOptions([`-crf ${qualityConstant}`]);
+        }
         // Preset
-        command.addOptions([`-preset ${presetValue}`]);
+        if (presetValue !== '') {
+          command.addOptions([`-preset ${presetValue}`]);
+        }
       }
 
       // Audio Settings
       if (AudioCodecSelect === 'copy') {
-        command.audioCodec('copy');
+        command.audioCodec(AudioCodecSelect);
       } else if (AudioCodecSelect !== '') {
         // Audio Codec
         command.audioCodec(AudioCodecSelect);
@@ -285,31 +297,40 @@ app.post('/convert', (req, res) => {
         }
       }
 
-      // Subtitles
-      if (subtitlesType !== 'none' && subtitleFiles) {
-        let complexFilter = [];
-        if (subtitlesType === 'soft') {
-          complexFilter.push(`[0:v][0:s]overlay[v]`);
-        } else if (subtitlesType === 'hard') {
-          complexFilter.push(`[0:v][0:s]subtitles=${subtitlePath}:force_style='Fontsize=24'[v]`);
-        }
-        complexFilter.push('-map "[v]"');
-
-        command.complexFilter(complexFilter);
-      }
       // Watermark Handling
       if (imageWatermark) {
-        let watermarkFilter = '';
-        if (resolution === 'no change') {
-          watermarkFilter = `[0:v][1:v]overlay=(W-w)/2:(H-h)/2[out]`;
-        } else {
-          // watermarkFilter = `[0:v][1:v]scale=${widthValue}:${heightValue}[watermark];[watermark]overlay=(W-w)/2:(H-h)/2[out]`;
-          watermarkFilter = `[1:v]scale=960:720[watermark];[0:v][watermark]overlay=(W-w)/2:(H-h)/2[out]`;
-        }
-
+        console.log('Image Watermark Path:', imageWatermarkPath);
         command.input(imageWatermarkPath);
-        command.complexFilter(watermarkFilter, 'out', { map: '[out]' });
+        if (resolution === 'no change') {
+          console.log('Applying Watermark without Scaling');
+          command.complexFilter(`[0:v][1:v]overlay=(W-w)/2:(H-h)/2`);
+        } else {
+          console.log('Scaling Watermark and Overlaying');
+          command.complexFilter(`[1:v]scale=960:720 [watermark];[0:v][watermark]overlay=(W-w)/2:(H-h)/2`);
+        }
       }
+
+      //  Subtitles
+      if (subtitlesType !== 'none' && subtitleFiles) {
+        console.log(hasEmbeddedSubtitles);
+        if (!hasEmbeddedSubtitles) {
+          command.input(subtitlePath);
+          command.complexFilter(`[0:v]subtitles=${subtitlePath}:force_style='Fontsize=24'[noPriorSubtitles]`);
+          command.map('[noPriorSubtitles]');
+        } else {
+          console.log('Embedded subtitles exist');
+          if (subtitlesType === 'soft') {
+            command.complexFilter('[0:v][0:s]overlay[soft_v]');
+            command.map('[soft_v]');
+          } else if (subtitlesType === 'hard') {
+            command.complexFilter(`[0:v][0:s]subtitles=${subtitlePath}:force_style='Fontsize=24'[hard_v]`);
+            command.map('[hard_v]');
+          } else if (subtitlesType === 'copy') {
+            command.addOption('-map', '0:s');
+          }
+        }
+      }
+
       command.save(outputPath);
     }
   });
@@ -352,7 +373,7 @@ function formatTime(seconds) {
 }
 
 // checking values for Fit (in video options)
-function createComplexVideoFilter(fitValue, widthValue, heightValue) {
+function createComplexVideoFilter(fitValue, widthValue, heightValue, aspectRatio) {
   let complexFilter = [];
 
   switch (fitValue) {
@@ -373,29 +394,12 @@ function createComplexVideoFilter(fitValue, widthValue, heightValue) {
       break;
   }
 
+  if (aspectRatio !== 'no change') {
+    complexFilter.push(`setdar=${aspectRatio}`);
+  }
+
   return complexFilter;
 }
-
-// function createVideoFilters(fitValue, widthValue, heightValue) {
-//   let filter = '';
-//   switch (fitValue) {
-//     case 'scale':
-//       filter = `scale=${widthValue}:${heightValue}`;
-//       break;
-//     case 'max':
-//       filter = `scale=w=min(iw\\,${widthValue}):h=min(ih\\,${heightValue}):force_original_aspect_ratio=decrease`;
-//       break;
-//     case 'pad':
-//       filter = `scale=${widthValue}:${heightValue}:force_original_aspect_ratio=decrease,pad=${widthValue}:${heightValue}:(ow-iw)/2:(oh-ih)/2`;
-//       break;
-//     case 'crop':
-//       filter = `crop=${widthValue}:${heightValue}`;
-//       break;
-//     default:
-//       break;
-//   }
-//   return filter;
-// }
 
 io.on('connection', (socket) => {
   console.log('A client connected');

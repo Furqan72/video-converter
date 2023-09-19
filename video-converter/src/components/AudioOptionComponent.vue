@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Audio -->
-    <h3 class="flex items-center justify-start bg-[#f1f1f1ff] px-10 py-3 text-lg font-semibold text-gray-color">
+    <h3 class="flex items-center justify-start bg-[#f1f1f1f1] px-10 py-3 text-lg font-semibold text-gray-color">
       <img src="../assets/images/sound.png" alt="" class="mr-5 h-5 w-5" />
       Audio
     </h3>
@@ -28,18 +28,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, watch, reactive } from 'vue';
+import { useGlobalStore } from '../../src/Store/GlobalStore.js';
+const GlobalData = useGlobalStore();
 
-//AudioCodec
-const AudioCodecOptions = ref([
-  { value: 'copy', label: 'copy' },
-  { value: '', label: 'none' },
-  { value: 'aac', label: 'aac', selected: 'acc' },
-  { value: 'flac', label: 'flac' },
-  // { value: 'aac_he_2', label: 'aac_he_2' },
-  { value: 'opus', label: 'opus' },
-  { value: 'vorbis', label: 'vorbis' },
-]);
 // Channels
 const ChannelsSelectOptions = ref([
   { value: '', label: 'no change', selected: 'no change' },
@@ -85,12 +77,57 @@ const SampleRateSelectOptions = ref([
   { value: '88200', label: '88200 Hz' },
   { value: '96000', label: '96000 Hz' },
 ]);
+
+//AudioCodecs for except wmv & webm
+const AudioCodecOptions = ref([
+  { value: 'copy', label: 'copy' },
+  { value: '', label: 'none' },
+  { value: 'aac', label: 'aac', selected: 'acc' },
+  { value: 'libfdk_aac', label: 'aac_he_1' },
+  { value: 'libfdk_aac', label: 'aac_he_2' },
+  { value: 'libopus', label: 'opus' },
+  { value: 'libvorbis', label: 'vorbis' },
+]);
+//Audio Codecs for webm
+const WEBMCodecOptions = ref([
+  { value: 'copy', label: 'copy' },
+  { value: '', label: 'none' },
+  { value: 'libopus', label: 'opus', selected: 'opus' },
+  { value: 'libvorbis', label: 'vorbis' },
+]);
+//Audio Codecs for wmv
+const WMVCodecOptions = ref([
+  { value: 'copy', label: 'copy' },
+  { value: '', label: 'none' },
+  { value: 'wmav2', label: 'wmav2', selected: 'wmav2' },
+]);
+
+// selecting value for video-codec
+const selectedAudioCodecOptions = computed(() => {
+  const selectedFormat = GlobalData.selectedFormat;
+  if (selectedFormat === '.webm') {
+    return WEBMCodecOptions.value;
+  } else if (selectedFormat === '.wmv') {
+    return WMVCodecOptions.value;
+  } else {
+    return AudioCodecOptions.value;
+  }
+});
+
+watch(
+  () => GlobalData.selectedFormat,
+  () => {
+    const updatedValue = selectedAudioCodecOptions;
+    console.log(updatedValue);
+  }
+);
+
 // Audio
-const audioFields = ref([
+const audioFields = reactive([
   {
     name: 'AudioCodec',
     label: 'Audio Codec',
-    options: AudioCodecOptions.value,
+    options: selectedAudioCodecOptions.value,
     description: 'Codec to encode the audio. Use "copy" to copy the stream without re-encoding.',
   },
   {
@@ -112,4 +149,11 @@ const audioFields = ref([
     description: 'Set the audio sampling frequency, for example 48000 Hz or 44100 Hz',
   },
 ]);
+
+watch(
+  () => selectedAudioCodecOptions.value,
+  (newOptions) => {
+    audioFields[0].options = newOptions;
+  }
+);
 </script>

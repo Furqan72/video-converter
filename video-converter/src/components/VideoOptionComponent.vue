@@ -1,19 +1,28 @@
 <template>
   <div>
     <!-- video -->
-    <h3 class="flex items-center justify-start bg-[#f1f1f1ff] px-10 py-3 text-lg font-semibold text-gray-color">
+    <h3 class="flex items-center justify-start bg-[#f1f1f1f1] px-10 py-3 text-lg font-semibold text-gray-color">
       <img src="../assets/images/video-camera.png" alt="" class="mr-5 h-5 w-5" />
       Video
     </h3>
     <!-- Video options -->
     <div class="grid gap-x-8 gap-y-6 px-10 py-7 coxl:grid-cols-2">
       <div v-for="(field, index) in fields" :key="index" class="grid grid-cols-4 justify-center text-gray-color">
-        <label :for="field.name" class="mr-2 mt-2 text-15px">{{ field.label }}</label>
+        <template v-if="!shouldHideField(field)">
+          <label :for="field.name" class="mr-2 mt-2 text-15px">{{ field.label }}</label>
+          <div class="col-span-3 flex flex-col">
+            <select :name="field.name" class="w-full rounded-lg border px-4 py-2 outline-none">
+              <option v-for="(option, optionIndex) in field.options" :key="optionIndex" :value="option.value" :selected="option.selected">{{ option.label }}</option>
+            </select>
+            <span class="mt-2 text-xs text-light-gray">{{ field.description }}</span>
+          </div>
+        </template>
+      </div>
+      <div class="grid grid-cols-4 justify-center text-gray-color" :class="GlobalData.selectedFormat === '.wmv' ? 'block' : 'hidden'">
+        <label for="" class="mr-2 mt-2 text-15px">Qscale</label>
         <div class="col-span-3 flex flex-col">
-          <select :name="field.name" class="w-full rounded-lg border px-4 py-2 outline-none">
-            <option v-for="(option, optionIndex) in field.options" :key="optionIndex" :value="option.value" :selected="option.selected">{{ option.label }}</option>
-          </select>
-          <span class="mt-2 text-xs text-light-gray">{{ field.description }}</span>
+          <input type="text" name="Qscale" class="w-full rounded-lg border px-4 py-2 outline-none" value="5" placeholder="" />
+          <span class="mt-2 text-xs text-light-gray">Video quality ranging from 1-31, with 1 being highest quality/largest filesize and 31 being the lowest quality/smallest filesize.</span>
         </div>
       </div>
       <div class="grid grid-cols-4 justify-center text-gray-color">
@@ -28,7 +37,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+// import { ref, computed } from 'vue';
+import { ref, computed, watch, reactive } from 'vue';
+// global store
+import { useGlobalStore } from '../../src/Store/GlobalStore.js';
+const GlobalData = useGlobalStore();
 
 // resolution
 const resolutionOptions = ref([
@@ -106,15 +119,7 @@ const constantQualityOptions = ref([
   { value: '50', label: '50' },
   { value: '51', label: '51 (worst quality)' },
 ]);
-//  video COdec
-const videotCodecOptions = ref([
-  { value: 'copy', label: 'Copy (No Re-encoding)' },
-  { value: 'libx264', label: 'x264', selected: 'x264' },
-  { value: 'libx265', label: 'x265' },
-  { value: 'libvpx', label: 'vp8' },
-  { value: 'libvpx-vp9', label: 'vp9' },
-  { value: 'libaom-av1', label: 'av1' },
-]);
+
 // preset
 const PresetOptions = ref([
   { value: 'ultrafast', label: 'ultrafast' },
@@ -178,8 +183,100 @@ const FitOptions = ref([
   { value: 'pad', label: 'pad' },
 ]);
 
+// -------------- Video Codecs for all formats-----------------------
+
+//  video COdec for avi
+const aviCodecOptions = ref([
+  { value: 'copy', label: 'Copy (No Re-encoding)' },
+  { value: 'libx264', label: 'x264', selected: 'x264' },
+  { value: 'libx265', label: 'x265' },
+  { value: 'libxvid', label: 'xvid' },
+]);
+//  video COdec for flv
+const flvCodecOptions = ref([
+  { value: 'copy', label: 'Copy (No Re-encoding)' },
+  { value: 'libx264', label: 'x264', selected: 'x264' },
+  { value: 'flv', label: 'sorenson' },
+]);
+//  video COdec for mkv
+const mkvCodecOptions = ref([
+  { value: 'copy', label: 'Copy (No Re-encoding)' },
+  { value: 'libx264', label: 'x264', selected: 'x264' },
+  { value: 'libx265', label: 'x265' },
+  { value: 'libvpx', label: 'vp8' },
+  { value: 'libvpx-vp9', label: 'vp9' },
+  { value: 'libaom-av1', label: 'av1' },
+]);
+//  video COdec for mp4 mov
+const mp4CodecOptions = ref([
+  { value: 'copy', label: 'Copy (No Re-encoding)' },
+  { value: 'libx264', label: 'x264', selected: 'x264' },
+  { value: 'libx265', label: 'x265' },
+  { value: 'libaom-av1', label: 'av1' },
+]);
+//  video COdec for webm
+const webmCodecOptions = ref([
+  { value: 'copy', label: 'Copy (No Re-encoding)' },
+  { value: 'libvpx', label: 'vp8', selected: 'vp8' },
+  { value: 'libvpx-vp9', label: 'vp9' },
+  { value: 'libaom-av1', label: 'av1' },
+]);
+//  video COdec for wmv
+const wmvCodecOptions = ref([
+  { value: 'copy', label: 'Copy (No Re-encoding)' },
+  { value: 'msmpeg4v2', label: 'msmpeg4', selected: 'msmpeg4' },
+  { value: 'wmv2', label: 'wmv2' },
+]);
+
+// removing (.) from selected value
+const formatWithoutDot = computed(() => {
+  const selectedFormat = GlobalData.selectedFormat;
+  if (selectedFormat.startsWith('.')) {
+    return selectedFormat.slice(1);
+  }
+  return selectedFormat;
+});
+
+// selecting value for video-codec
+const selectedVideoCodecOptions = computed(() => {
+  const selectedFormat = formatWithoutDot.value;
+  switch (selectedFormat) {
+    case 'avi':
+      return aviCodecOptions.value;
+    case 'flv':
+      return flvCodecOptions.value;
+    case 'mkv':
+      return mkvCodecOptions.value;
+    case 'mp4':
+      return mp4CodecOptions.value;
+    case 'mov':
+      return mp4CodecOptions.value;
+    case 'webm':
+      return webmCodecOptions.value;
+    case 'wmv':
+      return wmvCodecOptions.value;
+    default:
+      return [];
+  }
+});
+
+watch(
+  () => GlobalData.selectedFormat,
+  () => {
+    const formattedValue = formatWithoutDot.value;
+    console.log(formattedValue);
+    // console.log(updatedValue.value);
+  }
+);
+watch(
+  () => formatWithoutDot.value,
+  () => {
+    const updatedValue = selectedVideoCodecOptions;
+  }
+);
+
 // for video-options
-const fields = ref([
+const fields = reactive([
   {
     name: 'ResolutionMenu',
     label: 'Resolution',
@@ -201,7 +298,7 @@ const fields = ref([
   {
     name: 'videotCodecSelect',
     label: 'Video Codec',
-    options: videotCodecOptions.value,
+    options: selectedVideoCodecOptions.value,
     description: 'Codec to encode the video. Use "copy" to copy the stream without re-encoding.',
   },
   {
@@ -235,4 +332,49 @@ const fields = ref([
     description: 'Sets the mode of sizing the video. "Max" resizes the video to fit within the width and height, but will not increase the size of the image if it is smaller than width or height. "Crop" resizes the video to fill the width and height dimensions and crops any excess video data. "Scale" enforces the video width and height by scaling. "Pad" resizes the video to the width and height dimensions and keeps the aspect ratio by adding black bars if necessary.',
   },
 ]);
+
+// const filteredList = fields
+//   .filter((e) => e. === '1')
+//   .map((e) => {
+//     return { name: e., unit: e.properties.unit };
+//   });
+// console.log(filteredList);
+
+// const shouldHideField = computed(() => {
+//   const selectedFormat = GlobalData.selectedFormat;
+//   return (field) => {
+//     if (selectedFormat === '.webm') {
+//       if (
+//         field.name === 'ResolutionMenu' ||
+//         field.name === 'AspectRatioSelect'
+//       ) {
+//         return true;
+//       }
+//     }
+//     return false;
+//   };
+// });
+
+const shouldHideField = computed(() => (field) => {
+  const selectedFormat = GlobalData.selectedFormat;
+  if (selectedFormat === '.webm') {
+    if (field.name === 'presetSelect' || field.name === 'tuneSelect' || field.name === 'profileSelect' || field.name === 'levelSelect') {
+      return true;
+    }
+  }
+  if (selectedFormat === '.wmv') {
+    if (field.name === 'ConstantQualitySelect' || field.name === 'presetSelect' || field.name === 'tuneSelect' || field.name === 'profileSelect' || field.name === 'levelSelect') {
+      return true;
+    }
+  }
+  return false;
+});
+
+watch(
+  () => selectedVideoCodecOptions.value,
+  (newOptions) => {
+    // Updateing videotCodec options
+    fields[3].options = newOptions;
+  }
+);
 </script>

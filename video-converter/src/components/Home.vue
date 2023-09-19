@@ -13,8 +13,8 @@
               <option value="mp4">MP4</option>
             </select>
             <span class="mx-3">to</span>
-            <select name="selectMenu" id="" class="w-40 rounded-lg border bg-[#363636ff] px-4 py-3 text-lg outline-none">
-              <option value=".avi">AVI</option>
+            <select @change="GlobalData.updateSelectedFormat" name="selectMenu" id="" class="w-40 rounded-lg border bg-[#363636ff] px-4 py-3 text-lg outline-none">
+              <option value=".avi" selected>AVI</option>
               <option value=".flv">FLV</option>
               <option value=".mkv">MKV</option>
               <option value=".mov">MOV</option>
@@ -27,7 +27,7 @@
       </div>
       <!-- Upload -->
       <p v-if="fileSizeExceeded" class="mt-5 text-center text-red-600">File size exceeded the limit of 25 MB</p>
-      <div class="flex justify-center bg-[#f9f9f9] px-20 py-5">
+      <div class="flex justify-center bg-[#f9f9f9ff] px-20 py-5">
         <div class="relative flex w-48 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-[#b53836ff] py-4 text-xl text-white duration-300 hover:font-semibold hover:shadow-2xl">
           <input type="file" name="videoFile" accept="video/*" class="absolute bottom-0 left-0 right-0 top-0 m-0 cursor-pointer p-0 opacity-0 filter-none" @change="checkFileSize" required />
           <svg :class="fileSize === null ? 'hidden' : 'block'" xmlns="http://www.w3.org/2000/svg" class="mr-2 h-7 w-7" fill="currentColor" viewBox="0 0 104.69 122.88" style="enable-background: new 0 0 104.69 122.88" xml:space="preserve">
@@ -48,7 +48,7 @@
         </div>
         <span class="mt-2 font-semibold duration-300" :class="uploadLoading !== 100 ? 'text-black' : 'text-green-500'">{{ uploadLoading !== 100 ? 'Uploading' : 'Uploading Complete' }} </span>
       </div>
-      <div class="h-full bg-[#f9f9f9] px-20">
+      <div class="h-full bg-[#f9f9f9ff] px-20">
         <div class="mb-20 bg-white">
           <h3 class="flex items-center justify-start px-10 py-5 text-lg font-semibold text-gray-color">
             <img src="../assets/images/wrench.png" alt="" class="mr-5 h-5 w-5" />
@@ -59,13 +59,12 @@
           <!-- audio options -->
           <AudioOptionComponent />
           <!-- Subtitles options -->
-          <SubtitlesComponent />
+          <SubtitlesComponent :class="GlobalData.selectedFormat === '.webm' || GlobalData.selectedFormat === '.wmv' || GlobalData.selectedFormat === '.avi' || GlobalData.selectedFormat === '.flv' ? 'hidden' : 'block'" />
           <!-- Trim -->
-          <h3 class="flex items-center justify-start bg-[#f1f1f1ff] px-10 py-3 text-lg font-semibold text-gray-color">
+          <h3 class="flex items-center justify-start bg-[#f1f1f1f1] px-10 py-3 text-lg font-semibold text-gray-color">
             <img src="../assets/images/scissors.png" alt="" class="mr-5 h-5 w-5" />
             Trim
           </h3>
-          <p class="mt-5 text-center text-red-600" :class="errMessage === '' ? 'hidden' : 'block'">{{ errMessage }}</p>
           <div class="grid gap-8 px-10 py-7 md:grid-cols-2">
             <div class="grid grid-cols-4 items-center justify-center text-gray-color">
               <label for="">Trim&nbsp;Start</label>
@@ -77,7 +76,7 @@
             </div>
           </div>
           <!-- Watermark -->
-          <h3 class="flex items-center justify-start bg-[#f1f1f1ff] px-10 py-3 text-lg font-semibold text-gray-color">
+          <h3 class="flex items-center justify-start bg-[#f1f1f1f1] px-10 py-3 text-lg font-semibold text-gray-color">
             <img src="../assets/images/stamp.png" alt="" class="mr-5 h-5 w-5" />
             Watermark
           </h3>
@@ -98,7 +97,9 @@
           <!-- Other -->
           <OthersComponent />
           <!-- Convert -->
-          <div class="mt-24 flex flex-col items-center justify-center">
+
+          <div class="mt-14 flex flex-col items-center justify-center">
+            <p class="mb-10 mt-5 text-center text-red-600" :class="errMessage === '' ? 'hidden' : 'block'">{{ errMessage }}</p>
             <button type="submit" class="flex w-44 items-center justify-center rounded-lg border-0 bg-[#b53836ff] bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:shadow-xl focus:outline-none" :disabled="fileSizeExceeded === true || markWrongFormat === true">
               <ConvertIcon />
               <span>Convert</span>
@@ -134,6 +135,9 @@ import SubtitlesComponent from '../../src/components/SubtitlesComponent.vue';
 // icons
 import DownloadIcon from '../../src/assets/icons/DownloadIcon.vue';
 import ConvertIcon from '../../src/assets/icons/ConvertIcon.vue';
+// global store
+import { useGlobalStore } from '../../src/Store/GlobalStore.js';
+const GlobalData = useGlobalStore();
 
 const fileName = ref('Choosen a file...');
 const markWrongFormat = ref(false);
@@ -158,7 +162,7 @@ const downloadClick = () => {
   }
   console.log(showConvertButton);
 };
-// getting response from the socket
+// getting response from the socket.io
 const progressElement = ref(0);
 const socket = io('http://localhost:4000');
 onMounted(() => {
@@ -212,7 +216,7 @@ const fileSizeExceeded = ref(false);
 const fileSize = ref(null);
 const checkFileSize = (event) => {
   const file = event.target.files[0];
-  if (file.size > 25000000) {
+  if (file.size > 50000000) {
     fileSizeExceeded.value = true;
     fileSize.value = null;
   } else {
