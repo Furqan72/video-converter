@@ -36,29 +36,39 @@ app.use(
 );
 app.use('/temp-output', express.static('temp-output'));
 
-// // deleting all files
-// function deleteFilesInDirectory(directory) {
-//   fs.readdir(directory, (err, files) => {
-//     if (err) throw err;
+const processedFiles = [];
 
-//     for (const file of files) {
-//       const filePath = path.join(directory, file);
-//       if (fs.existsSync(filePath)) {
-//         fs.unlinkSync(filePath, (err) => {
-//           if (err) throw err;
-//         });
-//       } else {
-//         console.error('File does not exist:', filePath);
-//       }
-//     }
-//   });
-// }
+const deleteProcessedFiles = () => {
+  if (processedFiles.length > 0) {
+    processedFiles.forEach((file) => {
+      fs.unlink(file, (err) => {
+        if (err) {
+          console.error(`Error deleting file: ${file}`, err);
+        } else {
+          console.log(`Deleted file: ${file}`);
+        }
+      });
+    });
+  } else {
+    console.log('array is empty -> ' + processedFiles);
+  }
+};
 
 app.get('/video-converter', (req, res) => {
   res.sendFile(__dirname + '../video-converter/index.html');
 });
 
-app.post('/convert', (req, res) => {
+// app.post('/refresh-detected', (req, res) => {
+//   // deleteProcessedFiles();
+//   processedFiles.length = 0;
+//   console.log('previous data cleared.');
+
+//   res.status(200).send('Refresh detected. Server state cleared.');
+// });
+
+app.post('/convert', async (req, res) => {
+  deleteProcessedFiles();
+
   let inputFile = req.files.videoFile;
   let subtitleFiles = req.files.subtitleFile;
   let selectMenuValues = req.body.selectMenu;
@@ -104,9 +114,6 @@ app.post('/convert', (req, res) => {
     QscaleValue = '';
   }
 
-  // deleteFilesInDirectory('./temp-output/');
-  // deleteFilesInDirectory('./temp-files/');
-
   // subtitle upload
   let subtitlePath = '';
   if (subtitleFiles) {
@@ -119,6 +126,7 @@ app.post('/convert', (req, res) => {
         io.emit('message', 'Subtitle File Uploaded Successfully.');
 
         subtitlePath = `./temp-files/${subtitleFiles.name}`;
+        processedFiles.push(subtitlePath);
       }
     });
   }
@@ -135,6 +143,7 @@ app.post('/convert', (req, res) => {
         io.emit('message', 'Subtitle File Uploaded Successfully.');
 
         imageWatermarkPath = `./temp-files/${imageWatermark.name}`;
+        processedFiles.push(imageWatermarkPath);
       }
     });
   }
@@ -149,25 +158,13 @@ app.post('/convert', (req, res) => {
       io.emit('message', 'File Uploaded Successfully.');
 
       const inputPath = `./temp-files/${inputFile.name}`;
+      processedFiles.push(inputPath);
       const lastDotIndex = inputFile.name.lastIndexOf('.');
       const fileNameWithoutExtension = inputFile.name.substring(0, lastDotIndex);
       const outputPath = `./temp-output/converted-${fileNameWithoutExtension + selectMenuValues}`;
+      processedFiles.push(outputPath);
       let errorMessage = '';
       let hasEmbeddedSubtitles = '';
-
-      // audio filter chain
-      let audioFilterValues = '';
-      if (AudioCodecSelect !== 'copy') {
-        if (videoVolume !== '') {
-          audioFilterValues += `volume=${videoVolume},`;
-        }
-        if (SampleRate !== '') {
-          audioFilterValues += `asetrate=${SampleRate},`;
-        }
-        if (audioFilterValues !== '') {
-          audioFilterValues = audioFilterValues.slice(0, -1);
-        }
-      }
 
       const command = new ffmpeg(inputPath)
         // covnersion start
@@ -226,7 +223,7 @@ app.post('/convert', (req, res) => {
         return;
       }
       // videoCodec with 'copy'   =>  no other filters work with 'copy' as it encodes according to the previous settings of the video
-      if (videoCOdec === 'copy' || selectMenuValues === 'wmv') {
+      if (videoCOdec === 'copy') {
         command.videoCodec(videoCOdec);
       } else {
         // videoCodec without 'copy'
@@ -243,13 +240,21 @@ app.post('/convert', (req, res) => {
           const complexFilterExpression = filtersForVideo.join(';');
           command.complexFilter(complexFilterExpression);
         }
+        //  tune --> none film animation grain stillimage fastdecode zerolatency psnr ssim
         // video options
-        if (tuning !== '' && tuning !== 'none') {
-          console.log('what');
-          command.addOptions([`-tune ${tuning}`]);
+        if (tuning && tuning !== 'none' && videoCOdec !== 'flv') {
+          const supportedCodecs = ['libvpx', 'libvpx-vp9', 'libaom-av1'];
+
+          if (supportedCodecs.includes(videoCOdec) && !['film', 'animation', 'grain', 'stillimage', 'fastdecode', 'zerolatency'].includes(tuning)) {
+            command.addOptions([`-tune ${tuning}`]);
+          } else if (videoCOdec === 'libx265' && tuning !== 'stillimage' && tuning !== 'film') {
+            command.addOptions([`-tune ${tuning}`]);
+          } else if (videoCOdec === 'libx264') {
+            command.addOptions([`-tune ${tuning}`]);
+          }
         }
         // Profile
-        if (profileValue !== '' && profileValue !== 'none' && videoCOdec !== 'libx265' && videoCOdec !== 'libxvid') {
+        if (profileValue !== '' && profileValue !== 'none' && videoCOdec !== 'libx265' && videoCOdec !== 'libxvid' && videoCOdec !== 'libvpx' && videoCOdec !== 'libvpx-vp9' && videoCOdec !== 'libaom-av1' && videoCOdec !== 'flv') {
           command.addOption(`-profile:v ${profileValue}`);
         }
         // Levels
@@ -264,7 +269,7 @@ app.post('/convert', (req, res) => {
         if (desiredKeyframeInterval !== '') {
           command.addOption(`-g ${desiredKeyframeInterval}`);
         }
-        // Key Frame Interval
+        // Qscale
         if (QscaleValue !== '' && selectMenuValues === '.wmv') {
           command.addOption(`-q:v ${QscaleValue}`);
         }
@@ -278,13 +283,29 @@ app.post('/convert', (req, res) => {
         }
       }
 
+      // audio filter chain
+      let audioFilterValues = '';
+      if (AudioCodecSelect !== 'copy' && AudioCodecSelect !== 'none') {
+        if (videoVolume !== '') {
+          audioFilterValues += `volume=${videoVolume},`;
+        }
+        if (SampleRate !== '') {
+          audioFilterValues += `asetrate=${SampleRate},`;
+        }
+        if (audioFilterValues !== '') {
+          audioFilterValues = audioFilterValues.slice(0, -1);
+        }
+      }
       // Audio Settings
-      if (AudioCodecSelect === 'copy') {
+      if (AudioCodecSelect === 'none') {
+        command.addOption('-an');
+        // command.audioCodec('');
+      } else if (AudioCodecSelect === 'copy') {
         command.audioCodec(AudioCodecSelect);
       } else if (AudioCodecSelect !== '') {
         // Audio Codec
         command.audioCodec(AudioCodecSelect);
-        // audioBitrate
+        // audio Bitrate
         if (AudioBitrateValue !== '') {
           command.audioBitrate(`${AudioBitrateValue}`);
         }
@@ -306,7 +327,7 @@ app.post('/convert', (req, res) => {
           command.complexFilter(`[0:v][1:v]overlay=(W-w)/2:(H-h)/2`);
         } else {
           console.log('Scaling Watermark and Overlaying');
-          command.complexFilter(`[1:v]scale=960:720 [watermark];[0:v][watermark]overlay=(W-w)/2:(H-h)/2`);
+          command.complexFilter(`[1:v]scale=250:100 [watermark];[0:v][watermark]overlay=(W-w)/2:(H-h)/2`);
         }
       }
 
@@ -378,16 +399,20 @@ function createComplexVideoFilter(fitValue, widthValue, heightValue, aspectRatio
 
   switch (fitValue) {
     case 'scale':
+      console.log('scale');
       complexFilter.push(`scale=${widthValue}:${heightValue}`);
       break;
     case 'max':
+      console.log('max');
       complexFilter.push(`scale=w=min(iw\\,${widthValue}):h=min(ih\\,${heightValue}):force_original_aspect_ratio=decrease`);
       break;
     case 'pad':
+      console.log('pad');
       complexFilter.push(`scale=${widthValue}:${heightValue}:force_original_aspect_ratio=decrease`);
       complexFilter.push(`pad=${widthValue}:${heightValue}:(ow-iw)/2:(oh-ih)/2`);
       break;
     case 'crop':
+      console.log('crop');
       complexFilter.push(`crop=${widthValue}:${heightValue}`);
       break;
     default:
@@ -396,6 +421,7 @@ function createComplexVideoFilter(fitValue, widthValue, heightValue, aspectRatio
 
   if (aspectRatio !== 'no change') {
     complexFilter.push(`setdar=${aspectRatio}`);
+    console.log('aspect');
   }
 
   return complexFilter;

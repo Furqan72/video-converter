@@ -9,7 +9,7 @@
       <div class="grid grid-cols-4 justify-center text-gray-color">
         <label for="" class="mr-2 mt-2 text-15px">Keyframe Interval</label>
         <div class="col-span-3 flex flex-col">
-          <input type="text" name="KeyframeInterval" class="w-full rounded-lg border px-4 py-2 text-white outline-none" placeholder="" />
+          <input type="text" name="KeyframeInterval" class="w-full rounded-lg border px-4 py-2 outline-none" placeholder="" />
           <span class="mt-2 text-xs text-light-gray">Set the number of frames after a keyframe is inserted at least.</span>
         </div>
       </div>

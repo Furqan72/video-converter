@@ -78,27 +78,52 @@ const SampleRateSelectOptions = ref([
   { value: '96000', label: '96000 Hz' },
 ]);
 
-//AudioCodecs for except wmv & webm
-const AudioCodecOptions = ref([
+// const AudioCodecOptions = ref([
+//   { value: 'copy', label: 'copy' },
+//   { value: 'none', label: 'none' },
+//   { value: 'aac', label: 'aac', selected: 'acc' },
+//   // { value: 'libfdk_aac', label: 'aac_he_1' },
+//   // { value: 'aac_at', label: 'aac_he_2' },
+//   { value: 'libopus', label: 'opus' },
+//   { value: 'libvorbis', label: 'vorbis' },
+// ]);
+
+//AudioCodecs for AVI & MOV
+const AVIMOVCodecOptions = ref([
   { value: 'copy', label: 'copy' },
-  { value: '', label: 'none' },
+  { value: 'none', label: 'none' },
   { value: 'aac', label: 'aac', selected: 'acc' },
-  { value: 'libfdk_aac', label: 'aac_he_1' },
-  { value: 'libfdk_aac', label: 'aac_he_2' },
+  { value: 'libvorbis', label: 'vorbis' },
+]);
+
+//AudioCodecs for FLV
+const FLVCodecOptions = ref([
+  { value: 'copy', label: 'copy' },
+  { value: 'none', label: 'none' },
+  { value: 'aac', label: 'aac', selected: 'acc' },
+]);
+
+//AudioCodecs for MKV & MP4
+const MKVMP4CodecOptions = ref([
+  { value: 'copy', label: 'copy' },
+  { value: 'none', label: 'none' },
+  { value: 'aac', label: 'aac', selected: 'acc' },
   { value: 'libopus', label: 'opus' },
   { value: 'libvorbis', label: 'vorbis' },
 ]);
+
 //Audio Codecs for webm
 const WEBMCodecOptions = ref([
   { value: 'copy', label: 'copy' },
-  { value: '', label: 'none' },
+  { value: 'none', label: 'none' },
   { value: 'libopus', label: 'opus', selected: 'opus' },
   { value: 'libvorbis', label: 'vorbis' },
 ]);
+
 //Audio Codecs for wmv
 const WMVCodecOptions = ref([
   { value: 'copy', label: 'copy' },
-  { value: '', label: 'none' },
+  { value: 'none', label: 'none' },
   { value: 'wmav2', label: 'wmav2', selected: 'wmav2' },
 ]);
 
@@ -109,8 +134,12 @@ const selectedAudioCodecOptions = computed(() => {
     return WEBMCodecOptions.value;
   } else if (selectedFormat === '.wmv') {
     return WMVCodecOptions.value;
-  } else {
-    return AudioCodecOptions.value;
+  } else if (selectedFormat === '.avi' || selectedFormat === '.mov') {
+    return AVIMOVCodecOptions.value;
+  } else if (selectedFormat === '.flv') {
+    return FLVCodecOptions.value;
+  } else if (selectedFormat === '.mp4' || selectedFormat === '.mkv') {
+    return MKVMP4CodecOptions.value;
   }
 });
 
