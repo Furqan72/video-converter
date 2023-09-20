@@ -41,6 +41,8 @@
           <span>Upload</span>
         </div>
       </div>
+      <p>{{ moduleUrl }}</p>
+
       <!-- Options -->
       <div class="flex w-full flex-col items-center justify-center bg-[#f9f9f9] py-5" :class="uploadLoading === '' ? 'hidden' : 'block'">
         <div class="flex h-7 w-80 items-center rounded-full border bg-gray-200 px-3 shadow-lg duration-300">
@@ -139,6 +141,8 @@ import ConvertIcon from '../../src/assets/icons/ConvertIcon.vue';
 import { useGlobalStore } from '../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 
+const moduleUrl = import.meta.env.VITE_ROOT_URL;
+
 const fileName = ref('Choosen a file...');
 const markWrongFormat = ref(false);
 const handleFileChange = (event) => {
@@ -164,7 +168,7 @@ const downloadClick = () => {
 };
 // getting response from the socket.io
 const progressElement = ref(0);
-const socket = io('http://localhost:4000');
+const socket = io(moduleUrl);
 onMounted(() => {
   socket.on('message', (message) => {
     console.log('Received message from server:', message);
@@ -186,7 +190,7 @@ const sendFile = async () => {
   const formData = new FormData(form);
 
   axios
-    .post('http://localhost:4000/convert', formData, {
+    .post(moduleUrl + '/convert', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -199,7 +203,7 @@ const sendFile = async () => {
     .then((response) => {
       console.log(response.data);
 
-      downloadUrlNode.value = 'http://localhost:4000/' + response.data.downloadUrl;
+      downloadUrlNode.value = moduleUrl + '/' + response.data.downloadUrl;
       downloadName.value = response.data.fileName;
       errMessage.value = response.data.message;
     })
@@ -233,4 +237,13 @@ const checkFileSize = (event) => {
 //     });
 //   });
 // });
+
+// {{ import.meta.env.VITE_ROOT_URL }}
+
+// const moduleUrl='';
+//   onMounted(() => {
+//     // Accessing import.meta.url in the JavaScript part
+//     moduleUrl = import.meta.env.VITE_ROOT_URL;
+
+//   }),
 </script>
