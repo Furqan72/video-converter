@@ -41,7 +41,7 @@
           <span>Upload</span>
         </div>
       </div>
-      <p>{{ moduleUrl }}</p>
+      <!-- <p>{{ moduleUrl }}</p> -->
 
       <!-- Options -->
       <div class="flex w-full flex-col items-center justify-center bg-[#f9f9f9] py-5" :class="uploadLoading === '' ? 'hidden' : 'block'">
@@ -141,7 +141,7 @@ import ConvertIcon from '../../src/assets/icons/ConvertIcon.vue';
 import { useGlobalStore } from '../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 
-const moduleUrl = import.meta.env.VITE_ROOT_URL;
+// const moduleUrl = import.meta.env.VITE_ROOT_URL;
 
 const fileName = ref('Choosen a file...');
 const markWrongFormat = ref(false);
@@ -168,16 +168,15 @@ const downloadClick = () => {
 };
 // getting response from the socket.io
 const progressElement = ref(0);
-const socket = io(moduleUrl);
+// const socket = io('https://video-converter-api.vercel.app');
 onMounted(() => {
-  socket.on('message', (message) => {
-    console.log('Received message from server:', message);
-  });
-
-  socket.on('progress', (progressPercent) => {
-    console.log('Progress:', progressPercent);
-    progressElement.value = progressPercent;
-  });
+  // socket.on('message', (message) => {
+  //   console.log('Received message from server:', message);
+  // });
+  // socket.on('progress', (progressPercent) => {
+  //   console.log('Progress:', progressPercent);
+  //   progressElement.value = progressPercent;
+  // });
 });
 
 const formSubmitted = ref(false);
@@ -190,7 +189,7 @@ const sendFile = async () => {
   const formData = new FormData(form);
 
   axios
-    .post(moduleUrl + '/convert', formData, {
+    .post('https://video-converter-api.vercel.app/convert', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -203,7 +202,7 @@ const sendFile = async () => {
     .then((response) => {
       console.log(response.data);
 
-      downloadUrlNode.value = moduleUrl + '/' + response.data.downloadUrl;
+      downloadUrlNode.value = 'https://video-converter-api.vercel.app/' + response.data.downloadUrl;
       downloadName.value = response.data.fileName;
       errMessage.value = response.data.message;
     })
@@ -211,7 +210,7 @@ const sendFile = async () => {
       console.error('An error occurred:', error);
     });
 
-  socket.emit('message', 'File Upload Started');
+  // socket.emit('message', 'File Upload Started');
   formSubmitted.value = true;
 };
 
@@ -237,13 +236,4 @@ const checkFileSize = (event) => {
 //     });
 //   });
 // });
-
-// {{ import.meta.env.VITE_ROOT_URL }}
-
-// const moduleUrl='';
-//   onMounted(() => {
-//     // Accessing import.meta.url in the JavaScript part
-//     moduleUrl = import.meta.env.VITE_ROOT_URL;
-
-//   }),
 </script>
