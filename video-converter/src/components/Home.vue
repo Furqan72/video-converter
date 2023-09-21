@@ -168,15 +168,15 @@ const downloadClick = () => {
 };
 // getting response from the socket.io
 const progressElement = ref(0);
-// const socket = io('https://video-converter-api.vercel.app');
+const socket = io('https://video-converter-api.vercel.app');
 onMounted(() => {
-  // socket.on('message', (message) => {
-  //   console.log('Received message from server:', message);
-  // });
-  // socket.on('progress', (progressPercent) => {
-  //   console.log('Progress:', progressPercent);
-  //   progressElement.value = progressPercent;
-  // });
+  socket.on('message', (message) => {
+    console.log('Received message from server:', message);
+  });
+  socket.on('progress', (progressPercent) => {
+    console.log('Progress:', progressPercent);
+    progressElement.value = progressPercent;
+  });
 });
 
 const formSubmitted = ref(false);
@@ -210,7 +210,7 @@ const sendFile = async () => {
       console.error('An error occurred:', error);
     });
 
-  // socket.emit('message', 'File Upload Started');
+  socket.emit('message', 'File Upload Started');
   formSubmitted.value = true;
 };
 
