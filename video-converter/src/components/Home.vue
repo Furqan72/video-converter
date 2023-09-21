@@ -142,6 +142,7 @@ import { useGlobalStore } from '../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 
 // const moduleUrl = import.meta.env.VITE_ROOT_URL;
+console.log('1');
 
 const fileName = ref('Choosen a file...');
 const markWrongFormat = ref(false);
