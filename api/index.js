@@ -10,6 +10,8 @@ const path = require('path');
 const { Console, log } = require('console');
 // const { log } = require('console');
 
+console.log('api');
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {

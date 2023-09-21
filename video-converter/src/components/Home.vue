@@ -142,7 +142,6 @@ import { useGlobalStore } from '../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 
 // const moduleUrl = import.meta.env.VITE_ROOT_URL;
-console.log('1');
 
 const fileName = ref('Choosen a file...');
 const markWrongFormat = ref(false);
@@ -167,17 +166,18 @@ const downloadClick = () => {
   }
   console.log(showConvertButton);
 };
+
 // getting response from the socket.io
 const progressElement = ref(0);
-const socket = io('https://video-converter-api.vercel.app');
+// const socket = io('https://video-converter-api.vercel.app');
 onMounted(() => {
-  socket.on('message', (message) => {
-    console.log('Received message from server:', message);
-  });
-  socket.on('progress', (progressPercent) => {
-    console.log('Progress:', progressPercent);
-    progressElement.value = progressPercent;
-  });
+  // socket.on('message', (message) => {
+  //   console.log('Received message from server:', message);
+  // });
+  // socket.on('progress', (progressPercent) => {
+  //   console.log('Progress:', progressPercent);
+  //   progressElement.value = progressPercent;
+  // });
 });
 
 const formSubmitted = ref(false);
@@ -211,7 +211,7 @@ const sendFile = async () => {
       console.error('An error occurred:', error);
     });
 
-  socket.emit('message', 'File Upload Started');
+  // socket.emit('message', 'File Upload Started');
   formSubmitted.value = true;
 };
 
