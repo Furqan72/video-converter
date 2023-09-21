@@ -264,7 +264,7 @@ watch(
   () => GlobalData.selectedFormat,
   () => {
     const formattedValue = formatWithoutDot.value;
-    console.log(formattedValue);
+    // console.log(formattedValue);
     // console.log(updatedValue.value);
   }
 );

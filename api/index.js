@@ -5,10 +5,12 @@ const cors = require('cors');
 const ffmpeg = require('fluent-ffmpeg');
 const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
-const fs = require('fs');
-const path = require('path');
-const { Console, log } = require('console');
-// const { log } = require('console');
+// const fs = require('fs');
+// const path = require('path');
+// const { Console, log } = require('console');
+
+// functions
+const functions = require('./functions.js');
 
 const app = express();
 const server = http.createServer(app);
@@ -36,28 +38,6 @@ app.use(
 );
 app.use('/temp-output', express.static('temp-output'));
 
-const processedFiles = [];
-
-const deleteProcessedFiles = () => {
-  if (processedFiles.length > 0) {
-    processedFiles.forEach((file) => {
-      fs.unlink(file, (err) => {
-        if (err) {
-          console.error(`Error deleting file: ${file}`, err);
-        } else {
-          console.log(`Deleted file: ${file}`);
-        }
-      });
-    });
-  } else {
-    console.log('array is empty -> ' + processedFiles);
-  }
-};
-
-// app.get('/video-converter', (req, res) => {
-//   res.sendFile(__dirname + '../video-converter/index.html');
-// });
-
 // app.post('/refresh-detected', (req, res) => {
 //   // deleteProcessedFiles();
 //   processedFiles.length = 0;
@@ -67,7 +47,7 @@ const deleteProcessedFiles = () => {
 // });
 
 app.post('/convert', async (req, res) => {
-  deleteProcessedFiles();
+  functions.deleteProcessedFiles();
 
   let inputFile = req.files.videoFile;
   let subtitleFiles = req.files.subtitleFile;
@@ -108,48 +88,44 @@ app.post('/convert', async (req, res) => {
   let desiredKeyframeInterval = req.body.KeyframeInterval;
   let subtitlesType = req.body.subtitleType;
   let QscaleValue;
+
   if (selectMenuValues === '.wmv') {
     QscaleValue = req.body.Qscale;
   } else {
     QscaleValue = '';
   }
+  QscaleValue = isWMV ? req.body.Qscale : '';
 
-  // subtitle upload
+  // subtitles upload
   let subtitlePath = '';
   if (subtitleFiles) {
-    subtitleFiles.mv('temp-files/' + subtitleFiles.name, function (err) {
-      if (err) {
-        console.error('Subtitle File Upload Error:', err);
-        io.emit('message', 'Subtitle File Upload Error: ' + err.message);
-        return;
-      } else {
-        io.emit('message', 'Subtitle File Uploaded Successfully.');
-
-        subtitlePath = `./temp-files/${subtitleFiles.name}`;
-        processedFiles.push(subtitlePath);
-      }
-    });
+    functions
+      .uploadFile(subtitleFiles, 'temp-files/')
+      .then((uploadedFilePath) => {
+        subtitlePath = `./${uploadedFilePath}`;
+        functions.processedFiles.push(uploadedFilePath);
+      })
+      .catch((error) => {
+        console.log('error uploading file: ' + error);
+      });
   }
 
   // watermarks upload
   let imageWatermarkPath = '';
   if (imageWatermark) {
-    imageWatermark.mv('temp-files/' + imageWatermark.name, function (err) {
-      if (err) {
-        console.error('Subtitle File Upload Error:', err);
-        io.emit('message', 'Subtitle File Upload Error: ' + err.message);
-        return;
-      } else {
-        io.emit('message', 'Subtitle File Uploaded Successfully.');
-
-        imageWatermarkPath = `./temp-files/${imageWatermark.name}`;
-        processedFiles.push(imageWatermarkPath);
-      }
-    });
+    functions
+      .uploadFile(imageWatermark, 'temp-files/')
+      .then((uploadedWatermark) => {
+        imageWatermarkPath = `./${uploadedWatermark}`;
+        functions.processedFiles.push(uploadedWatermark);
+      })
+      .catch((error) => {
+        console.log('error uploading file: ' + error);
+      });
   }
 
   // uploading input file
-  io.emit('message', 'File Upload Started');
+  console.log('message', 'File Upload Started');
   inputFile.mv('temp-files/' + inputFile.name, async function (err) {
     if (err) {
       io.emit('message', 'File Upload Error: ' + err.message);
@@ -158,11 +134,11 @@ app.post('/convert', async (req, res) => {
       io.emit('message', 'File Uploaded Successfully.');
 
       const inputPath = `./temp-files/${inputFile.name}`;
-      processedFiles.push(inputPath);
+      functions.processedFiles.push(inputPath);
       const lastDotIndex = inputFile.name.lastIndexOf('.');
       const fileNameWithoutExtension = inputFile.name.substring(0, lastDotIndex);
       const outputPath = `./temp-output/converted-${fileNameWithoutExtension + selectMenuValues}`;
-      processedFiles.push(outputPath);
+      functions.processedFiles.push(outputPath);
       let errorMessage = '';
       let hasEmbeddedSubtitles = '';
 
@@ -194,13 +170,13 @@ app.post('/convert', async (req, res) => {
         });
 
       try {
-        const metadata = await getVideoMetadata(inputPath);
+        const metadata = await functions.getVideoMetadata(inputPath);
         const totalVideoDurationInSeconds = metadata.format.duration;
         console.log('Video Duration: ', totalVideoDurationInSeconds, 'seconds');
         hasEmbeddedSubtitles = metadata.streams.some((stream) => stream.codec_type === 'subtitle');
 
-        let startingInSeconds = parseTime(startingTime);
-        let endingInSeconds = parseTime(endingTime);
+        let startingInSeconds = functions.parseTime(startingTime);
+        let endingInSeconds = functions.parseTime(endingTime);
 
         if (startingInSeconds < 0 || endingInSeconds < 0) {
           errorMessage = 'Start and end times must be non-negative values.';
@@ -208,7 +184,7 @@ app.post('/convert', async (req, res) => {
           errorMessage = 'Invalid start or end time.';
           // trimming
         } else if (startingTime && endingTime && endingTime !== '00:00:00') {
-          let totalDuration = calculateDuration(startingTime, endingTime);
+          let totalDuration = functions.calculateDuration(startingTime, endingTime);
           command.setStartTime(startingTime);
           command.setDuration(totalDuration);
         }
@@ -231,7 +207,7 @@ app.post('/convert', async (req, res) => {
         let filtersForVideo = [];
 
         if (resolution !== 'no change') {
-          filtersForVideo.push(createComplexVideoFilter(fitValue, widthValue, heightValue, aspectRatio));
+          filtersForVideo.push(functions.createComplexVideoFilter(fitValue, widthValue, heightValue, aspectRatio));
         } else if (aspectRatio !== 'no change') {
           filtersForVideo.push(`setdar=${aspectRatio}`);
         }
@@ -296,6 +272,7 @@ app.post('/convert', async (req, res) => {
           audioFilterValues = audioFilterValues.slice(0, -1);
         }
       }
+
       // Audio Settings
       if (AudioCodecSelect === 'none') {
         command.addOption('-an');
@@ -327,7 +304,7 @@ app.post('/convert', async (req, res) => {
           command.complexFilter(`[0:v][1:v]overlay=(W-w)/2:(H-h)/2`);
         } else {
           console.log('Scaling Watermark and Overlaying');
-          command.complexFilter(`[1:v]scale=250:100 [watermark];[0:v][watermark]overlay=(W-w)/2:(H-h)/2`);
+          command.complexFilter(`[1:v]scale=150:100 [watermark];[0:v][watermark]overlay=(W-w)/2:(H-h)/2`);
         }
       }
 
@@ -356,76 +333,6 @@ app.post('/convert', async (req, res) => {
     }
   });
 });
-
-// getting video metadata
-function getVideoMetadata(inputPath) {
-  return new Promise((resolve, reject) => {
-    ffmpeg.ffprobe(inputPath, (err, metadata) => {
-      if (err) {
-        reject(err);
-      } else {
-        // console.log(metadata);
-        resolve(metadata);
-      }
-    });
-  });
-}
-
-// converting HH:MM:SS to Seconds
-function parseTime(time) {
-  const [hours, minutes, seconds] = time.split(':').map(Number);
-  return hours * 3600 + minutes * 60 + seconds;
-}
-
-// calculating end-time
-function calculateDuration(startTime, endTime) {
-  const start = parseTime(startTime);
-  const end = parseTime(endTime);
-  const durationInSeconds = end - start;
-  return formatTime(durationInSeconds);
-}
-
-// returning the time in the format => HH:MM:SS
-function formatTime(seconds) {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const remainingSeconds = seconds % 60;
-  return `${hours}:${minutes}:${remainingSeconds}`;
-}
-
-// checking values for Fit (in video options)
-function createComplexVideoFilter(fitValue, widthValue, heightValue, aspectRatio) {
-  let complexFilter = [];
-
-  switch (fitValue) {
-    case 'scale':
-      console.log('scale');
-      complexFilter.push(`scale=${widthValue}:${heightValue}`);
-      break;
-    case 'max':
-      console.log('max');
-      complexFilter.push(`scale=w=min(iw\\,${widthValue}):h=min(ih\\,${heightValue}):force_original_aspect_ratio=decrease`);
-      break;
-    case 'pad':
-      console.log('pad');
-      complexFilter.push(`scale=${widthValue}:${heightValue}:force_original_aspect_ratio=decrease`);
-      complexFilter.push(`pad=${widthValue}:${heightValue}:(ow-iw)/2:(oh-ih)/2`);
-      break;
-    case 'crop':
-      console.log('crop');
-      complexFilter.push(`crop=${widthValue}:${heightValue}`);
-      break;
-    default:
-      break;
-  }
-
-  if (aspectRatio !== 'no change') {
-    complexFilter.push(`setdar=${aspectRatio}`);
-    console.log('aspect');
-  }
-
-  return complexFilter;
-}
 
 io.on('connection', (socket) => {
   console.log('A client connected');

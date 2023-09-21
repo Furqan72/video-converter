@@ -147,7 +147,7 @@ watch(
   () => GlobalData.selectedFormat,
   () => {
     const updatedValue = selectedAudioCodecOptions;
-    console.log(updatedValue);
+    // console.log(updatedValue);
   }
 );
 
