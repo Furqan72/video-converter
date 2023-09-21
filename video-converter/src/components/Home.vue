@@ -41,7 +41,7 @@
           <span>Upload</span>
         </div>
       </div>
-      <!-- <p>{{ moduleUrl }}</p> -->
+      <p>{{ 'https://video-converter-api.vercel.app' }}</p>
 
       <!-- Options -->
       <div class="flex w-full flex-col items-center justify-center bg-[#f9f9f9] py-5" :class="uploadLoading === '' ? 'hidden' : 'block'">
@@ -188,6 +188,7 @@ const errMessage = ref('');
 const sendFile = async () => {
   const form = document.querySelector('form');
   const formData = new FormData(form);
+  console.log('https://video-converter-api.vercel.app/');
 
   axios
     .post('https://video-converter-api.vercel.app/convert', formData, {
@@ -204,6 +205,7 @@ const sendFile = async () => {
       console.log(response.data);
 
       downloadUrlNode.value = 'https://video-converter-api.vercel.app/' + response.data.downloadUrl;
+      console.log('https://video-converter-api.vercel.app/' + response.data.downloadUrl);
       downloadName.value = response.data.fileName;
       errMessage.value = response.data.message;
     })
