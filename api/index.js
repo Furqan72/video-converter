@@ -56,8 +56,11 @@ const deleteProcessedFiles = () => {
   }
 };
 
-app.get('/video-converter', (req, res) => {
-  res.sendFile(__dirname + '../video-converter/index.html');
+// app.get('/video-converter', (req, res) => {
+//   res.sendFile(__dirname + '../video-converter/index.html');
+// });
+app.get('/', (req, res) => {
+  res.sendFile(path.join('https://video-converter2.vercel.app/'));
 });
 
 // app.post('/refresh-detected', (req, res) => {
