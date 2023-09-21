@@ -114,7 +114,7 @@
               <span class="mt-2 font-semibold duration-300" :class="progressElement !== 100 ? 'text-black' : 'text-green-500'">{{ progressElement !== 100 ? 'Converting' : 'Conversion Complete' }} </span>
             </div>
             <!-- Convert -->
-            <a @click="downloadClick()" :target="GlobalData.selectedFormat === '.webm' ? '_blank' : ''" :href="downloadUrlNode" id="downloadBtn" :download="downloadName" class="mt-3 flex w-44 rounded-lg border-0 bg-green-500 bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:text-white hover:shadow-xl focus:outline-none" :class="[progressElement === 100 ? 'flex' : 'hidden', progressElement !== 100 ? 'pointer-events-none' : 'cursor-pointer']">
+            <a @click="downloadClick()" :target="GlobalData.selectedFormat === '.webm' ? '_blank' : ''" :href="downloadUrlNode" id="downloadBtn" :download="downloadName" class="mt-3 flex w-44 rounded-lg border-0 bg-green-500 bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:text-white hover:shadow-xl focus:outline-none">
               <DownloadIcon />
               Download</a
             >
@@ -168,7 +168,7 @@ const downloadClick = () => {
 };
 // getting response from the socket.io
 const progressElement = ref(0);
-// const socket = io('https://video-converter-api.vercel.app');
+// const socket = io('http://video-converter-api.vercel.app');
 onMounted(() => {
   // socket.on('message', (message) => {
   //   console.log('Received message from server:', message);
@@ -189,7 +189,7 @@ const sendFile = async () => {
   const formData = new FormData(form);
 
   axios
-    .post('https://video-converter-api.vercel.app/convert', formData, {
+    .post('http://video-converter-api.vercel.app/convert', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -202,7 +202,7 @@ const sendFile = async () => {
     .then((response) => {
       console.log(response.data);
 
-      downloadUrlNode.value = 'https://video-converter-api.vercel.app/' + response.data.downloadUrl;
+      downloadUrlNode.value = 'http://video-converter-api.vercel.app/' + response.data.downloadUrl;
       downloadName.value = response.data.fileName;
       errMessage.value = response.data.message;
     })

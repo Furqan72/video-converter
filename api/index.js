@@ -14,13 +14,13 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: ['http://localhost:5173', 'https://video-converter2.vercel.app/'],
+    origin: ['http://localhost:5173', 'https://video-converter2.vercel.app'],
     methods: ['*'],
   },
 });
 
 const AllowedDomains = {
-  origin: ['http://localhost:5173', 'https://video-converter2.vercel.app/'],
+  origin: ['http://localhost:5173', 'https://video-converter2.vercel.app'],
   optionsSuccessStatus: 200,
 };
 
