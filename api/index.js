@@ -60,7 +60,7 @@ const deleteProcessedFiles = () => {
 //   res.sendFile(__dirname + '../video-converter/index.html');
 // });
 app.get('/', (req, res) => {
-  res.sendFile(path.join('https://video-converter2.vercel.app/'));
+  res.sendFile(path.join('https://video-converter2.vercel.app/index.html'));
 });
 
 // app.post('/refresh-detected', (req, res) => {
