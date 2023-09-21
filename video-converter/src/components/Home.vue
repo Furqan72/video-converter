@@ -41,7 +41,7 @@
           <span>Upload</span>
         </div>
       </div>
-      <!-- <p>{{ 'https://video-converter-api.vercel.app/convert' }}</p> -->
+      <!-- <p>{{ 'http://localhost:4000/convert' }}</p> -->
 
       <!-- Options -->
       <div class="flex w-full flex-col items-center justify-center bg-[#f9f9f9] py-5" :class="uploadLoading === '' ? 'hidden' : 'block'">
@@ -169,15 +169,15 @@ const downloadClick = () => {
 
 // getting response from the socket.io
 const progressElement = ref(0);
-// const socket = io('https://video-converter-api.vercel.app');
+const socket = io('http://localhost:4000');
 onMounted(() => {
-  // socket.on('message', (message) => {
-  //   console.log('Received message from server:', message);
-  // });
-  // socket.on('progress', (progressPercent) => {
-  //   console.log('Progress:', progressPercent);
-  //   progressElement.value = progressPercent;
-  // });
+  socket.on('message', (message) => {
+    console.log('Received message from server:', message);
+  });
+  socket.on('progress', (progressPercent) => {
+    console.log('Progress:', progressPercent);
+    progressElement.value = progressPercent;
+  });
 });
 
 const formSubmitted = ref(false);
@@ -190,7 +190,7 @@ const sendFile = async () => {
   const formData = new FormData(form);
 
   axios
-    .post('https://video-converter-api.vercel.app/convert', formData, {
+    .post('http://localhost:4000/convert', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -203,7 +203,7 @@ const sendFile = async () => {
     .then((response) => {
       console.log(response.data);
 
-      downloadUrlNode.value = 'https://video-converter-api.vercel.app/' + response.data.downloadUrl;
+      downloadUrlNode.value = 'http://localhost:4000/' + response.data.downloadUrl;
       downloadName.value = response.data.fileName;
       errMessage.value = response.data.message;
     })
@@ -211,7 +211,7 @@ const sendFile = async () => {
       console.error('An error occurred:', error);
     });
 
-  // socket.emit('message', 'File Upload Started');
+  socket.emit('message', 'File Upload Started');
   formSubmitted.value = true;
 };
 

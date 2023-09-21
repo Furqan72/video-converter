@@ -10,8 +10,6 @@ const path = require('path');
 const { Console, log } = require('console');
 // const { log } = require('console');
 
-console.log('api');
-
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
@@ -59,9 +57,6 @@ const deleteProcessedFiles = () => {
 // app.get('/video-converter', (req, res) => {
 //   res.sendFile(__dirname + '../video-converter/index.html');
 // });
-app.get('/', (req, res) => {
-  res.sendFile(path.join('https://video-converter2.vercel.app/index.html'));
-});
 
 // app.post('/refresh-detected', (req, res) => {
 //   // deleteProcessedFiles();
