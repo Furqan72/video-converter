@@ -168,7 +168,7 @@ const downloadClick = () => {
 };
 // getting response from the socket.io
 const progressElement = ref(0);
-// const socket = io('http://video-converter-api.vercel.app');
+// const socket = io('https://video-converter-api.vercel.app');
 onMounted(() => {
   // socket.on('message', (message) => {
   //   console.log('Received message from server:', message);
@@ -189,7 +189,7 @@ const sendFile = async () => {
   const formData = new FormData(form);
 
   axios
-    .post('http://video-converter-api.vercel.app/convert', formData, {
+    .post('https://video-converter-api.vercel.app/convert', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -202,7 +202,7 @@ const sendFile = async () => {
     .then((response) => {
       console.log(response.data);
 
-      downloadUrlNode.value = 'http://video-converter-api.vercel.app/' + response.data.downloadUrl;
+      downloadUrlNode.value = 'https://video-converter-api.vercel.app/' + response.data.downloadUrl;
       downloadName.value = response.data.fileName;
       errMessage.value = response.data.message;
     })
