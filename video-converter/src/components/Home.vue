@@ -41,7 +41,7 @@
           <span>Upload</span>
         </div>
       </div>
-      <!-- <p>{{ 'http://localhost:4000/convert' }}</p> -->
+      <!-- <p>{{ 'https://video-converter-api.vercel.app/convert' }}</p> -->
 
       <!-- Options -->
       <div class="flex w-full flex-col items-center justify-center bg-[#f9f9f9] py-5" :class="uploadLoading === '' ? 'hidden' : 'block'">
@@ -141,8 +141,8 @@ import ConvertIcon from '../../src/assets/icons/ConvertIcon.vue';
 import { useGlobalStore } from '../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 
-console.log('1');
 // const moduleUrl = import.meta.env.VITE_ROOT_URL;
+
 const fileName = ref('Choosen a file...');
 const markWrongFormat = ref(false);
 const handleFileChange = (event) => {
@@ -169,7 +169,7 @@ const downloadClick = () => {
 
 // getting response from the socket.io
 const progressElement = ref(0);
-const socket = io('http://localhost:4000');
+const socket = io('https://video-converter-api.vercel.app');
 onMounted(() => {
   socket.on('message', (message) => {
     console.log('Received message from server:', message);
@@ -190,7 +190,7 @@ const sendFile = async () => {
   const formData = new FormData(form);
 
   axios
-    .post('http://localhost:4000/convert', formData, {
+    .post('https://video-converter-api.vercel.app/convert', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -203,7 +203,7 @@ const sendFile = async () => {
     .then((response) => {
       console.log(response.data);
 
-      downloadUrlNode.value = 'http://localhost:4000/' + response.data.downloadUrl;
+      downloadUrlNode.value = 'https://video-converter-api.vercel.app/' + response.data.downloadUrl;
       downloadName.value = response.data.fileName;
       errMessage.value = response.data.message;
     })
