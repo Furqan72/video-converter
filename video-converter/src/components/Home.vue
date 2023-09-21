@@ -141,8 +141,8 @@ import ConvertIcon from '../../src/assets/icons/ConvertIcon.vue';
 import { useGlobalStore } from '../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 
+console.log('1');
 // const moduleUrl = import.meta.env.VITE_ROOT_URL;
-
 const fileName = ref('Choosen a file...');
 const markWrongFormat = ref(false);
 const handleFileChange = (event) => {
