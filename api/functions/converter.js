@@ -1,5 +1,5 @@
 const ffmpeg = require('fluent-ffmpeg');
-const socketIo = require('socket.io');
+// const socketIo = require('socket.io');
 
 // functions
 const functions = require('../functions/functions');
@@ -76,7 +76,7 @@ const videoConversionFunction = async (req, res, io) => {
       });
   }
 
-  // uploading input file
+  // uploading input file(video)
   console.log('message', 'File Upload Started');
   inputFile.mv('temp-files/' + inputFile.name, async function (err) {
     if (err) {

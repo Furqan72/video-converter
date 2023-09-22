@@ -1,8 +1,8 @@
 <template>
   <div>
     <!-- Audio -->
-    <h3 class="flex items-center justify-start bg-[#f1f1f1f1] px-10 py-3 text-lg font-semibold text-gray-color">
-      <img src="../assets/images/sound.png" alt="" class="mr-5 h-5 w-5" />
+    <h3 class="flex items-center justify-start bg-[#f1f1f1f1] px-10 py-3 text-lg font-bold text-gray-color">
+      <img src="../../assets/images/sound.png" alt="" class="mr-[14px] h-5 w-5" />
       Audio
     </h3>
     <!-- Audio options -->
@@ -29,7 +29,8 @@
 
 <script setup>
 import { ref, computed, watch, reactive } from 'vue';
-import { useGlobalStore } from '../../src/Store/GlobalStore.js';
+import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
+
 const GlobalData = useGlobalStore();
 
 // Channels

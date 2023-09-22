@@ -1,8 +1,19 @@
 <template>
   <div>
+    <div class="flex items-center justify-between px-10 py-5 text-lg text-gray-color">
+      <h3 class="peer flex items-center justify-start font-bold">
+        <img src="../../assets/images/wrench.png" alt="" class="mr-[14px] h-5 w-5" />
+        <span>OPTIONS</span>
+      </h3>
+      <div class="relative" @mouseover="showTooltip = true" @mouseout="showTooltip = false">
+        <img src="../../assets/images/question.png" alt="" class="h-5 w-5" />
+        <p v-if="showTooltip" class="absolute -right-24 -top-[102px] w-56 rounded-[4px] bg-gray-900 px-4 py-2 text-center text-sm text-white duration-300">Setting these options is optional. The default values are a good start for most cases.</p>
+        <span v-if="showTooltip" class="absolute -top-[14px] left-[3px] h-3 w-3 rotate-45 bg-gray-900 duration-300"></span>
+      </div>
+    </div>
     <!-- video -->
-    <h3 class="flex items-center justify-start bg-[#f1f1f1f1] px-10 py-3 text-lg font-semibold text-gray-color">
-      <img src="../assets/images/video-camera.png" alt="" class="mr-5 h-5 w-5" />
+    <h3 class="flex items-center justify-start bg-[#f1f1f1f1] px-10 py-3 text-lg font-bold text-gray-color">
+      <img src="../../assets/images/video-camera.png" alt="" class="mr-[14px] h-5 w-5" />
       Video
     </h3>
     <!-- Video options -->
@@ -40,8 +51,11 @@
 // import { ref, computed } from 'vue';
 import { ref, computed, watch, reactive } from 'vue';
 // global store
-import { useGlobalStore } from '../../src/Store/GlobalStore.js';
+import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
+
 const GlobalData = useGlobalStore();
+
+const showTooltip = ref(false);
 
 // resolution
 const resolutionOptions = ref([
@@ -207,12 +221,18 @@ const mkvCodecOptions = ref([
   { value: 'libvpx-vp9', label: 'vp9' },
   { value: 'libaom-av1', label: 'av1' },
 ]);
-//  video COdec for mp4 mov
+//  video COdec for mp4
 const mp4CodecOptions = ref([
   { value: 'copy', label: 'Copy (No Re-encoding)' },
   { value: 'libx264', label: 'x264', selected: 'x264' },
   { value: 'libx265', label: 'x265' },
   { value: 'libaom-av1', label: 'av1' },
+]);
+//  video COdec for mov
+const movCodecOptions = ref([
+  { value: 'copy', label: 'Copy (No Re-encoding)' },
+  { value: 'libx264', label: 'x264', selected: 'x264' },
+  { value: 'libx265', label: 'x265' },
 ]);
 //  video COdec for webm
 const webmCodecOptions = ref([
@@ -250,7 +270,7 @@ const selectedVideoCodecOptions = computed(() => {
     case 'mp4':
       return mp4CodecOptions.value;
     case 'mov':
-      return mp4CodecOptions.value;
+      return movCodecOptions.value;
     case 'webm':
       return webmCodecOptions.value;
     case 'wmv':

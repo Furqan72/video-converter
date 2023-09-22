@@ -8,6 +8,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
   const errMessage = ref('');
   const downloadName = ref('');
   const markWrongFormat = ref(false);
+  const uploadLoading = ref('');
 
   const selectedFormat = ref('.avi');
   const updateSelectedFormat = (event) => {
@@ -22,6 +23,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
     errMessage,
     downloadUrlFromNode,
     downloadName,
+    uploadLoading,
 
     // functions
     updateSelectedFormat,

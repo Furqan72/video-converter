@@ -13,7 +13,7 @@
       </div>
       <span class="mt-2 font-semibold duration-300" :class="progressElement !== 100 ? 'text-black' : 'text-green-500'">{{ progressElement !== 100 ? 'Converting' : 'Conversion Complete' }} </span>
     </div>
-    <!-- Convert -->
+    <!-- Download -->
     <a @click="downloadClick()" :target="GlobalData.selectedFormat === '.webm' ? '_blank' : ''" :href="GlobalData.downloadUrlFromNode" id="downloadBtn" :download="GlobalData.downloadName" class="mt-3 flex w-44 rounded-lg border-0 bg-green-500 bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:text-white hover:shadow-xl focus:outline-none" :class="[progressElement === 100 ? 'flex' : 'hidden', progressElement !== 100 ? 'pointer-events-none' : 'cursor-pointer']">
       <DownloadIcon />
       Download</a
@@ -25,10 +25,11 @@
 import { ref, onMounted } from 'vue';
 import io from 'socket.io-client';
 // icons
-import DownloadIcon from '../../src/assets/icons/DownloadIcon.vue';
-import ConvertIcon from '../../src/assets/icons/ConvertIcon.vue';
+import DownloadIcon from '../../../src/assets/icons/DownloadIcon.vue';
+import ConvertIcon from '../../../src/assets/icons/ConvertIcon.vue';
 // global store
-import { useGlobalStore } from '../../src/Store/GlobalStore.js';
+import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
+
 const GlobalData = useGlobalStore();
 
 const showConvertButton = ref(true);

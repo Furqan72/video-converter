@@ -1,5 +1,5 @@
 <template>
-  <header class="grid h-[350px] bg-[#363636ff] px-20 pt-20 text-white lg:grid-cols-2">
+  <div class="grid h-[350px] bg-[#363636ff] px-32 pt-20 text-white lg:grid-cols-2">
     <div class="maxlg:text-center">
       <h1 class="text-3xl font-bold">Transform MP4 Files into a Variety of Formats.</h1>
       <p class="py-2">Unleash Your Media Potential with Our Comprehensive Video Conversion Services</p>
@@ -22,10 +22,11 @@
         </select>
       </div>
     </div>
-  </header>
+  </div>
 </template>
 
 <script setup>
-import { useGlobalStore } from '../../src/Store/GlobalStore.js';
+import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
+
 const GlobalData = useGlobalStore();
 </script>
