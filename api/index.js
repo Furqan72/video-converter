@@ -41,6 +41,7 @@ app.use((req, res, next) => {
   next();
 });
 
+// router
 app.use('/', router);
 
 io.on('connection', (socket) => {

@@ -287,7 +287,6 @@ const videoConversionFunction = async (req, res, io) => {
       command.save(outputPath);
     }
   });
-  //   });
 };
 
 module.exports = { videoConversionFunction };
