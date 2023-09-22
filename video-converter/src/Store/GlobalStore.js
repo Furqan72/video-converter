@@ -4,6 +4,9 @@ import { defineStore } from 'pinia';
 export const useGlobalStore = defineStore('GlobalStore', () => {
   const fileSizeExceeded = ref(false);
   const fileSize = ref(null);
+  const downloadUrlFromNode = ref('');
+  const errMessage = ref('');
+  const downloadName = ref('');
   const markWrongFormat = ref(false);
 
   const selectedFormat = ref('.avi');
@@ -16,6 +19,9 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
     markWrongFormat,
     fileSizeExceeded,
     fileSize,
+    errMessage,
+    downloadUrlFromNode,
+    downloadName,
 
     // functions
     updateSelectedFormat,
