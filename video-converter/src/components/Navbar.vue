@@ -1,5 +1,5 @@
 <template>
-  <nav class="flex items-center justify-between bg-[#303030ff] px-32 py-5 text-white shadow-sm">
+  <nav class="flex items-center justify-between bg-[#303030ff] px-28 py-5 text-white shadow-sm">
     <div class="flex items-center gap-x-24">
       <div class="flex cursor-pointer items-center text-xl">
         <img src="../assets/images/nav_icon.png" alt="" class="mr-2 w-12" />

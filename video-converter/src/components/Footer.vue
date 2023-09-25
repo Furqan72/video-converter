@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-[#f2f2f2] px-32 py-14">
+  <div class="bg-[#f2f2f2] px-28 py-14">
     <div class="grid grid-cols-10">
       <div v-for="(list, index) in lists" :key="index" class="mx-4">
         <p class="pb-3 font-semibold text-black">{{ list.listName }}</p>

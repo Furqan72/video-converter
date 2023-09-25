@@ -1,14 +1,14 @@
 <template>
   <main class="bg-[#f9f9f9ff]">
     <form @submit.prevent="sendFile">
-      <!-- Header -->
+      <!-- select format -->
       <SelectMenu />
 
       <!-- Upload -->
       <FileUploadCOmponent />
 
       <!-- Options -->
-      <div class="h-full bg-[#f9f9f9ff] px-32">
+      <div class="h-full bg-[#f9f9f9ff] px-28">
         <div class="bg-white pb-14">
           <!-- Video options -->
           <VideoOptionComponent />

@@ -12,7 +12,7 @@
       </div>
     </div>
     <!-- video -->
-    <h3 class="flex items-center justify-start bg-[#f1f1f1f1] px-10 py-3 text-lg font-bold text-gray-color">
+    <h3 class="flex items-center justify-start px-10 py-3 text-lg font-bold text-gray-color">
       <img src="../../assets/images/video-camera.png" alt="" class="mr-[14px] h-5 w-5" />
       Video
     </h3>
@@ -48,11 +48,9 @@
 </template>
 
 <script setup>
-// import { ref, computed } from 'vue';
 import { ref, computed, watch, reactive } from 'vue';
 // global store
 import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
-
 const GlobalData = useGlobalStore();
 
 const showTooltip = ref(false);
@@ -133,7 +131,6 @@ const constantQualityOptions = ref([
   { value: '50', label: '50' },
   { value: '51', label: '51 (worst quality)' },
 ]);
-
 // preset
 const PresetOptions = ref([
   { value: 'ultrafast', label: 'ultrafast' },
@@ -352,28 +349,6 @@ const fields = reactive([
     description: 'Sets the mode of sizing the video. "Max" resizes the video to fit within the width and height, but will not increase the size of the image if it is smaller than width or height. "Crop" resizes the video to fill the width and height dimensions and crops any excess video data. "Scale" enforces the video width and height by scaling. "Pad" resizes the video to the width and height dimensions and keeps the aspect ratio by adding black bars if necessary.',
   },
 ]);
-
-// const filteredList = fields
-//   .filter((e) => e. === '1')
-//   .map((e) => {
-//     return { name: e., unit: e.properties.unit };
-//   });
-// console.log(filteredList);
-
-// const shouldHideField = computed(() => {
-//   const selectedFormat = GlobalData.selectedFormat;
-//   return (field) => {
-//     if (selectedFormat === '.webm') {
-//       if (
-//         field.name === 'ResolutionMenu' ||
-//         field.name === 'AspectRatioSelect'
-//       ) {
-//         return true;
-//       }
-//     }
-//     return false;
-//   };
-// });
 
 const shouldHideField = computed(() => (field) => {
   const selectedFormat = GlobalData.selectedFormat;

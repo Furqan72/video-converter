@@ -1,5 +1,5 @@
 <template>
-  <article class="bg-[#f9f9f9] px-32 py-10">
+  <article class="bg-[#f9f9f9] px-28 py-10">
     <div class="bg-white px-10 py-10">
       <!-- Other -->
       <h3 class="flex items-center justify-start py-3 text-lg font-bold text-gray-color">

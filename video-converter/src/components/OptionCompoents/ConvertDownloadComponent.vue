@@ -46,6 +46,10 @@ onMounted(() => {
   // socket.on('message', (message) => {
   // console.log('Received message from server:', message);
   // });
+  socket.on('errMessage', (errorMessage) => {
+    console.log('Received message from server:', errorMessage);
+    GlobalData.errMessage = errorMessage;
+  });
   socket.on('progress', (progressPercent) => {
     // console.log('Progress:', progressPercent);
     progressElement.value = progressPercent;

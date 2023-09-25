@@ -40,7 +40,7 @@ const wrongFormat = ref(false);
 const checkingFileType = (event) => {
   // changing name
   const nameValue = event.target.files[0];
-  console.log(nameValue);
+  // console.log(nameValue);
   updateFileName.value = nameValue.name;
 
   const validExtensions = ['.srt', '.ass'];
