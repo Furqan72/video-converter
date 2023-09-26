@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col items-center justify-center gap-y-5 px-28 py-14">
     <!-- Upload -->
-    <p v-if="GlobalData.fileSizeExceeded" class="text-center text-red-600">File size exceeded the limit of 25 MB</p>
+    <p v-if="GlobalData.fileSizeExceeded || GlobalData.formatCheck" class="text-center text-red-600">{{ GlobalData.fileSizeExceeded === true ? 'File size exceeded the limit of 25 MB' : '' || GlobalData.formatCheck === true ? 'Wrong format file. Please upload only mp4 files.' : '' }}</p>
     <div class="relative mx-auto flex w-48 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-[#b53836ff] py-4 text-xl text-white duration-300 hover:font-semibold hover:shadow-2xl">
       <input type="file" name="videoFile" accept="video/mp4" class="absolute bottom-0 left-0 right-0 top-0 m-0 cursor-pointer p-0 opacity-0 filter-none" @change="checkFileSize" required />
       <svg :class="GlobalData.fileSize === null ? 'hidden' : 'block'" xmlns="http://www.w3.org/2000/svg" class="mr-2 h-7 w-7" fill="currentColor" viewBox="0 0 104.69 122.88" style="enable-background: new 0 0 104.69 122.88" xml:space="preserve">
@@ -13,6 +13,11 @@
         </g>
       </svg>
       <span>Upload</span>
+    </div>
+    <div v-if="GlobalData.fileSize !== null" class="shadow-lg">
+      <video v-if="previewUrl" width="350" height="200" class="mt-5 rounded-md">
+        <source :src="previewUrl" type="video/mp4" />
+      </video>
     </div>
     <!-- loading -->
     <div class="mt-1 text-center" :class="GlobalData.uploadLoading === '' ? 'hidden' : 'block'">
@@ -30,15 +35,29 @@ import { ref } from 'vue';
 import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 
-// file size check
+// file size & type check
+const previewUrl = ref(null);
 const checkFileSize = (event) => {
-  const file = event.target.files[0];
-  if (file.size > 50000000) {
-    GlobalData.fileSizeExceeded = true;
-    GlobalData.fileSize = null;
+  if (event.target.files && event.target.files.length > 0) {
+    const file = event.target.files[0];
+    const validExtensions = '.mp4';
+    const fileExtension = file.name.slice(((file.name.lastIndexOf('.') - 1) >>> 0) + 2);
+
+    if (file.size > 50000000) {
+      GlobalData.fileSizeExceeded = true;
+      GlobalData.fileSize = null;
+    } else if (!validExtensions.includes('.' + fileExtension)) {
+      GlobalData.formatCheck = true;
+    } else {
+      GlobalData.formatCheck = false;
+      GlobalData.fileSizeExceeded = false;
+      GlobalData.fileSize = file.size;
+
+      const objectURL = URL.createObjectURL(file);
+      previewUrl.value = objectURL;
+    }
   } else {
-    GlobalData.fileSizeExceeded = false;
-    GlobalData.fileSize = file.size;
+    GlobalData.fileSize = null;
   }
 };
 </script>

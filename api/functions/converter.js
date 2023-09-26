@@ -15,7 +15,7 @@ const extractOptionsFromRequest = (req) => {
   options.endingTime = req.body.EndingTime;
   options.resolution = req.body.ResolutionMenu;
   //   let resolution = req.body.ResolutionMenu;
-  //   resolution error^
+  //   resolution err^
   options.videoCOdec = req.body.videotCodecSelect;
   options.aspectRatio = req.body.AspectRatioSelect;
   options.qualityConstant = options.selectMenuValues !== '.wmv' ? req.body.ConstantQualitySelect : '';
@@ -26,12 +26,12 @@ const extractOptionsFromRequest = (req) => {
   options.levelValue = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' ? req.body.levelSelect : '';
 
   options.fitValue = req.body.fitSelect;
-  options.framePersecond = req.body.Fps;
+  options.framePersecond = req.body.fpsSelect;
   options.AudioCodecSelect = req.body.AudioCodec;
   options.Channels = req.body.ChannelsSelect;
   options.videoVolume = req.body.VolumeSelect;
   options.SampleRate = req.body.SampleRateSelect;
-  options.AudioBitrateValue = req.body.AudioBitrate;
+  options.AudioBitrateValue = req.body.BitrateValuesSelect;
   options.imageWatermark = req.files.waterMarkImage;
   options.desiredKeyframeInterval = req.body.KeyframeInterval;
   options.subtitlesType = req.body.subtitleType;

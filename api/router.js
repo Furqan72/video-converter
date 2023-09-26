@@ -8,7 +8,8 @@ router.post('/convert', (req, res) => {
     videoConversionFunction(req, res, req.io);
   } else {
     console.log('error getting videoConversion Function');
-    res.status(500).send('Internal Server Error: videoConversionFunction is not defined.');
+    res.status(500).send('Internal Server Error: No conversion processed.');
+    // res.status(500).send('Internal Server Error: videoConversionFunction is not defined.');
   }
 });
 

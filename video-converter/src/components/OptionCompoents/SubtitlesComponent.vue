@@ -22,7 +22,7 @@
         <div class="col-span-3 flex flex-col">
           <div class="relative h-[42px] w-full cursor-pointer rounded-lg border border-[#dadadaff] text-center">
             <input @change="checkingFileType" name="subtitleFile" accept=".srt, .ass" type="file" class="absolute bottom-0 left-0 right-0 top-0 cursor-pointer border bg-[#ccc] text-[#777] opacity-0" />
-            <span class="pointer-events-none absolute left-0 min-w-[100px] rounded-r rounded-bl-none rounded-tl-none px-4 py-2">{{ updateFileName }}</span>
+            <span class="pointer-events-none absolute left-0 w-60 overflow-hidden text-ellipsis whitespace-nowrap rounded-r rounded-bl-none rounded-tl-none px-4 py-2 text-start">{{ updateFileName }}</span>
             <label class="pointer-events-none absolute right-0 w-32 rounded-r-lg border-l border-[#dadadaff] bg-[#f2f2f2ff] px-4 py-2">Browse</label>
           </div>
           <span class="mt-2 inline-flex text-xs text-light-gray">Add subtitles by selecting a SRT or ASS file. Only has an effect, if "Subtitles Mode" is set to "soft" or "hard".</span>
@@ -32,26 +32,31 @@
     </div>
   </div>
 </template>
+
 <script setup>
 import { ref, onMounted } from 'vue';
 
 const updateFileName = ref('Choosen a file...');
 const wrongFormat = ref(false);
 const checkingFileType = (event) => {
-  // changing name
-  const nameValue = event.target.files[0];
-  // console.log(nameValue);
-  updateFileName.value = nameValue.name;
+  if (event.target.files && event.target.files.length > 0) {
+    // changing name
+    const nameValue = event.target.files[0];
+    // console.log(nameValue);
+    updateFileName.value = nameValue.name;
 
-  const validExtensions = ['.srt', '.ass'];
-  // Getting if the file has a valid extension
-  const fileExtension = nameValue.name.slice(((nameValue.name.lastIndexOf('.') - 1) >>> 0) + 2);
+    const validExtensions = ['.srt', '.ass'];
+    // Getting if the file has a valid extension
+    const fileExtension = nameValue.name.slice(((nameValue.name.lastIndexOf('.') - 1) >>> 0) + 2);
 
-  // checking extension
-  if (!validExtensions.includes('.' + fileExtension)) {
-    wrongFormat.value = true;
+    // checking extension
+    if (!validExtensions.includes('.' + fileExtension)) {
+      wrongFormat.value = true;
+    } else {
+      wrongFormat.value = false;
+    }
   } else {
-    wrongFormat.value = false;
+    updateFileName.value = 'No file chosen';
   }
 };
 </script>

@@ -606,3 +606,54 @@ command
   .on('codecData', (data) => {
     commandOutput += data + '\n';
   });
+//
+// +-----------------------------------------------------------------------------------------------------------------------------------------+
+//
+const OptionsOnRequest = (req) => {
+  const selectMenuValues = req.body.selectMenu;
+  const resolution = req.body.ResolutionMenu;
+  const videoCodec = req.body.videotCodecSelect;
+  const aspectRatio = req.body.AspectRatioSelect;
+  const qualityConstant = selectMenuValues !== '.wmv' ? req.body.ConstantQualitySelect : '';
+  const presetValue = selectMenuValues === '.avi' || selectMenuValues === '.flv' || selectMenuValues === '.mkv' || selectMenuValues === '.mov' || selectMenuValues === '.mp4' ? req.body.presetSelect : '';
+  const tuning = selectMenuValues === '.avi' || selectMenuValues === '.flv' || selectMenuValues === '.mkv' || selectMenuValues === '.mov' || selectMenuValues === '.mp4' ? req.body.tuneSelect : '';
+  const profileValue = selectMenuValues === '.avi' || selectMenuValues === '.flv' || selectMenuValues === '.mkv' || selectMenuValues === '.mov' || selectMenuValues === '.mp4' ? req.body.profileSelect : '';
+  const levelValue = selectMenuValues === '.avi' || selectMenuValues === '.flv' || selectMenuValues === '.mkv' || selectMenuValues === '.mov' || selectMenuValues === '.mp4' ? req.body.levelSelect : '';
+  const fitValue = req.body.fitSelect;
+  const framePersecond = req.body.Fps;
+  const AudioCodecSelect = req.body.AudioCodec;
+  const Channels = req.body.ChannelsSelect;
+  const videoVolume = req.body.VolumeSelect;
+  const SampleRate = req.body.SampleRateSelect;
+  const AudioBitrateValue = req.body.AudioBitrate;
+  const desiredKeyframeInterval = req.body.KeyframeInterval;
+  const subtitlesType = req.body.subtitleType;
+  const QscaleValue = selectMenuValues === '.wmv' ? req.body.Qscale : '';
+
+  const options = {
+    selectMenuValues,
+    resolution,
+    videoCodec,
+    aspectRatio,
+    qualityConstant,
+    presetValue,
+    tuning,
+    profileValue,
+    levelValue,
+    fitValue,
+    framePersecond,
+    AudioCodecSelect,
+    Channels,
+    videoVolume,
+    SampleRate,
+    AudioBitrateValue,
+    desiredKeyframeInterval,
+    subtitlesType,
+    QscaleValue,
+  };
+
+  return options;
+};
+//
+// +-----------------------------------------------------------------------------------------------------------------------------------------+
+//

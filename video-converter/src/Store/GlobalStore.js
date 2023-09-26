@@ -4,6 +4,7 @@ import { defineStore } from 'pinia';
 export const useGlobalStore = defineStore('GlobalStore', () => {
   const fileSizeExceeded = ref(false);
   const fileSize = ref(null);
+  const formatCheck = ref(false);
   const downloadUrlFromNode = ref('');
   const errMessage = ref('');
   const downloadName = ref('');
@@ -24,6 +25,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
     downloadUrlFromNode,
     downloadName,
     uploadLoading,
+    formatCheck,
 
     // functions
     updateSelectedFormat,

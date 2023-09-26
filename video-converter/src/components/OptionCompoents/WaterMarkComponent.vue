@@ -10,7 +10,7 @@
         <div class="col-span-3 flex flex-col">
           <div class="relative h-[42px] w-full cursor-pointer rounded-lg border border-[#dadadaff] text-center">
             <input @change="handleFileChange" name="waterMarkImage" accept="image/png" type="file" class="absolute bottom-0 left-0 right-0 top-0 cursor-pointer border bg-[#ccc] text-[#777] opacity-0" />
-            <span class="pointer-events-none absolute left-0 min-w-[100px] rounded-r rounded-bl-none rounded-tl-none px-4 py-2">{{ fileName }}</span>
+            <span class="pointer-events-none absolute left-0 w-60 overflow-hidden text-ellipsis whitespace-nowrap rounded-r rounded-bl-none rounded-tl-none px-4 py-2 text-start">{{ fileName }}</span>
             <label class="pointer-events-none absolute right-0 w-32 rounded-r-lg border-l border-[#dadadaff] bg-[#f2f2f2ff] px-4 py-2">Browse</label>
           </div>
           <span class="mt-2 inline-flex text-xs text-light-gray">Watermark image file (PNG).</span>
@@ -29,15 +29,18 @@ const GlobalData = useGlobalStore();
 
 const fileName = ref('Choosen a file...');
 const handleFileChange = (event) => {
-  // changing name
-  const nameValue = event.target.files[0];
-  // console.log(nameValue);
-  fileName.value = nameValue.name;
-  // checking type
-  if (nameValue.type !== 'image/png') {
-    GlobalData.markWrongFormat = true;
+  if (event.target.files && event.target.files.length > 0) {
+    // changing name
+    const nameValue = event.target.files[0];
+    fileName.value = nameValue.name;
+    // checking type
+    if (nameValue.type !== 'image/png') {
+      GlobalData.markWrongFormat = true;
+    } else {
+      GlobalData.markWrongFormat = false;
+    }
   } else {
-    GlobalData.markWrongFormat = false;
+    fileName.value = 'No file chosen';
   }
 };
 </script>
