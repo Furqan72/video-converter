@@ -9,8 +9,10 @@ const extractOptionsFromRequest = (req) => {
   const options = {};
 
   options.inputFile = req.files.videoFile;
+  console.log(options.inputFile);
   options.subtitleFiles = req.files.subtitleFile;
   options.selectMenuValues = req.body.selectMenu;
+  options.selectForFile = req.body.ConvertFromSelect;
   options.startingTime = req.body.StartingTime;
   options.endingTime = req.body.EndingTime;
   options.resolution = req.body.ResolutionMenu;
@@ -18,12 +20,12 @@ const extractOptionsFromRequest = (req) => {
   //   resolution err^
   options.videoCOdec = req.body.videotCodecSelect;
   options.aspectRatio = req.body.AspectRatioSelect;
-  options.qualityConstant = options.selectMenuValues !== '.wmv' ? req.body.ConstantQualitySelect : '';
+  options.qualityConstant = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.3g2' && options.selectMenuValues !== '.3gp' ? req.body.ConstantQualitySelect : '';
 
-  options.presetValue = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' ? req.body.presetSelect : '';
-  options.tuning = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' ? req.body.tuneSelect : '';
-  options.profileValue = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' ? req.body.profileSelect : '';
-  options.levelValue = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' ? req.body.levelSelect : '';
+  options.presetValue = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' && options.selectMenuValues !== '.3g2' && options.selectMenuValues !== '.3gp' ? req.body.presetSelect : '';
+  options.tuning = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' && options.selectMenuValues !== '.3g2' && options.selectMenuValues !== '.3gp' ? req.body.tuneSelect : '';
+  options.profileValue = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' && options.selectMenuValues !== '.3g2' && options.selectMenuValues !== '.3gp' ? req.body.profileSelect : '';
+  options.levelValue = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' && options.selectMenuValues !== '.3g2' && options.selectMenuValues !== '.3gp' ? req.body.levelSelect : '';
 
   options.fitValue = req.body.fitSelect;
   options.framePersecond = req.body.fpsSelect;
@@ -90,7 +92,11 @@ const configureFFmpegEvents = (command, io, res) => {
 };
 
 // Video Configuration
-const configureVideoConversion = (command, options) => {
+const configureVideoConversion = (command, options, originalDimensions) => {
+  const originalWidth = originalDimensions.width;
+  const originalHeight = originalDimensions.height;
+  console.log(`Video resolution ORGINAL DIMENSIONS  : ${originalWidth}x${originalHeight}`);
+
   let [width, height] = options.resolution.split('x');
 
   if (options.videoCOdec === 'copy') {
@@ -100,8 +106,10 @@ const configureVideoConversion = (command, options) => {
     command.videoCodec(options.videoCOdec);
     let filtersForVideo = [];
 
-    if (options.resolution !== 'no change') {
+    if (options.resolution !== 'no change' && (originalWidth > width || originalHeight > height)) {
       filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, width, height, options.aspectRatio));
+    } else if (options.resolution === 'no change') {
+      filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, originalWidth, originalHeight, options.aspectRatio));
     } else if (options.aspectRatio !== 'no change') {
       filtersForVideo.push(`setdar=${options.aspectRatio}`);
     }
@@ -182,8 +190,12 @@ const configureAudioConversion = (command, options) => {
     // Audio Codec
     command.audioCodec(options.AudioCodecSelect);
     // audio Bitrate
-    if (options.AudioBitrateValue !== '') {
-      command.audioBitrate(`${options.AudioBitrateValue}`);
+    if (options.AudioBitrateValue !== '' || (options.selectMenuValues !== '.mp4' && options.audioCodec !== 'libvorbis' && options.selectForFile !== '.3gp')) {
+      if (options.AudioCodecSelect === 'wmav2' && options.videoCOdec == 'wmv2' && options.selectMenuValues === '.wmv') {
+        command.audioBitrate('128');
+      } else {
+        command.audioBitrate(`${options.AudioBitrateValue}`);
+      }
     }
     // audio channels
     if (options.Channels !== '') {
@@ -199,11 +211,13 @@ const configureAudioConversion = (command, options) => {
 const configureTrimming = async (command, options, path) => {
   let errorMessages = '';
   let checkSubtitles = false;
+  let videoStream = '';
   try {
     const metadata = await functions.getVideoMetadata(path);
     const totalVideoDurationInSeconds = metadata.format.duration;
     console.log('Video Duration: ', totalVideoDurationInSeconds, 'seconds');
     checkSubtitles = metadata.streams.some((stream) => stream.codec_type === 'subtitle');
+    videoStream = metadata.streams.find((stream) => stream.codec_type === 'video');
 
     let startingInSeconds = functions.parseTime(options.startingTime);
     let endingInSeconds = functions.parseTime(options.endingTime);
@@ -223,7 +237,7 @@ const configureTrimming = async (command, options, path) => {
     errorMessages = 'Error retrieving video metadata.';
   }
 
-  return { errorMessages, checkSubtitles };
+  return { errorMessages, checkSubtitles, videoStream };
 };
 
 // WaterMark
@@ -291,7 +305,7 @@ const videoConversionFunction = async (req, res, io) => {
     configureFFmpegEvents(command, io, res);
 
     // Trimming Configuration
-    const { errorMessages, checkSubtitles } = await configureTrimming(command, editingoptions, inputPath);
+    const { errorMessages, checkSubtitles, videoStream } = await configureTrimming(command, editingoptions, inputPath);
     res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages });
     // error
     if (errorMessages !== '') {
@@ -303,7 +317,7 @@ const videoConversionFunction = async (req, res, io) => {
 
     console.log(hasEmbeddedSubtitles);
     // Video Settings
-    configureVideoConversion(command, editingoptions);
+    configureVideoConversion(command, editingoptions, videoStream);
 
     // Audio Settings
     configureAudioConversion(command, editingoptions);

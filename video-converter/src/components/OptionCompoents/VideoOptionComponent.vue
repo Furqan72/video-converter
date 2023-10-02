@@ -12,14 +12,15 @@
       </div>
     </div>
     <!-- video -->
-    <h3 class="flex items-center justify-start px-10 py-3 text-lg font-bold text-gray-color">
+    <h3 class="flex items-center justify-start bg-[#f1f1f1f1] px-10 py-3 text-lg font-bold text-gray-color">
       <img src="../../assets/images/video-camera.png" alt="" class="mr-[14px] h-5 w-5" />
       Video
     </h3>
     <!-- Video options -->
     <div class="grid gap-x-8 gap-y-6 px-10 py-7 coxl:grid-cols-2">
-      <div v-for="(field, index) in fields" :key="index" class="grid grid-cols-4 justify-center text-gray-color">
-        <template v-if="!shouldHideField(field)">
+      <template v-for="(field, index) in fields" :key="index">
+        <!-- <div v-for="(field, index) in fields" :key="index" class="grid grid-cols-4 justify-center text-gray-color"> -->
+        <div v-if="!shouldHideField(field)" class="grid grid-cols-4 justify-center text-gray-color">
           <label :for="field.name" class="mr-2 mt-2 text-15px">{{ field.label }}</label>
           <div class="col-span-3 flex flex-col">
             <select :name="field.name" class="w-full rounded-lg border px-4 py-2 outline-none">
@@ -27,8 +28,8 @@
             </select>
             <span class="mt-2 text-xs text-light-gray">{{ field.description }}</span>
           </div>
-        </template>
-      </div>
+        </div>
+      </template>
       <div class="grid grid-cols-4 justify-center text-gray-color" :class="GlobalData.selectedFormat === '.wmv' ? 'block' : 'hidden'">
         <label for="" class="mr-2 mt-2 text-15px">Qscale</label>
         <div class="col-span-3 flex flex-col">
@@ -36,13 +37,6 @@
           <span class="mt-2 text-xs text-light-gray">Video quality ranging from 1-31, with 1 being highest quality/largest filesize and 31 being the lowest quality/smallest filesize.</span>
         </div>
       </div>
-      <!-- <div class="grid grid-cols-4 justify-center text-gray-color">
-        <label for="" class="mr-2 mt-2 text-15px">Fps</label>
-        <div class="col-span-3 flex flex-col">
-          <input type="text" name="Fps" class="w-full rounded-lg border px-4 py-2 outline-none" placeholder="" />
-          <span class="mt-2 text-xs text-light-gray">Change the video frame rate.</span>
-        </div>
-      </div> -->
     </div>
   </div>
 </template>
@@ -71,9 +65,9 @@ const resolutionOptions = ref([
 // aspect ratio
 const aspectRatioOptions = ref([
   { value: 'no change', label: 'no change', selected: 'no changes' },
-  { value: '16:9', label: '16:9' },
-  { value: '14:9', label: '14:9' },
-  { value: '4:3', label: '4:3' },
+  { value: '16/9', label: '16:9' },
+  { value: '14/9', label: '14:9' },
+  { value: '4/3', label: '4:3' },
 ]);
 // constant quality
 const constantQualityOptions = ref([
@@ -307,6 +301,18 @@ const wmvCodecOptions = ref([
   { value: 'msmpeg4v2', label: 'msmpeg4', selected: 'msmpeg4' },
   { value: 'wmv2', label: 'wmv2' },
 ]);
+//  video COdec for 3g2
+const threeG2CodecOptions = ref([
+  { value: 'copy', label: 'Copy (No Re-encoding)' },
+  { value: 'libx264', label: 'x264', selected: 'x264' },
+  // { value: 'libxvid', label: 'xvid' },
+]);
+//  video COdec for 3gp
+const threeGPCodecOptions = ref([
+  { value: 'copy', label: 'Copy (No Re-encoding)' },
+  { value: 'libx264', label: 'x264', selected: 'x264' },
+  { value: 'libxvid', label: 'xvid' },
+]);
 
 // removing (.) from selected value
 const formatWithoutDot = computed(() => {
@@ -335,6 +341,10 @@ const selectedVideoCodecOptions = computed(() => {
       return webmCodecOptions.value;
     case 'wmv':
       return wmvCodecOptions.value;
+    case '3g2':
+      return threeG2CodecOptions.value;
+    case '3gp':
+      return threeGPCodecOptions.value;
     default:
       return [];
   }
@@ -426,11 +436,12 @@ const shouldHideField = computed(() => (field) => {
       return true;
     }
   }
-  if (selectedFormat === '.wmv') {
+  if (selectedFormat === '.wmv' || selectedFormat === '.3g2' || selectedFormat === '.3gp') {
     if (field.name === 'ConstantQualitySelect' || field.name === 'presetSelect' || field.name === 'tuneSelect' || field.name === 'profileSelect' || field.name === 'levelSelect') {
       return true;
     }
   }
+
   return false;
 });
 

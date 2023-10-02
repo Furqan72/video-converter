@@ -88,14 +88,14 @@ function createComplexVideoFilter(fitValue, widthValue, heightValue, aspectRatio
       break;
     case 'pad':
       console.log('pad');
-      complexFilter.push(`scale=${widthValue}:${heightValue}:force_original_aspect_ratio=decrease`);
-      complexFilter.push(`pad=${widthValue}:${heightValue}:(ow-iw)/2:(oh-ih)/2`);
+      complexFilter.push(`scale=w=min(iw\\,${widthValue}):h=min(ih\\,${heightValue}):force_original_aspect_ratio=decrease,pad=${widthValue}:${heightValue}:(ow-iw)/2:(oh-ih)/2`);
       break;
     case 'crop':
       console.log('crop');
       complexFilter.push(`crop=${widthValue}:${heightValue}`);
       break;
     default:
+      console.log('error error error error error (error in the createComplexVideoFilter function)');
       break;
   }
 

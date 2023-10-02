@@ -2,6 +2,7 @@ import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
 
 export const useGlobalStore = defineStore('GlobalStore', () => {
+  const selectedFileFormat = ref('...');
   const fileSizeExceeded = ref(false);
   const fileSize = ref(null);
   const formatCheck = ref(false);
@@ -11,7 +12,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
   const markWrongFormat = ref(false);
   const uploadLoading = ref('');
 
-  const selectedFormat = ref('.avi');
+  const selectedFormat = ref('...');
   const updateSelectedFormat = (event) => {
     selectedFormat.value = event.target.value;
   };
@@ -26,6 +27,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
     downloadName,
     uploadLoading,
     formatCheck,
+    selectedFileFormat,
 
     // functions
     updateSelectedFormat,

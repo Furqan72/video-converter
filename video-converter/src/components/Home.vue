@@ -17,7 +17,7 @@
           <AudioOptionComponent />
 
           <!-- Subtitles options -->
-          <SubtitlesComponent :class="GlobalData.selectedFormat === '.webm' || GlobalData.selectedFormat === '.wmv' || GlobalData.selectedFormat === '.avi' || GlobalData.selectedFormat === '.flv' ? 'hidden' : 'block'" />
+          <SubtitlesComponent v-show="!showSubtitlesComponent" />
 
           <!-- Trim -->
           <TrimmingComponent />
@@ -37,7 +37,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch, computed } from 'vue';
 import axios from 'axios';
 // components
 import SelectMenu from '../../src/components/OptionCompoents/SelectMenu.vue';
@@ -77,7 +77,21 @@ const sendFile = async () => {
       console.error('An error occurred:', error);
     });
 
-  // socket.emit('message', 'File Upload Started');
   formSubmitted.value = true;
 };
+
+const subtitlesNotIncluded = ['.webm', '.wmv', '.avi', '.flv', '.3g2', '.3gp'];
+const showSubtitlesComponent = computed(() => {
+  const selectedFormat = GlobalData.selectedFormat;
+  return subtitlesNotIncluded.some((format) => selectedFormat.includes(format));
+});
+
+watch(
+  () => GlobalData.selectedFormat,
+  () => {
+    showSubtitlesComponent.value;
+  }
+);
+
+//
 </script>

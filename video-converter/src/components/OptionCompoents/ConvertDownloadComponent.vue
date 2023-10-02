@@ -1,20 +1,28 @@
 <template>
   <!-- Convert -->
   <div class="mt-14 flex flex-col items-center justify-center">
-    <p class="mb-10 mt-5 text-center text-red-600" :class="GlobalData.errMessage === '' ? 'hidden' : 'block'">{{ GlobalData.errMessage }}</p>
-    <button type="submit" class="flex w-44 items-center justify-center rounded-lg border-0 bg-[#b53836ff] bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:shadow-xl focus:outline-none" :disabled="GlobalData.fileSizeExceeded === true || GlobalData.markWrongFormat === true || GlobalData.formatCheck === true">
+    <p class="mb-10 mt-5 text-center text-red-600" v-if="GlobalData.errMessage">{{ GlobalData.errMessage }}</p>
+    <button type="submit" class="flex w-44 items-center justify-center rounded-lg border-0 bg-[#b53836ff] bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:shadow-xl focus:outline-none" :disabled="GlobalData.fileSizeExceeded === true || GlobalData.markWrongFormat === true || GlobalData.formatCheck === true || GlobalData.selectedFormat === '...' || GlobalData.selectedFileFormat === '...'">
       <ConvertIcon />
       <span>Convert</span>
     </button>
     <!-- loading -->
-    <div class="flex w-full flex-col items-center justify-center py-5" :class="progressElement === 0 ? 'hidden' : 'block'">
+    <div class="flex w-full flex-col items-center justify-center py-5" v-if="progressElement !== 0">
       <div class="flex h-7 w-80 items-center rounded-full bg-gray-200 px-3 shadow-lg duration-300">
         <p class="h-[14px] w-0 rounded-full text-center duration-500" :class="progressElement !== 100 ? 'bg-[#b53836ff]' : 'bg-green-500'" :style="{ width: progressElement + '%' }"></p>
       </div>
-      <span class="mt-2 font-semibold duration-300" :class="progressElement !== 100 ? 'text-black' : 'text-green-500'">{{ progressElement !== 100 ? 'Converting' : 'Conversion Complete' }} </span>
+
+      <div class="mt-2 flex items-center justify-center">
+        <span class="mr-2 block font-semibold duration-300" :class="progressElement !== 100 ? 'text-black' : 'text-green-500'">{{ progressElement !== 100 ? 'Converting' : 'Conversion Complete' }} </span>
+        <div class="flex justify-center" v-if="progressElement !== 100">
+          <div class="pulse-bubble-1 mx-[2px] h-1 w-1 rounded-full bg-black"></div>
+          <div class="pulse-bubble-2 mx-[2px] h-1 w-1 rounded-full bg-black"></div>
+          <div class="pulse-bubble-3 mx-[2px] h-1 w-1 rounded-full bg-black"></div>
+        </div>
+      </div>
     </div>
     <!-- Download -->
-    <a @click="downloadClick()" :target="GlobalData.selectedFormat === '.webm' || GlobalData.selectedFormat === '.mp4' ? '_blank' : ''" :href="GlobalData.downloadUrlFromNode" id="downloadBtn" :download="GlobalData.downloadName" class="mt-3 flex w-44 rounded-lg border-0 bg-green-500 bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:text-white hover:shadow-xl focus:outline-none" :class="[progressElement === 100 ? 'flex' : 'hidden', progressElement !== 100 ? 'pointer-events-none' : 'cursor-pointer']">
+    <a @click="downloadClick()" :target="GlobalData.selectedFormat === '.webm' || GlobalData.selectedFormat === '.mp4' || GlobalData.selectedFormat === '.3gp' ? '_blank' : ''" :href="GlobalData.downloadUrlFromNode" id="downloadBtn" :download="GlobalData.downloadName" class="mt-3 flex w-44 rounded-lg border-0 bg-green-500 bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:text-white hover:shadow-xl focus:outline-none" :class="[progressElement === 100 ? 'flex' : 'hidden', progressElement !== 100 ? 'pointer-events-none' : 'cursor-pointer']">
       <DownloadIcon />
       Download</a
     >
@@ -57,4 +65,51 @@ onMounted(() => {
 });
 </script>
 
+<style scoped>
+@keyframes pulse {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0.25;
+    transform: scale(0.75);
+  }
+}
+
+.pulse-bubble-1 {
+  animation: pulse 0.4s ease 0s infinite alternate;
+}
+.pulse-bubble-2 {
+  animation: pulse 0.4s ease 0.2s infinite alternate;
+}
+.pulse-bubble-3 {
+  animation: pulse 0.4s ease 0.4s infinite alternate;
+}
+</style>
+
 <!-- 3G2,3GP,3GPP,AVI,CAVS,DV,DVR,FLV,M2TS,M4V,MKV,MOD,MOV,MP4,MPEG,MPG,MTS,MXF,OGG,RM,RMVB,SWF,TS,VOB,WEBM,WMV,WTV -->
+
+<!-- Resolution -->
+<!-- Aspect Ratio -->
+<!-- Fit-->
+<!--FPS -->
+<!-- Audio Bitrate -->
+<!-- Channels -->
+<!-- Volume -->
+
+<!-- {Constant Quality (CRF)
+Video Codec
+Preset
+Tune
+Profile
+Level
+Audio Codec
+Sample Rate
+Subtitles
+Subtitles Mode
+Trim
+Watermark
+Watermark Image
+Other
+Keyframe Interval} -->
