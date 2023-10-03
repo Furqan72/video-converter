@@ -313,6 +313,11 @@ const threeGPCodecOptions = ref([
   { value: 'libx264', label: 'x264', selected: 'x264' },
   { value: 'libxvid', label: 'xvid' },
 ]);
+//  video COdec for dv
+const dvCodecOptions = ref([
+  { value: 'copy', label: 'Copy (No Re-encoding)' },
+  { value: 'dvvideo', label: 'dvvideo', selected: 'dvvideo' },
+]);
 
 // removing (.) from selected value
 const formatWithoutDot = computed(() => {
@@ -345,6 +350,8 @@ const selectedVideoCodecOptions = computed(() => {
       return threeG2CodecOptions.value;
     case '3gp':
       return threeGPCodecOptions.value;
+    case 'dv':
+      return dvCodecOptions.value;
     default:
       return [];
   }
@@ -436,7 +443,7 @@ const shouldHideField = computed(() => (field) => {
       return true;
     }
   }
-  if (selectedFormat === '.wmv' || selectedFormat === '.3g2' || selectedFormat === '.3gp') {
+  if (selectedFormat === '.wmv' || selectedFormat === '.3g2' || selectedFormat === '.3gp' || selectedFormat === '.dv') {
     if (field.name === 'ConstantQualitySelect' || field.name === 'presetSelect' || field.name === 'tuneSelect' || field.name === 'profileSelect' || field.name === 'levelSelect') {
       return true;
     }

@@ -73,21 +73,6 @@ const SampleRateSelectOptions = ref([
 ]);
 const BitrateValues = ref([
   { value: '', label: 'none' },
-  { value: '30', label: '30' },
-  { value: '31', label: '31' },
-  { value: '32', label: '32' },
-  { value: '33', label: '33' },
-  { value: '34', label: '34' },
-  { value: '35', label: '35' },
-  { value: '36', label: '36' },
-  { value: '37', label: '37' },
-  { value: '38', label: '38' },
-  { value: '39', label: '39' },
-  { value: '40', label: '40' },
-  { value: '41', label: '41' },
-  { value: '42', label: '42' },
-  { value: '43', label: '43' },
-  { value: '44', label: '44' },
   { value: '45', label: '45' },
   { value: '46', label: '46' },
   { value: '47', label: '47' },
@@ -104,9 +89,28 @@ const BitrateValues = ref([
   { value: '58', label: '58' },
   { value: '59', label: '59' },
   { value: '60', label: '60' },
+  { value: '61', label: '61' },
+  { value: '62', label: '62' },
+  { value: '63', label: '63' },
+  { value: '64', label: '64' },
+  { value: '65', label: '65' },
+  { value: '66', label: '66' },
+  { value: '67', label: '67' },
+  { value: '68', label: '68' },
+  { value: '69', label: '69' },
+  { value: '70', label: '70' },
+  { value: '71', label: '71' },
   { value: '72', label: '72' },
+  { value: '73', label: '73' },
+  { value: '74', label: '74' },
+  { value: '75', label: '75' },
+  { value: '76', label: '76' },
+  { value: '77', label: '77' },
+  { value: '78', label: '78' },
+  { value: '79', label: '79' },
   { value: '80', label: '80' },
   { value: '96', label: '96' },
+  { value: '112', label: '112' },
   { value: '128', label: '128', selected: '128' },
 ]);
 // const AudioCodecOptions = ref([
@@ -119,6 +123,7 @@ const BitrateValues = ref([
 //   { value: 'libvorbis', label: 'vorbis' },
 // ]);
 
+// ----------------- AudioCodecOptions --------------------
 //AudioCodecs for AVI & MOV
 const AVIMOVCodecOptions = ref([
   { value: 'copy', label: 'copy' },
@@ -172,6 +177,14 @@ const threeGPCodecOptions = ref([
   { value: 'aac', label: 'aac', selected: 'acc' },
 ]);
 
+//Audio Codecs for 3gp
+const otherCodecOptions = ref([
+  { value: 'copy', label: 'copy' },
+  { value: 'none', label: 'none' },
+  { value: 'aac', label: 'aac' },
+  { value: 'pcm_s16le', label: 'pcm_s16le', selected: 'pcm_s16le' },
+]);
+
 // selecting value for video-codec
 const selectedAudioCodecOptions = computed(() => {
   const selectedFormat = GlobalData.selectedFormat;
@@ -189,6 +202,8 @@ const selectedAudioCodecOptions = computed(() => {
     return threeG2CodecOptions.value;
   } else if (selectedFormat === '.3gp') {
     return threeGPCodecOptions.value;
+  } else if (selectedFormat === '.dv') {
+    return otherCodecOptions.value;
   }
 });
 

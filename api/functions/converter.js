@@ -20,12 +20,12 @@ const extractOptionsFromRequest = (req) => {
   //   resolution err^
   options.videoCOdec = req.body.videotCodecSelect;
   options.aspectRatio = req.body.AspectRatioSelect;
-  options.qualityConstant = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.3g2' && options.selectMenuValues !== '.3gp' ? req.body.ConstantQualitySelect : '';
+  options.qualityConstant = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.3g2' && options.selectMenuValues !== '.3gp' && options.selectMenuValues !== '.dv' ? req.body.ConstantQualitySelect : '';
 
-  options.presetValue = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' && options.selectMenuValues !== '.3g2' && options.selectMenuValues !== '.3gp' ? req.body.presetSelect : '';
-  options.tuning = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' && options.selectMenuValues !== '.3g2' && options.selectMenuValues !== '.3gp' ? req.body.tuneSelect : '';
-  options.profileValue = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' && options.selectMenuValues !== '.3g2' && options.selectMenuValues !== '.3gp' ? req.body.profileSelect : '';
-  options.levelValue = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' && options.selectMenuValues !== '.3g2' && options.selectMenuValues !== '.3gp' ? req.body.levelSelect : '';
+  options.presetValue = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' && options.selectMenuValues !== '.3g2' && options.selectMenuValues !== '.3gp' && options.selectMenuValues !== '.dv' ? req.body.presetSelect : '';
+  options.tuning = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' && options.selectMenuValues !== '.3g2' && options.selectMenuValues !== '.3gp' && options.selectMenuValues !== '.dv' ? req.body.tuneSelect : '';
+  options.profileValue = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' && options.selectMenuValues !== '.3g2' && options.selectMenuValues !== '.3gp' && options.selectMenuValues !== '.dv' ? req.body.profileSelect : '';
+  options.levelValue = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' && options.selectMenuValues !== '.3g2' && options.selectMenuValues !== '.3gp' && options.selectMenuValues !== '.dv' ? req.body.levelSelect : '';
 
   options.fitValue = req.body.fitSelect;
   options.framePersecond = req.body.fpsSelect;
@@ -66,7 +66,7 @@ const handleFileUpload = (file, destination, processedFiles) => {
 const configureFFmpegEvents = (command, io, res) => {
   command
     .on('start', () => {
-      io.emit('message', 'Conversion Started.');
+      // io.emit('message', 'Conversion Started.');
       console.log('message', 'Conversion Started.');
     })
     .on('progress', (progress) => {
@@ -79,14 +79,14 @@ const configureFFmpegEvents = (command, io, res) => {
     .on('end', () => {
       const progressPercent = 100;
       io.emit('progress', progressPercent);
-      io.emit('message', 'Conversion Finished.');
+      // io.emit('message', 'Conversion Finished.');
       console.log('message', 'Conversion Finished.');
     })
     .on('error', (err, stdout, stderr) => {
       console.error('Error:', err);
       console.error('FFmpeg stderr:', stderr);
       console.error('FFmpeg stdout:', stdout);
-      io.emit('message', 'Conversion Error: ' + err.message);
+      io.emit('message', 'Conversion Error. Video not convertable.');
       res.status(500).send('Conversion Error: ' + err.message);
     });
 };
@@ -183,20 +183,18 @@ const configureAudioConversion = (command, options) => {
   // Audio Settings
   if (options.AudioCodecSelect === 'none') {
     command.addOption('-an');
-    // command.audioCodec('');
   } else if (options.AudioCodecSelect === 'copy') {
     command.audioCodec(options.AudioCodecSelect);
   } else if (options.AudioCodecSelect !== '') {
     // Audio Codec
     command.audioCodec(options.AudioCodecSelect);
     // audio Bitrate
-    if (options.AudioBitrateValue !== '' || (options.selectMenuValues !== '.mp4' && options.audioCodec !== 'libvorbis' && options.selectForFile !== '.3gp')) {
-      if (options.AudioCodecSelect === 'wmav2' && options.videoCOdec == 'wmv2' && options.selectMenuValues === '.wmv') {
-        command.audioBitrate('128');
-      } else {
-        command.audioBitrate(`${options.AudioBitrateValue}`);
-      }
+    if ((options.AudioBitrateValue !== '' || (options.selectMenuValues !== '.mp4' && options.audioCodec !== 'libvorbis' && options.selectForFile !== '.3gp')) && options.AudioCodecSelect === 'wmav2' && options.videoCOdec == 'wmv2' && options.selectMenuValues === '.wmv') {
+      command.audioBitrate('128');
+    } else if (options.AudioBitrateValue !== '') {
+      command.audioBitrate(`${options.AudioBitrateValue}`);
     }
+
     // audio channels
     if (options.Channels !== '') {
       command.audioChannels(`${options.Channels}`);

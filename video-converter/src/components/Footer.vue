@@ -34,8 +34,8 @@ const lists = ref([
     listName: 'Resources',
     listContent: [
       {
-        name1: 'About Us',
-        name2: 'Security',
+        name1: 'Blog',
+        name2: 'Status',
       },
     ],
   },
@@ -43,8 +43,8 @@ const lists = ref([
     listName: 'Legal',
     listContent: [
       {
-        name1: 'About Us',
-        name2: 'Security',
+        name1: 'Privacy',
+        name2: 'Terms',
       },
     ],
   },
@@ -52,8 +52,8 @@ const lists = ref([
     listName: 'Contact',
     listContent: [
       {
-        name1: 'About Us',
-        name2: 'Security',
+        name1: 'Contact Us',
+        name2: 'Imprint',
       },
     ],
   },

@@ -1,7 +1,7 @@
 <template>
   <!-- Convert -->
   <div class="mt-14 flex flex-col items-center justify-center">
-    <p class="mb-10 mt-5 text-center text-red-600" v-if="GlobalData.errMessage">{{ GlobalData.errMessage }}</p>
+    <p class="my-5 text-center text-red-600" v-if="GlobalData.errMessage">{{ GlobalData.errMessage }}</p>
     <button type="submit" class="flex w-44 items-center justify-center rounded-lg border-0 bg-[#b53836ff] bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:shadow-xl focus:outline-none" :disabled="GlobalData.fileSizeExceeded === true || GlobalData.markWrongFormat === true || GlobalData.formatCheck === true || GlobalData.selectedFormat === '...' || GlobalData.selectedFileFormat === '...'">
       <ConvertIcon />
       <span>Convert</span>
@@ -51,9 +51,10 @@ const downloadClick = () => {
 const progressElement = ref(0);
 const socket = io('http://localhost:4000');
 onMounted(() => {
-  // socket.on('message', (message) => {
-  // console.log('Received message from server:', message);
-  // });
+  socket.on('message', (message) => {
+    console.log('Received message from server:', message);
+    GlobalData.errMessage = message;
+  });
   socket.on('errMessage', (errorMessage) => {
     console.log('Received message from server:', errorMessage);
     GlobalData.errMessage = errorMessage;
