@@ -33,7 +33,7 @@ const GlobalData = useGlobalStore();
 const videoFormats = ref([
   { label: '3G2', value: '.3g2' },
   { label: '3GP', value: '.3gp' },
-  // { label: '3GPP', value: '.3gpp' },
+  { label: '3GPP', value: '.3gpp' },
   { label: 'AVI', value: '.avi' },
   { label: 'CAVS', value: '.cavs' },
   { label: 'DV', value: '.dv' },

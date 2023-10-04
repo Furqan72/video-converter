@@ -23,7 +23,7 @@
           <TrimmingComponent />
 
           <!-- Watermark -->
-          <WaterMarkComponent v-if="GlobalData.selectedFormat !== '.dv'" />
+          <WaterMarkComponent v-if="GlobalData.selectedFormat !== '.cavs' && GlobalData.selectedFormat !== '.dv' && GlobalData.selectedFormat !== '.m2ts'" />
 
           <!-- Other -->
           <OthersComponent />
@@ -80,7 +80,7 @@ const sendFile = async () => {
   formSubmitted.value = true;
 };
 
-const subtitlesNotIncluded = ['.webm', '.wmv', '.avi', '.flv', '.3g2', '.3gp', '.dv'];
+const subtitlesNotIncluded = ['.avi', '.flv', '.wmv', '.webm', '.3g2', '.3gp', '.cavs', '.dv', '.m2ts'];
 const showSubtitlesComponent = computed(() => {
   const selectedFormat = GlobalData.selectedFormat;
   return subtitlesNotIncluded.some((format) => selectedFormat.includes(format));

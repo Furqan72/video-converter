@@ -120,6 +120,7 @@ const BitrateValues = ref([
 //   // { value: 'libfdk_aac', label: 'aac_he_1' },
 //   // { value: 'aac_at', label: 'aac_he_2' },
 //   { value: 'libopus', label: 'opus' },
+// { value: 'wmav2', label: 'wmav2', selected: 'wmav2' },
 //   { value: 'libvorbis', label: 'vorbis' },
 // ]);
 
@@ -177,12 +178,37 @@ const threeGPCodecOptions = ref([
   { value: 'aac', label: 'aac', selected: 'acc' },
 ]);
 
+//Audio Codecs for cavs
+const cavsCodecOptions = ref([
+  { value: 'copy', label: 'copy' },
+  { value: 'none', label: 'none' },
+]);
+
 //Audio Codecs for 3gp
 const otherCodecOptions = ref([
   { value: 'copy', label: 'copy' },
   { value: 'none', label: 'none' },
   { value: 'aac', label: 'aac' },
   { value: 'pcm_s16le', label: 'pcm_s16le', selected: 'pcm_s16le' },
+]);
+
+//Audio Codecs for m2ts
+const m2tsCodecOptions = ref([
+  { value: 'copy', label: 'copy' },
+  { value: 'none', label: 'none' },
+  { value: 'aac', label: 'aac' },
+  { value: 'libopus', label: 'opus', selected: 'opus' },
+  { value: 'libvorbis', label: 'vorbis' },
+]);
+
+//Audio Codecs for m4v
+const m4vCodecOptions = ref([
+  { value: 'copy', label: 'copy' },
+  { value: 'none', label: 'none' },
+  { value: 'aac', label: 'aac' },
+  { value: 'libopus', label: 'opus', selected: 'opus' },
+  { value: 'libfdk_aac', label: 'aac_he_1' },
+  { value: 'libvorbis', label: 'vorbis' },
 ]);
 
 // selecting value for video-codec
@@ -202,8 +228,12 @@ const selectedAudioCodecOptions = computed(() => {
     return threeG2CodecOptions.value;
   } else if (selectedFormat === '.3gp') {
     return threeGPCodecOptions.value;
+  } else if (selectedFormat === '.cavs') {
+    return cavsCodecOptions.value;
   } else if (selectedFormat === '.dv') {
     return otherCodecOptions.value;
+  } else if (selectedFormat === '.m2ts') {
+    return m2tsCodecOptions.value;
   }
 });
 

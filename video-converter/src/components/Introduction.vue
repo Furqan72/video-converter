@@ -54,7 +54,7 @@ watch(
   (newSelectedFormat) => {
     const formatInfo = formatIntroduction.value.find((format) => format.label === newSelectedFormat.substring(1));
     formatDescription.value = [formatInfo.label, formatInfo.description];
-    console.log('Updated description:', formatDescription.value);
+    // console.log('Updated description:', formatDescription.value);
   }
 );
 </script>

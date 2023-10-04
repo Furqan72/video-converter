@@ -313,10 +313,18 @@ const threeGPCodecOptions = ref([
   { value: 'libx264', label: 'x264', selected: 'x264' },
   { value: 'libxvid', label: 'xvid' },
 ]);
+//  video COdec for cavs
+const cavsCodecOptions = ref([{ value: 'copy', label: 'Copy' }]);
 //  video COdec for dv
 const dvCodecOptions = ref([
   { value: 'copy', label: 'Copy (No Re-encoding)' },
   { value: 'dvvideo', label: 'dvvideo', selected: 'dvvideo' },
+]);
+//  video COdec for m2ts
+const m2tsCodecOptions = ref([
+  { value: 'copy', label: 'Copy', selected: 'Copy' },
+  { value: 'libx264', label: 'x264' },
+  { value: 'libx265', label: 'x265' },
 ]);
 
 // removing (.) from selected value
@@ -352,6 +360,10 @@ const selectedVideoCodecOptions = computed(() => {
       return threeGPCodecOptions.value;
     case 'dv':
       return dvCodecOptions.value;
+    case 'cavs':
+      return cavsCodecOptions.value;
+    case 'm2ts':
+      return m2tsCodecOptions.value;
     default:
       return [];
   }
@@ -436,17 +448,20 @@ const fields = reactive([
   },
 ]);
 
+// 'ConstantQualitySelect',
+const videoOptionsToHide = ['presetSelect', 'tuneSelect', 'profileSelect', 'levelSelect'];
+const videoOptionsToHidefor = ['.wmv', '.3g2', '.3gp', '.dv', '.cavs', '.m2ts'];
+
+// to hide certain option for certain video codecs
 const shouldHideField = computed(() => (field) => {
   const selectedFormat = GlobalData.selectedFormat;
-  if (selectedFormat === '.webm') {
-    if (field.name === 'presetSelect' || field.name === 'tuneSelect' || field.name === 'profileSelect' || field.name === 'levelSelect') {
-      return true;
-    }
+
+  if (videoOptionsToHidefor.includes(selectedFormat)) {
+    return videoOptionsToHide.includes(field.name) || field.name === 'ConstantQualitySelect';
   }
-  if (selectedFormat === '.wmv' || selectedFormat === '.3g2' || selectedFormat === '.3gp' || selectedFormat === '.dv') {
-    if (field.name === 'ConstantQualitySelect' || field.name === 'presetSelect' || field.name === 'tuneSelect' || field.name === 'profileSelect' || field.name === 'levelSelect') {
-      return true;
-    }
+
+  if (selectedFormat === '.webm') {
+    return videoOptionsToHide.includes(field.name);
   }
 
   return false;

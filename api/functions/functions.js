@@ -101,7 +101,7 @@ function createComplexVideoFilter(fitValue, widthValue, heightValue, aspectRatio
 
   if (aspectRatio !== 'no change') {
     complexFilter.push(`setdar=${aspectRatio}`);
-    console.log('aspect');
+    console.log('aspect ---------------------------- ' + aspectRatio);
   }
 
   return complexFilter;

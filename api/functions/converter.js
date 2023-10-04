@@ -16,16 +16,20 @@ const extractOptionsFromRequest = (req) => {
   options.startingTime = req.body.StartingTime;
   options.endingTime = req.body.EndingTime;
   options.resolution = req.body.ResolutionMenu;
-  //   let resolution = req.body.ResolutionMenu;
-  //   resolution err^
+  //   resolution err
   options.videoCOdec = req.body.videotCodecSelect;
   options.aspectRatio = req.body.AspectRatioSelect;
-  options.qualityConstant = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.3g2' && options.selectMenuValues !== '.3gp' && options.selectMenuValues !== '.dv' ? req.body.ConstantQualitySelect : '';
 
-  options.presetValue = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' && options.selectMenuValues !== '.3g2' && options.selectMenuValues !== '.3gp' && options.selectMenuValues !== '.dv' ? req.body.presetSelect : '';
-  options.tuning = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' && options.selectMenuValues !== '.3g2' && options.selectMenuValues !== '.3gp' && options.selectMenuValues !== '.dv' ? req.body.tuneSelect : '';
-  options.profileValue = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' && options.selectMenuValues !== '.3g2' && options.selectMenuValues !== '.3gp' && options.selectMenuValues !== '.dv' ? req.body.profileSelect : '';
-  options.levelValue = options.selectMenuValues !== '.wmv' && options.selectMenuValues !== '.webm' && options.selectMenuValues !== '.3g2' && options.selectMenuValues !== '.3gp' && options.selectMenuValues !== '.dv' ? req.body.levelSelect : '';
+  //   let resolution = req.body.ResolutionMenu;
+  // values when not to include
+  const selectedvaluesincluded = ['.wmv', '.webm', '.3g2', '.3gp', '.cavs', '.dv', '.m2ts', '.m4v'];
+  const notincludevalues = selectedvaluesincluded.some((format) => options.selectMenuValues.includes(format));
+  options.qualityConstant = !notincludevalues ? req.body.ConstantQualitySelect : '';
+
+  options.presetValue = !notincludevalues ? req.body.presetSelect : '';
+  options.tuning = !notincludevalues ? req.body.tuneSelect : '';
+  options.profileValue = !notincludevalues ? req.body.profileSelect : '';
+  options.levelValue = !notincludevalues ? req.body.levelSelect : '';
 
   options.fitValue = req.body.fitSelect;
   options.framePersecond = req.body.fpsSelect;
@@ -86,7 +90,7 @@ const configureFFmpegEvents = (command, io, res) => {
       console.error('Error:', err);
       console.error('FFmpeg stderr:', stderr);
       console.error('FFmpeg stdout:', stdout);
-      io.emit('message', 'Conversion Error. Video not convertable.');
+      io.emit('message', 'Conversion Error. Video not convertable. Try changing the video or video setting.');
       res.status(500).send('Conversion Error: ' + err.message);
     });
 };
@@ -106,14 +110,11 @@ const configureVideoConversion = (command, options, originalDimensions) => {
     command.videoCodec(options.videoCOdec);
     let filtersForVideo = [];
 
-    if (options.resolution !== 'no change' && (originalWidth > width || originalHeight > height)) {
+    if (options.resolution !== 'no change') {
       filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, width, height, options.aspectRatio));
     } else if (options.resolution === 'no change') {
       filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, originalWidth, originalHeight, options.aspectRatio));
-    } else if (options.aspectRatio !== 'no change') {
-      filtersForVideo.push(`setdar=${options.aspectRatio}`);
     }
-    // adding all available filters
     if (filtersForVideo.length > 0) {
       const complexFilterExpression = filtersForVideo.join(';');
       command.complexFilter(complexFilterExpression);
