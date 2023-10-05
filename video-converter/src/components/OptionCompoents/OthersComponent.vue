@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- Other -->
     <h3 class="flex items-center justify-start bg-[#f1f1f1f1] px-10 py-3 text-lg font-bold text-gray-color">
       <img src="../../assets/images/setting.png" alt="" class="mr-[14px] h-5 w-5" />
       Other

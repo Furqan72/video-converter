@@ -92,6 +92,4 @@ watch(
     showSubtitlesComponent.value;
   }
 );
-
-//
 </script>

@@ -201,6 +201,15 @@ const m2tsCodecOptions = ref([
   { value: 'libvorbis', label: 'vorbis' },
 ]);
 
+//Audio Codecs for m2ts
+const mpgCodecOptions = ref([
+  { value: 'copy', label: 'copy' },
+  { value: 'none', label: 'none' },
+  // { value: 'aac', label: 'aac' },
+  { value: 'libopus', label: 'opus', selected: 'opus' },
+  { value: 'libvorbis', label: 'vorbis' },
+]);
+
 // //Audio Codecs for m4v
 // const m4vCodecOptions = ref([
 //   { value: 'copy', label: 'copy' },
@@ -231,8 +240,8 @@ const selectedAudioCodecOptions = computed(() => {
     return otherCodecOptions.value;
   } else if (selectedFormat === '.m2ts') {
     return m2tsCodecOptions.value;
-    // } else if (selectedFormat === '.m4v') {
-    //   return m4vCodecOptions.value;
+  } else if (selectedFormat === '.mpg') {
+    return mpgCodecOptions.value;
   }
 });
 

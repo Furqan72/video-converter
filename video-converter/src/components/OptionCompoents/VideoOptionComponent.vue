@@ -11,15 +11,12 @@
         <span v-if="showTooltip" class="absolute -top-[14px] left-[3px] h-3 w-3 rotate-45 bg-gray-900 duration-300"></span>
       </div>
     </div>
-    <!-- video -->
     <h3 class="flex items-center justify-start bg-[#f1f1f1f1] px-10 py-3 text-lg font-bold text-gray-color">
       <img src="../../assets/images/video-camera.png" alt="" class="mr-[14px] h-5 w-5" />
       Video
     </h3>
-    <!-- Video options -->
     <div class="grid gap-x-8 gap-y-6 px-10 py-7 coxl:grid-cols-2">
       <template v-for="(field, index) in fields" :key="index">
-        <!-- <div v-for="(field, index) in fields" :key="index" class="grid grid-cols-4 justify-center text-gray-color"> -->
         <div v-if="!shouldHideField(field)" class="grid grid-cols-4 justify-center text-gray-color">
           <label :for="field.name" class="mr-2 mt-2 text-15px">{{ field.label }}</label>
           <div class="col-span-3 flex flex-col">
@@ -49,7 +46,7 @@ const GlobalData = useGlobalStore();
 
 const showTooltip = ref(false);
 
-// resolution
+// Resolution
 const resolutionOptions = ref([
   { value: 'no change', label: 'no change', selected: 'no changes' },
   { value: '320x240', label: '320x240 (240p)' },
@@ -62,14 +59,14 @@ const resolutionOptions = ref([
   { value: '2560x1440', label: '2560x1440 (1440p 2K WQHD)' },
   { value: '3840x2160', label: '3840x2160 (2160p 4K UHD)' },
 ]);
-// aspect ratio
+// Aspect ratio
 const aspectRatioOptions = ref([
   { value: 'no change', label: 'no change', selected: 'no changes' },
   { value: '16/9', label: '16:9' },
   { value: '14/9', label: '14:9' },
   { value: '4/3', label: '4:3' },
 ]);
-// constant quality
+// Constant quality
 const constantQualityOptions = ref([
   { value: '0', label: '0 (lossless compression)' },
   { value: '1', label: '1' },
@@ -124,7 +121,7 @@ const constantQualityOptions = ref([
   { value: '50', label: '50' },
   { value: '51', label: '51 (worst quality)' },
 ]);
-// preset
+// Preset
 const PresetOptions = ref([
   { value: 'ultrafast', label: 'ultrafast' },
   { value: 'superfast', label: 'superfast' },
@@ -136,7 +133,7 @@ const PresetOptions = ref([
   { value: 'slower', label: 'slower' },
   { value: 'veryslow', label: 'veryslow' },
 ]);
-// tune
+// Tune
 const TuneOptions = ref([
   { value: 'none', label: 'none', selected: 'none' },
   { value: 'film', label: 'film' },
@@ -148,7 +145,7 @@ const TuneOptions = ref([
   { value: 'psnr', label: 'psnr' },
   { value: 'ssim', label: 'ssim' },
 ]);
-// profile
+// Profile
 const ProfileOptions = ref([
   { value: 'none', label: 'none', selected: 'none' },
   { value: 'baseline', label: 'baseline' },
@@ -158,7 +155,7 @@ const ProfileOptions = ref([
   { value: 'high422', label: 'high422' },
   { value: 'high444', label: 'high444' },
 ]);
-// level
+// Level
 const LevelOptions = ref([
   { value: 'none', label: 'none', selected: 'none' },
   { value: '1', label: '1' },
@@ -179,13 +176,14 @@ const LevelOptions = ref([
   { value: '5.1', label: '5.1' },
   { value: '5.2', label: '5.2' },
 ]);
-// fit
+// Fit
 const FitOptions = ref([
   { value: 'max', label: 'max' },
   { value: 'crop', label: 'crop' },
   { value: 'scale', label: 'scale', selected: 'scale' },
   { value: 'pad', label: 'pad' },
 ]);
+// FPS
 const FPSvalue = ref([
   { value: '', label: 'none', selected: '' },
   { value: '0', label: '0' },
@@ -264,7 +262,7 @@ const aviCodecOptions = ref([
 const flvCodecOptions = ref([
   { value: 'copy', label: 'Copy (No Re-encoding)' },
   { value: 'libx264', label: 'x264', selected: 'x264' },
-  { value: 'flv', label: 'sorenson' },
+  { value: 'flv', label: 'sorenson' }, // check it for the value to complete validation
 ]);
 //  video COdec for mkv
 const mkvCodecOptions = ref([
@@ -331,11 +329,11 @@ const m4vCodecOptions = ref([
   { value: 'copy', label: 'Copy', selected: 'Copy' },
   { value: 'libx264', label: 'x264' },
 ]);
-// //  video COdec for m4v
-// const m4vCodecOptions = ref([
-//   { value: 'copy', label: 'Copy', selected: 'Copy' },
-//   { value: 'libx264', label: 'x264' },
-// ]);
+// //  video COdec for mpg
+const mpgCodecOptions = ref([
+  { value: 'copy', label: 'Copy', selected: 'Copy' },
+  { value: 'libx264', label: 'x264' },
+]);
 
 // removing (.) from selected value
 const formatWithoutDot = computed(() => {
@@ -376,6 +374,8 @@ const selectedVideoCodecOptions = computed(() => {
       return m2tsCodecOptions.value;
     case 'm4v':
       return m4vCodecOptions.value;
+    case 'mpg':
+      return mpgCodecOptions.value;
     default:
       return [];
   }
@@ -460,9 +460,8 @@ const fields = reactive([
   },
 ]);
 
-// 'ConstantQualitySelect',
 const videoOptionsToHide = ['presetSelect', 'tuneSelect', 'profileSelect', 'levelSelect'];
-const videoOptionsToHidefor = ['.wmv', '.3g2', '.3gp', '.dv', '.cavs', '.m2ts', '.m4v'];
+const videoOptionsToHidefor = ['.wmv', '.3g2', '.3gp', '.dv', '.cavs', '.m2ts', '.m4v', '.mpg'];
 
 // to hide certain option for certain video codecs
 const shouldHideField = computed(() => (field) => {
