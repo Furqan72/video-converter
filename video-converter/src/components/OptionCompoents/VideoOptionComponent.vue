@@ -326,6 +326,16 @@ const m2tsCodecOptions = ref([
   { value: 'libx264', label: 'x264' },
   { value: 'libx265', label: 'x265' },
 ]);
+//  video COdec for m4v
+const m4vCodecOptions = ref([
+  { value: 'copy', label: 'Copy', selected: 'Copy' },
+  { value: 'libx264', label: 'x264' },
+]);
+// //  video COdec for m4v
+// const m4vCodecOptions = ref([
+//   { value: 'copy', label: 'Copy', selected: 'Copy' },
+//   { value: 'libx264', label: 'x264' },
+// ]);
 
 // removing (.) from selected value
 const formatWithoutDot = computed(() => {
@@ -364,6 +374,8 @@ const selectedVideoCodecOptions = computed(() => {
       return cavsCodecOptions.value;
     case 'm2ts':
       return m2tsCodecOptions.value;
+    case 'm4v':
+      return m4vCodecOptions.value;
     default:
       return [];
   }
@@ -450,7 +462,7 @@ const fields = reactive([
 
 // 'ConstantQualitySelect',
 const videoOptionsToHide = ['presetSelect', 'tuneSelect', 'profileSelect', 'levelSelect'];
-const videoOptionsToHidefor = ['.wmv', '.3g2', '.3gp', '.dv', '.cavs', '.m2ts'];
+const videoOptionsToHidefor = ['.wmv', '.3g2', '.3gp', '.dv', '.cavs', '.m2ts', '.m4v'];
 
 // to hide certain option for certain video codecs
 const shouldHideField = computed(() => (field) => {

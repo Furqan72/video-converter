@@ -90,7 +90,7 @@ const configureFFmpegEvents = (command, io, res) => {
       console.error('Error:', err);
       console.error('FFmpeg stderr:', stderr);
       console.error('FFmpeg stdout:', stdout);
-      io.emit('message', 'Conversion Error. Video not convertable. Try changing the video or video setting.');
+      io.emit('message', 'Conversion Error!! Either Video not convertable or options selected are not comaptible. Try changing the video file or setting for the options.');
       res.status(500).send('Conversion Error: ' + err.message);
     });
 };
@@ -233,7 +233,7 @@ const configureTrimming = async (command, options, path) => {
     }
   } catch (err) {
     console.log('not working');
-    errorMessages = 'Error retrieving video metadata.';
+    errorMessages = 'Error retrieving video metadata. Please try again or upload another video.';
   }
 
   return { errorMessages, checkSubtitles, videoStream };
