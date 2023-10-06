@@ -251,6 +251,16 @@ const FPSvalue = ref([
 
 // -------------- Video Codecs for all formats-----------------------
 
+//  Default
+const videoCodecOptions = ref([
+  { value: 'copy', label: 'Copy (No Re-encoding)' },
+  { value: 'libx264', label: 'x264', selected: 'x264' },
+  { value: 'libx265', label: 'x265' },
+  { value: 'libxvid', label: 'xvid' },
+  { value: 'libvpx', label: 'vp8' },
+  { value: 'libvpx-vp9', label: 'vp9' },
+  { value: 'libaom-av1', label: 'av1' },
+]);
 //  video COdec for avi
 const aviCodecOptions = ref([
   { value: 'copy', label: 'Copy (No Re-encoding)' },
@@ -311,8 +321,8 @@ const threeGPCodecOptions = ref([
   { value: 'libx264', label: 'x264', selected: 'x264' },
   { value: 'libxvid', label: 'xvid' },
 ]);
-//  video COdec for cavs
-const cavsCodecOptions = ref([{ value: 'copy', label: 'Copy' }]);
+//  video COdec for cavs | mpg
+const mpgcavsCodecOptions = ref([{ value: 'copy', label: 'Copy' }]);
 //  video COdec for dv
 const dvCodecOptions = ref([
   { value: 'copy', label: 'Copy (No Re-encoding)' },
@@ -329,12 +339,15 @@ const m4vCodecOptions = ref([
   { value: 'copy', label: 'Copy', selected: 'Copy' },
   { value: 'libx264', label: 'x264' },
 ]);
-// //  video COdec for mpg
-const mpgCodecOptions = ref([
-  { value: 'copy', label: 'Copy', selected: 'Copy' },
-  { value: 'libx264', label: 'x264' },
+//  video COdec for mts
+const mtsCodecOptions = ref([
+  { value: 'copy', label: 'Copy' },
+  { value: 'libx264', label: 'x264', selected: 'x264' },
+  { value: 'libx265', label: 'x265' },
+  { value: 'libvpx', label: 'vp8' },
+  { value: 'libvpx-vp9', label: 'vp9' },
+  { value: 'libaom-av1', label: 'av1' },
 ]);
-
 // removing (.) from selected value
 const formatWithoutDot = computed(() => {
   const selectedFormat = GlobalData.selectedFormat;
@@ -369,15 +382,16 @@ const selectedVideoCodecOptions = computed(() => {
     case 'dv':
       return dvCodecOptions.value;
     case 'cavs':
-      return cavsCodecOptions.value;
+    case 'mpg':
+      return mpgcavsCodecOptions.value;
     case 'm2ts':
       return m2tsCodecOptions.value;
     case 'm4v':
       return m4vCodecOptions.value;
-    case 'mpg':
-      return mpgCodecOptions.value;
+    case 'mts':
+      return mtsCodecOptions.value;
     default:
-      return [];
+      return videoCodecOptions.value;
   }
 });
 

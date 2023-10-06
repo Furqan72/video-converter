@@ -113,18 +113,21 @@ const BitrateValues = ref([
   { value: '112', label: '112' },
   { value: '128', label: '128', selected: '128' },
 ]);
-// const AudioCodecOptions = ref([
-//   { value: 'copy', label: 'copy' },
-//   { value: 'none', label: 'none' },
-//   { value: 'aac', label: 'aac', selected: 'acc' },
-//   // { value: 'libfdk_aac', label: 'aac_he_1' },
-//   // { value: 'aac_at', label: 'aac_he_2' },
-//   { value: 'libopus', label: 'opus' },
-// { value: 'wmav2', label: 'wmav2', selected: 'wmav2' },
-//   { value: 'libvorbis', label: 'vorbis' },
-// ]);
 
 // ----------------- AudioCodecOptions --------------------
+
+// Default
+const AudioCodecOptions = ref([
+  { value: 'copy', label: 'copy' },
+  { value: 'none', label: 'none' },
+  { value: 'aac', label: 'aac', selected: 'acc' },
+  // { value: 'libfdk_aac', label: 'aac_he_1' },
+  // { value: 'aac_at', label: 'aac_he_2' },
+  { value: 'libopus', label: 'opus' },
+  { value: 'wmav2', label: 'wmav2' },
+  { value: 'libvorbis', label: 'vorbis' },
+]);
+
 //AudioCodecs for AVI & MOV
 const AVIMOVCodecOptions = ref([
   { value: 'copy', label: 'copy' },
@@ -172,7 +175,7 @@ const threeG2CodecOptions = ref([
 ]);
 
 //Audio Codecs for 3gp | m4v
-const threeGPm4vCodecOptions = ref([
+const m4v3gpCodecOptions = ref([
   { value: 'copy', label: 'copy' },
   { value: 'none', label: 'none' },
   { value: 'aac', label: 'aac', selected: 'acc' },
@@ -201,47 +204,68 @@ const m2tsCodecOptions = ref([
   { value: 'libvorbis', label: 'vorbis' },
 ]);
 
-//Audio Codecs for m2ts
+//Audio Codecs for mpg
 const mpgCodecOptions = ref([
-  { value: 'copy', label: 'copy' },
+  { value: 'copy', label: 'copy', selected: 'copy' },
   { value: 'none', label: 'none' },
-  // { value: 'aac', label: 'aac' },
-  { value: 'libopus', label: 'opus', selected: 'opus' },
-  { value: 'libvorbis', label: 'vorbis' },
+  { value: 'libmp3lame', label: 'mp3' },
 ]);
 
-// //Audio Codecs for m4v
-// const m4vCodecOptions = ref([
-//   { value: 'copy', label: 'copy' },
-//   { value: 'none', label: 'none' },
-//   { value: 'aac', label: 'aac', selected: 'acc' },
-// ]);
+//Audio Codecs for mts
+const mtsCodecOptions = ref([
+  { value: 'copy', label: 'copy', selected: 'copy' },
+  { value: 'none', label: 'none' },
+  { value: 'aac', label: 'aac' },
+  { value: 'libopus', label: 'opus' },
+  { value: 'libvorbis', label: 'vorbis' },
+]);
+//Audio Codecs for mxf
+const mxfCodecOptions = ref([
+  { value: 'copy', label: 'copy', selected: 'copy' },
+  { value: 'none', label: 'none' },
+  // { value: 'aac', label: 'aac' },
+  { value: 'wmav2', label: 'wmav2' },
+  { value: 'libopus', label: 'opus' },
+  { value: 'libvorbis', label: 'vorbis' },
+  { value: 'pcm_s16le', label: 'pcm_s16le' },
+]);
 
 // selecting value for video-codec
 const selectedAudioCodecOptions = computed(() => {
   const selectedFormat = GlobalData.selectedFormat;
-  if (selectedFormat === '.webm') {
-    return WEBMCodecOptions.value;
-  } else if (selectedFormat === '.wmv') {
-    return WMVCodecOptions.value;
-  } else if (selectedFormat === '.avi' || selectedFormat === '.mov') {
-    return AVIMOVCodecOptions.value;
-  } else if (selectedFormat === '.flv') {
-    return FLVCodecOptions.value;
-  } else if (selectedFormat === '.mp4' || selectedFormat === '.mkv') {
-    return MKVMP4CodecOptions.value;
-  } else if (selectedFormat === '.3g2') {
-    return threeG2CodecOptions.value;
-  } else if (selectedFormat === '.3gp' || selectedFormat === '.m4v') {
-    return threeGPm4vCodecOptions.value;
-  } else if (selectedFormat === '.cavs') {
-    return cavsCodecOptions.value;
-  } else if (selectedFormat === '.dv') {
-    return otherCodecOptions.value;
-  } else if (selectedFormat === '.m2ts') {
-    return m2tsCodecOptions.value;
-  } else if (selectedFormat === '.mpg') {
-    return mpgCodecOptions.value;
+
+  switch (selectedFormat) {
+    case '.webm':
+      return WEBMCodecOptions.value;
+    case '.wmv':
+      return WMVCodecOptions.value;
+    case '.avi':
+    case '.mov':
+      return AVIMOVCodecOptions.value;
+    case '.flv':
+      return FLVCodecOptions.value;
+    case '.mp4':
+    case '.mkv':
+      return MKVMP4CodecOptions.value;
+    case '.3g2':
+      return threeG2CodecOptions.value;
+    case '.3gp':
+    case '.m4v':
+      return m4v3gpCodecOptions.value;
+    case '.cavs':
+      return cavsCodecOptions.value;
+    case '.dv':
+      return otherCodecOptions.value;
+    case '.m2ts':
+      return m2tsCodecOptions.value;
+    case '.mpg':
+      return mpgCodecOptions.value;
+    case '.mts':
+      return mtsCodecOptions.value;
+    case '.mxf':
+      return mxfCodecOptions.value;
+    default:
+      return AudioCodecOptions.value;
   }
 });
 

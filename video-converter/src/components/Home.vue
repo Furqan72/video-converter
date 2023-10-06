@@ -1,5 +1,10 @@
 <template>
   <main class="bg-[#f9f9f9ff]">
+    <div class="fixed bottom-0 right-0 z-50 max-h-[550px] max-w-[550px] overflow-scroll bg-white">
+      <button class="m-3 h-9 w-9 rounded-full bg-red-700" @click="show2 = !show2"></button>
+      <pre v-if="show2">{{ metaData }}</pre>
+    </div>
+
     <form @submit.prevent="sendFile">
       <!-- select format -->
       <SelectMenu />
@@ -53,6 +58,7 @@ import ConvertDownloadComponent from '../../src/components/OptionCompoents/Conve
 import { useGlobalStore } from '../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 
+const metaData = ref();
 const formSubmitted = ref(false);
 const sendFile = async () => {
   const form = document.querySelector('form');
@@ -72,6 +78,8 @@ const sendFile = async () => {
       GlobalData.downloadUrlFromNode = 'http://localhost:4000/' + response.data.downloadUrl;
       GlobalData.downloadName = response.data.fileName;
       GlobalData.errMessage = response.data.message;
+      // full metaData
+      metaData.value = response.data.fullVideoData;
     })
     .catch((error) => {
       console.error('An error occurred:', error);
@@ -80,7 +88,7 @@ const sendFile = async () => {
   formSubmitted.value = true;
 };
 
-const subtitlesNotIncluded = ['.avi', '.flv', '.wmv', '.webm', '.3g2', '.3gp', '.cavs', '.dv', '.m2ts', '.mpg'];
+const subtitlesNotIncluded = ['.avi', '.flv', '.wmv', '.webm', '.3g2', '.3gp', '.cavs', '.dv', '.m2ts', '.mpg', '.mts', '.mxf'];
 const showSubtitlesComponent = computed(() => {
   const selectedFormat = GlobalData.selectedFormat;
   return subtitlesNotIncluded.some((format) => selectedFormat.includes(format));
@@ -92,4 +100,6 @@ watch(
     showSubtitlesComponent.value;
   }
 );
+
+const show2 = ref(false);
 </script>

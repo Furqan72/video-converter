@@ -22,7 +22,7 @@ const extractOptionsFromRequest = (req) => {
 
   //   let resolution = req.body.ResolutionMenu;
   // values when not to include
-  const selectedvaluesincluded = ['.wmv', '.webm', '.3g2', '.3gp', '.cavs', '.dv', '.m2ts', '.m4v'];
+  const selectedvaluesincluded = ['.wmv', '.webm', '.3g2', '.3gp', '.cavs', '.dv', '.m2ts', '.m4v', '.mpg', '.mts', '.mxf'];
   const notincludevalues = selectedvaluesincluded.some((format) => options.selectMenuValues.includes(format));
   options.qualityConstant = !notincludevalues ? req.body.ConstantQualitySelect : '';
 
@@ -140,28 +140,28 @@ const configureVideoConversion = (command, options, originalDimensions) => {
     if (options.levelValue !== '' && options.levelValue !== 'none') {
       command.addOptions([`-level ${options.levelValue}`]);
     }
-    // FPS
-    if (options.framePersecond !== '') {
-      command.addOption(`-r ${options.framePersecond}`);
-    }
-    // Key Frame Interval
-    if (options.desiredKeyframeInterval !== '') {
-      command.addOption(`-g ${options.desiredKeyframeInterval}`);
-    }
-    // Qscale
-    if (options.QscaleValue !== '' && options.selectMenuValues === '.wmv') {
-      command.addOption(`-q:v ${options.QscaleValue}`);
-    }
-    // CRF
-    console.log(options.qualityConstant);
-    if (options.qualityConstant !== '') {
-      command.addOptions([`-crf ${options.qualityConstant}`]);
-    }
     // Preset
     console.log(options.presetValue);
     if (options.presetValue !== '') {
       command.addOptions([`-preset ${options.presetValue}`]);
     }
+  }
+  // FPS
+  if (options.framePersecond !== '') {
+    command.addOption(`-r ${options.framePersecond}`);
+  }
+  // Key Frame Interval
+  if (options.desiredKeyframeInterval !== '') {
+    command.addOption(`-g ${options.desiredKeyframeInterval}`);
+  }
+  // Qscale
+  if (options.QscaleValue !== '' && options.selectMenuValues === '.wmv') {
+    command.addOption(`-q:v ${options.QscaleValue}`);
+  }
+  // CRF
+  console.log(options.qualityConstant);
+  if (options.qualityConstant !== '') {
+    command.addOptions([`-crf ${options.qualityConstant}`]);
   }
 };
 
@@ -211,12 +211,14 @@ const configureTrimming = async (command, options, path) => {
   let errorMessages = '';
   let checkSubtitles = false;
   let videoStream = '';
+  let completeData = '';
   try {
     const metadata = await functions.getVideoMetadata(path);
     const totalVideoDurationInSeconds = metadata.format.duration;
     console.log('Video Duration: ', totalVideoDurationInSeconds, 'seconds');
     checkSubtitles = metadata.streams.some((stream) => stream.codec_type === 'subtitle');
     videoStream = metadata.streams.find((stream) => stream.codec_type === 'video');
+    completeData = metadata;
 
     let startingInSeconds = functions.parseTime(options.startingTime);
     let endingInSeconds = functions.parseTime(options.endingTime);
@@ -236,7 +238,7 @@ const configureTrimming = async (command, options, path) => {
     errorMessages = 'Error retrieving video metadata. Please try again or upload another video.';
   }
 
-  return { errorMessages, checkSubtitles, videoStream };
+  return { errorMessages, checkSubtitles, videoStream, completeData };
 };
 
 // WaterMark
@@ -304,8 +306,8 @@ const videoConversionFunction = async (req, res, io) => {
     configureFFmpegEvents(command, io, res);
 
     // Trimming Configuration
-    const { errorMessages, checkSubtitles, videoStream } = await configureTrimming(command, editingoptions, inputPath);
-    res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages });
+    const { errorMessages, checkSubtitles, videoStream, completeData } = await configureTrimming(command, editingoptions, inputPath);
+    res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData });
     // error
     if (errorMessages !== '') {
       console.log('Error while trimming the video..........' + errorMessages);

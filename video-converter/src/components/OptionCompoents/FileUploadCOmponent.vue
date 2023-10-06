@@ -16,7 +16,7 @@
       </svg>
       <span>Upload</span>
     </div>
-    <div v-if="GlobalData.fileSize !== null" class="shadow-lg">
+    <div v-if="GlobalData.fileSize !== null" class="shadow-xl">
       <video v-if="previewUrl" width="350" height="200" class="mt-5 rounded-md">
         <source :src="previewUrl" type="video/mp4" />
       </video>

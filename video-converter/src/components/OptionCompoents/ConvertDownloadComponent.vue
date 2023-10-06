@@ -8,8 +8,8 @@
     </button>
     <!-- loading -->
     <div class="flex w-full flex-col items-center justify-center py-5" v-if="progressElement !== 0">
-      <div class="flex h-7 w-80 items-center rounded-full bg-gray-200 px-3 shadow-lg duration-300">
-        <p class="h-[14px] w-0 rounded-full text-center duration-500" :class="progressElement !== 100 ? 'bg-[#b53836ff]' : 'bg-green-500'" :style="{ width: progressElement + '%' }"></p>
+      <div class="mt-5 flex h-8 w-96 items-center rounded-full bg-gray-200 px-3 shadow-lg">
+        <p class="h-4 w-0 rounded-full duration-500" :class="progressElement !== 100 ? 'progress-bar bg-[#C74543]' : ' bg-green-500'" :style="{ width: progressElement + '%' }"></p>
       </div>
 
       <div class="mt-2 flex items-center justify-center">
@@ -87,30 +87,10 @@ onMounted(() => {
 .pulse-bubble-3 {
   animation: pulse 0.4s ease 0.4s infinite alternate;
 }
+
+.progress-bar {
+  background-image: linear-gradient(45deg, #99302e 20%, transparent 20%, transparent 50%, #99302e 50%, #99302e 75%, transparent 75%, transparent);
+}
 </style>
 
 <!-- 3G2,3GP,3GPP,AVI,CAVS,DV,DVR,FLV,M2TS,M4V,MKV,MOD,MOV,MP4,MPEG,MPG,MTS,MXF,OGG,RM,RMVB,SWF,TS,VOB,WEBM,WMV,WTV -->
-
-<!-- Resolution -->
-<!-- Aspect Ratio -->
-<!-- Fit-->
-<!--FPS -->
-<!-- Audio Bitrate -->
-<!-- Channels -->
-<!-- Volume -->
-
-<!-- {Constant Quality (CRF)
-Video Codec
-Preset
-Tune
-Profile
-Level
-Audio Codec
-Sample Rate
-Subtitles
-Subtitles Mode
-Trim
-Watermark
-Watermark Image
-Other
-Keyframe Interval} -->
