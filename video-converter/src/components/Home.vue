@@ -1,3 +1,5 @@
+<!-- ,,,,,,DVR,,,,,MOD,,,MPEG,,,,,RM,RMVB,SWF,TS,VOB,WEBM,WMV,WTV -->
+
 <template>
   <main class="bg-[#f9f9f9ff]">
     <div class="fixed bottom-0 right-0 z-50 max-h-[550px] max-w-[550px] overflow-scroll bg-white">
@@ -88,7 +90,7 @@ const sendFile = async () => {
   formSubmitted.value = true;
 };
 
-const subtitlesNotIncluded = ['.avi', '.flv', '.wmv', '.webm', '.3g2', '.3gp', '.cavs', '.dv', '.m2ts', '.mpg', '.mts', '.mxf'];
+const subtitlesNotIncluded = ['.avi', '.flv', '.wmv', '.webm', '.3g2', '.3gp', '.cavs', '.dv', '.m2ts', '.mpg', '.mpeg', '.mts', '.mxf', '.ogg', '.rm', '.rmvb'];
 const showSubtitlesComponent = computed(() => {
   const selectedFormat = GlobalData.selectedFormat;
   return subtitlesNotIncluded.some((format) => selectedFormat.includes(format));

@@ -22,10 +22,10 @@ const extractOptionsFromRequest = (req) => {
 
   //   let resolution = req.body.ResolutionMenu;
   // values when not to include
-  const selectedvaluesincluded = ['.wmv', '.webm', '.3g2', '.3gp', '.cavs', '.dv', '.m2ts', '.m4v', '.mpg', '.mts', '.mxf'];
+  const selectedvaluesincluded = ['.wmv', '.webm', '.3g2', '.3gp', '.cavs', '.dv', '.m2ts', '.m4v', '.mpg', '.mpeg', '.mts', '.mxf', '.ogg', '.rm'];
   const notincludevalues = selectedvaluesincluded.some((format) => options.selectMenuValues.includes(format));
-  options.qualityConstant = !notincludevalues ? req.body.ConstantQualitySelect : '';
 
+  options.qualityConstant = !notincludevalues ? req.body.ConstantQualitySelect : '';
   options.presetValue = !notincludevalues ? req.body.presetSelect : '';
   options.tuning = !notincludevalues ? req.body.tuneSelect : '';
   options.profileValue = !notincludevalues ? req.body.profileSelect : '';
@@ -69,6 +69,8 @@ const handleFileUpload = (file, destination, processedFiles) => {
 // Video Conversion FFmepg events
 const configureFFmpegEvents = (command, io, res) => {
   command
+    // .addOptions(['-fflags', ' +genpts'])
+
     .on('start', () => {
       // io.emit('message', 'Conversion Started.');
       console.log('message', 'Conversion Started.');
@@ -83,23 +85,30 @@ const configureFFmpegEvents = (command, io, res) => {
     .on('end', () => {
       const progressPercent = 100;
       io.emit('progress', progressPercent);
-      // io.emit('message', 'Conversion Finished.');
       console.log('message', 'Conversion Finished.');
     })
     .on('error', (err, stdout, stderr) => {
       console.error('Error:', err);
       console.error('FFmpeg stderr:', stderr);
       console.error('FFmpeg stdout:', stdout);
-      io.emit('message', 'Conversion Error!! Either Video not convertable or options selected are not comaptible. Try changing the video file or setting for the options.');
+      io.emit('message', 'Conversion Error!! Try changing the video file or setting for the editing options.');
+      // io.emit('message', 'Conversion Error!! -- ' + stderr);
+      // io.emit('errors', '  ------------  ' + stderr);
+      // io.emit('message', 'Conversion Error!! Either Video not convertable or options selected are not comaptible. Try changing the video file or setting for the options.');
       res.status(500).send('Conversion Error: ' + err.message);
     });
 };
 
 // Video Configuration
 const configureVideoConversion = (command, options, originalDimensions) => {
-  const originalWidth = originalDimensions.width;
-  const originalHeight = originalDimensions.height;
-  console.log(`Video resolution ORGINAL DIMENSIONS  : ${originalWidth}x${originalHeight}`);
+  const originalWidth = parseInt(Math.floor(originalDimensions.width / 2) * 2);
+  const originalHeight = parseInt(Math.floor(originalDimensions.height / 2) * 2);
+  console.log(`Video resolution ORGINAL DIMENSIONS-NORMAL : ${originalDimensions.width}x${originalDimensions.height}`);
+  console.log(`Video resolution ORGINAL DIMENSIONS-EVEN : ${originalWidth}x${originalHeight}`);
+
+  const sample_aspect_ratio = originalDimensions.sample_aspect_ratio;
+  let [sarWidth, sarHeight] = sample_aspect_ratio.split(':');
+  // console.log(`sample_aspect_ratio (SAR) ------------------------------   --------------------------------------- + ${sample_aspect_ratio}`);
 
   let [width, height] = options.resolution.split('x');
 
@@ -110,10 +119,11 @@ const configureVideoConversion = (command, options, originalDimensions) => {
     command.videoCodec(options.videoCOdec);
     let filtersForVideo = [];
 
+    // const aspectRatio = options.aspectRatio || '1:1';
     if (options.resolution !== 'no change') {
-      filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, width, height, options.aspectRatio));
+      filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, width, height, options.aspectRatio, sarWidth, sarHeight));
     } else if (options.resolution === 'no change') {
-      filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, originalWidth, originalHeight, options.aspectRatio));
+      filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, originalWidth, originalHeight, options.aspectRatio, sarWidth, sarHeight));
     }
     if (filtersForVideo.length > 0) {
       const complexFilterExpression = filtersForVideo.join(';');
@@ -218,7 +228,10 @@ const configureTrimming = async (command, options, path) => {
     console.log('Video Duration: ', totalVideoDurationInSeconds, 'seconds');
     checkSubtitles = metadata.streams.some((stream) => stream.codec_type === 'subtitle');
     videoStream = metadata.streams.find((stream) => stream.codec_type === 'video');
-    completeData = metadata;
+    completeData = metadata; // all metadata
+
+    const sar = videoStream.sample_aspect_ratio;
+    console.log('Sample Aspect Ratio (SAR):----------------------------------------------------------', sar);
 
     let startingInSeconds = functions.parseTime(options.startingTime);
     let endingInSeconds = functions.parseTime(options.endingTime);
@@ -303,11 +316,20 @@ const videoConversionFunction = async (req, res, io) => {
 
     // FFmpeg --> start,progress,end,error
     const command = new ffmpeg(inputPath);
+    // command.inputOptions('-fflags +genpts');
+
     configureFFmpegEvents(command, io, res);
 
     // Trimming Configuration
     const { errorMessages, checkSubtitles, videoStream, completeData } = await configureTrimming(command, editingoptions, inputPath);
     res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData });
+
+    // checking for multiple video streams
+    if (editingoptions.selectMenuValues === '.flv') {
+      if (videoStream && videoStream.length > 1) {
+        command.inputOptions(['-map 0:v:0']);
+      }
+    }
     // error
     if (errorMessages !== '') {
       console.log('Error while trimming the video..........' + errorMessages);
@@ -315,8 +337,8 @@ const videoConversionFunction = async (req, res, io) => {
       return;
     }
     hasEmbeddedSubtitles = checkSubtitles;
-
     console.log(hasEmbeddedSubtitles);
+
     // Video Settings
     configureVideoConversion(command, editingoptions, videoStream);
 
@@ -328,6 +350,13 @@ const videoConversionFunction = async (req, res, io) => {
 
     //  Subtitles
     configureSubtitles(command, editingoptions, subtitlePath, hasEmbeddedSubtitles);
+
+    if (editingoptions.selectMenuValues !== '.flv') {
+      command.outputOptions(['-map 0']);
+    }
+
+    // console.log('FFmpeg Command:', command.toString());
+    // command.save(outputPath);
 
     command.save(outputPath);
     // Handle any unexpected errors

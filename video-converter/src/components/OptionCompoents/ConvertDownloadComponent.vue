@@ -2,6 +2,7 @@
   <!-- Convert -->
   <div class="mt-14 flex flex-col items-center justify-center">
     <p class="my-5 text-center text-red-600" v-if="GlobalData.errMessage">{{ GlobalData.errMessage }}</p>
+    <!-- <p class="my-5 px-10 text-center text-red-600" v-if="allErrors">{{ allErrors }}</p> -->
     <button type="submit" class="flex w-44 items-center justify-center rounded-lg border-0 bg-[#b53836ff] bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:shadow-xl focus:outline-none" :disabled="GlobalData.fileSizeExceeded === true || GlobalData.markWrongFormat === true || GlobalData.formatCheck === true || GlobalData.selectedFormat === '...' || GlobalData.selectedFileFormat === '...'">
       <ConvertIcon />
       <span>Convert</span>
@@ -9,7 +10,7 @@
     <!-- loading -->
     <div class="flex w-full flex-col items-center justify-center py-5" v-if="progressElement !== 0">
       <div class="mt-5 flex h-8 w-96 items-center rounded-full bg-gray-200 px-3 shadow-lg">
-        <p class="h-4 w-0 rounded-full duration-500" :class="progressElement !== 100 ? 'progress-bar bg-[#C74543]' : ' bg-green-500'" :style="{ width: progressElement + '%' }"></p>
+        <p class="h-4 w-0 rounded-full duration-500" :class="progressElement !== 100 ? 'bg-[#b53836]' : ' bg-green-500'" :style="{ width: progressElement + '%' }"></p>
       </div>
 
       <div class="mt-2 flex items-center justify-center">
@@ -48,6 +49,7 @@ const downloadClick = () => {
 };
 
 //  response from the socket.io (provides duration of converting the file from the server)
+const allErrors = ref('');
 const progressElement = ref(0);
 const socket = io('http://localhost:4000');
 onMounted(() => {
@@ -55,6 +57,10 @@ onMounted(() => {
     console.log('Received message from server:', message);
     GlobalData.errMessage = message;
   });
+  // socket.on('errors', (error) => {
+  //   console.log('Received message from server:', error);
+  //   allErrors.value = error;
+  // });
   socket.on('errMessage', (errorMessage) => {
     console.log('Received message from server:', errorMessage);
     GlobalData.errMessage = errorMessage;
@@ -87,10 +93,4 @@ onMounted(() => {
 .pulse-bubble-3 {
   animation: pulse 0.4s ease 0.4s infinite alternate;
 }
-
-.progress-bar {
-  background-image: linear-gradient(45deg, #99302e 20%, transparent 20%, transparent 50%, #99302e 50%, #99302e 75%, transparent 75%, transparent);
-}
 </style>
-
-<!-- 3G2,3GP,3GPP,AVI,CAVS,DV,DVR,FLV,M2TS,M4V,MKV,MOD,MOV,MP4,MPEG,MPG,MTS,MXF,OGG,RM,RMVB,SWF,TS,VOB,WEBM,WMV,WTV -->

@@ -15,6 +15,7 @@
       <img src="../../assets/images/video-camera.png" alt="" class="mr-[14px] h-5 w-5" />
       Video
     </h3>
+
     <div class="grid gap-x-8 gap-y-6 px-10 py-7 coxl:grid-cols-2">
       <template v-for="(field, index) in fields" :key="index">
         <div v-if="!shouldHideField(field)" class="grid grid-cols-4 justify-center text-gray-color">
@@ -270,9 +271,9 @@ const aviCodecOptions = ref([
 ]);
 //  video COdec for flv
 const flvCodecOptions = ref([
-  { value: 'copy', label: 'Copy (No Re-encoding)' },
+  { value: 'copy', label: 'Copy' },
   { value: 'libx264', label: 'x264', selected: 'x264' },
-  { value: 'flv', label: 'sorenson' }, // check it for the value to complete validation
+  // { value: 'flv', label: 'sorenson' }, // check it for the value to complete validation
 ]);
 //  video COdec for mkv
 const mkvCodecOptions = ref([
@@ -292,7 +293,7 @@ const mp4CodecOptions = ref([
 ]);
 //  video COdec for mov
 const movCodecOptions = ref([
-  { value: 'copy', label: 'Copy (No Re-encoding)' },
+  { value: 'copy', label: 'Copy' },
   { value: 'libx264', label: 'x264', selected: 'x264' },
   { value: 'libx265', label: 'x265' },
 ]);
@@ -305,24 +306,24 @@ const webmCodecOptions = ref([
 ]);
 //  video COdec for wmv
 const wmvCodecOptions = ref([
-  { value: 'copy', label: 'Copy (No Re-encoding)' },
+  { value: 'copy', label: 'Copy' },
   { value: 'msmpeg4v2', label: 'msmpeg4', selected: 'msmpeg4' },
   { value: 'wmv2', label: 'wmv2' },
 ]);
 //  video COdec for 3g2
 const threeG2CodecOptions = ref([
-  { value: 'copy', label: 'Copy (No Re-encoding)' },
+  { value: 'copy', label: 'Copy' },
   { value: 'libx264', label: 'x264', selected: 'x264' },
   // { value: 'libxvid', label: 'xvid' },
 ]);
 //  video COdec for 3gp
 const threeGPCodecOptions = ref([
-  { value: 'copy', label: 'Copy (No Re-encoding)' },
+  { value: 'copy', label: 'Copy' },
   { value: 'libx264', label: 'x264', selected: 'x264' },
   { value: 'libxvid', label: 'xvid' },
 ]);
-//  video COdec for cavs | mpg
-const mpgcavsCodecOptions = ref([{ value: 'copy', label: 'Copy' }]);
+//  video COdec for cavs | mpg | rm
+const RMmpgcavsCodecOptions = ref([{ value: 'copy', label: 'copy' }]);
 //  video COdec for dv
 const dvCodecOptions = ref([
   { value: 'copy', label: 'Copy (No Re-encoding)' },
@@ -330,24 +331,51 @@ const dvCodecOptions = ref([
 ]);
 //  video COdec for m2ts
 const m2tsCodecOptions = ref([
-  { value: 'copy', label: 'Copy', selected: 'Copy' },
+  { value: 'copy', label: 'copy', selected: 'Copy' },
   { value: 'libx264', label: 'x264' },
   { value: 'libx265', label: 'x265' },
 ]);
-//  video COdec for m4v
-const m4vCodecOptions = ref([
-  { value: 'copy', label: 'Copy', selected: 'Copy' },
+//  video COdec for m4v mxf
+const mxfm4vCodecOptions = ref([
+  { value: 'copy', label: 'copy', selected: 'Copy' },
   { value: 'libx264', label: 'x264' },
 ]);
 //  video COdec for mts
 const mtsCodecOptions = ref([
-  { value: 'copy', label: 'Copy' },
+  { value: 'copy', label: 'copy' },
   { value: 'libx264', label: 'x264', selected: 'x264' },
   { value: 'libx265', label: 'x265' },
   { value: 'libvpx', label: 'vp8' },
   { value: 'libvpx-vp9', label: 'vp9' },
+]);
+//  video COdec for ogg
+const oggCodecOptions = ref([
+  { value: 'copy', label: 'copy' },
+  // { value: 'libvpx', label: 'vp8' },
+]);
+//  video COdec for mpeg
+const mpegCodecOptions = ref([
+  { value: 'copy', label: 'Copy (No Re-encoding)' },
+  { value: 'libx264', label: 'x264', selected: 'x264' },
+  { value: 'libx265', label: 'x265' },
+  { value: 'libxvid', label: 'xvid' },
+  { value: 'libvpx', label: 'vp8' },
+  { value: 'libvpx-vp9', label: 'vp9' },
   { value: 'libaom-av1', label: 'av1' },
 ]);
+//  video COdec for rmvb
+const rmvbCodecOptions = ref([
+  { value: 'copy', label: 'Copy (No Re-encoding)' },
+  { value: 'libx264', label: 'x264', selected: 'x264' },
+  { value: 'libx265', label: 'x265' },
+  { value: 'libxvid', label: 'xvid' },
+  { value: 'libvpx', label: 'vp8' },
+  { value: 'libvpx-vp9', label: 'vp9' },
+  { value: 'libaom-av1', label: 'av1' },
+]);
+// //  video COdec for rm
+// const rmCodecOptions = ref([{ value: 'copy', label: 'Copy' }]);
+
 // removing (.) from selected value
 const formatWithoutDot = computed(() => {
   const selectedFormat = GlobalData.selectedFormat;
@@ -383,13 +411,21 @@ const selectedVideoCodecOptions = computed(() => {
       return dvCodecOptions.value;
     case 'cavs':
     case 'mpg':
-      return mpgcavsCodecOptions.value;
+    case 'rm':
+      return RMmpgcavsCodecOptions.value;
+    case 'mpeg':
+      return mpegCodecOptions.value;
     case 'm2ts':
       return m2tsCodecOptions.value;
     case 'm4v':
-      return m4vCodecOptions.value;
+    case 'mxf':
+      return mxfm4vCodecOptions.value;
     case 'mts':
       return mtsCodecOptions.value;
+    case 'ogg':
+      return oggCodecOptions.value;
+    case 'rmvb':
+      return rmvbCodecOptions.value;
     default:
       return videoCodecOptions.value;
   }
@@ -427,7 +463,14 @@ const fields = reactive([
   {
     name: 'ConstantQualitySelect',
     label: 'Constant Quality (CRF)',
-    options: constantQualityOptions.value,
+    options: computed(() => {
+      const selectedValue = GlobalData.selectedFormat === '.webm' ? '31' : '23';
+
+      return constantQualityOptions.value.map((option) => ({
+        ...option,
+        selected: option.value === selectedValue ? selectedValue : option.selected,
+      }));
+    }),
     description: 'The CRF value sets the video quality and can be from 0–63. Lower values mean better quality but longer conversion times. Recommended values range from 15–35.',
   },
   {
@@ -475,7 +518,7 @@ const fields = reactive([
 ]);
 
 const videoOptionsToHide = ['presetSelect', 'tuneSelect', 'profileSelect', 'levelSelect'];
-const videoOptionsToHidefor = ['.wmv', '.3g2', '.3gp', '.dv', '.cavs', '.m2ts', '.m4v', '.mpg'];
+const videoOptionsToHidefor = ['.wmv', '.3g2', '.3gp', '.dv', '.cavs', '.m2ts', '.m4v', '.mpg', '.mpeg', '.mxf', '.ogg', '.rm', '.rmvb'];
 
 // to hide certain option for certain video codecs
 const shouldHideField = computed(() => (field) => {

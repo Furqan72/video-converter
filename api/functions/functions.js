@@ -74,7 +74,7 @@ function calculateDuration(startTime, endTime) {
 }
 
 // checking values for Fit (in video options)
-function createComplexVideoFilter(fitValue, widthValue, heightValue, aspectRatio) {
+function createComplexVideoFilter(fitValue, widthValue, heightValue, aspectRatio, originalSARWidth, originalSARHeight) {
   let complexFilter = [];
 
   switch (fitValue) {
@@ -98,6 +98,29 @@ function createComplexVideoFilter(fitValue, widthValue, heightValue, aspectRatio
       console.log('error error error error error (error in the createComplexVideoFilter function)');
       break;
   }
+
+  // const configureVideoConversion = (command, options, originalDimensions) => {
+  // ... (existing code)
+
+  // Add the Sample Aspect Ratio (SAR) filter
+  // const sarWidth = options.sarWidth || 1; // Default to 1 if not provided
+  // const sarHeight = options.sarHeight || 1; // Default to 1 if not provided
+  // let [sarWidth, sarHeight] = sample_aspect_ratio.split('x');
+
+  // const originalSARWidth = parseInt(Math.floor(sarWidth / 2) * 2);
+  // const originalSARHeight = parseInt(Math.floor(sarHeight / 2) * 2);
+  // if (sarWidth % 2 == 0 && sarHeight % 2 == 0) {
+  //   complexFilter.push(`setsar=${originalSARWidth}:${originalSARHeight}`);
+  // }
+
+  if (originalSARWidth % 2 !== 0 && originalSARHeight % 2 !== 0) {
+    const SARWidth = parseInt(Math.floor(originalSARWidth / 2) * 2);
+    const SARHeight = parseInt(Math.floor(originalSARHeight / 2) * 2);
+    complexFilter.push(`setsar=${SARWidth}:${SARHeight}`);
+  }
+
+  // console.log(`aspect (SAR) ------------------------------  ${originalSARWidth}  --------------------------------------- + ${originalSARHeight}`);
+  // console.log(`aspect ------------------------------  ${widthValue}  --------------------------------------- + ${heightValue}`);
 
   if (aspectRatio !== 'no change') {
     complexFilter.push(`setdar=${aspectRatio}`);

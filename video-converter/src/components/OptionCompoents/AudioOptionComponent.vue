@@ -192,7 +192,7 @@ const otherCodecOptions = ref([
   { value: 'copy', label: 'copy' },
   { value: 'none', label: 'none' },
   { value: 'aac', label: 'aac' },
-  { value: 'pcm_s16le', label: 'pcm_s16le', selected: 'pcm_s16le' },
+  { value: 'pcm_s16le', label: 'PCM S16LE', selected: 'pcm_s16le' },
 ]);
 
 //Audio Codecs for m2ts
@@ -219,15 +219,46 @@ const mtsCodecOptions = ref([
   { value: 'libopus', label: 'opus' },
   { value: 'libvorbis', label: 'vorbis' },
 ]);
+
 //Audio Codecs for mxf
 const mxfCodecOptions = ref([
   { value: 'copy', label: 'copy', selected: 'copy' },
   { value: 'none', label: 'none' },
-  // { value: 'aac', label: 'aac' },
-  { value: 'wmav2', label: 'wmav2' },
-  { value: 'libopus', label: 'opus' },
+  { value: 'pcm_s16le', label: 'PCM S16LE' },
+]);
+
+//Audio Codecs for ogg
+const oggCodecOptions = ref([
+  { value: 'copy', label: 'copy' },
+  { value: 'none', label: 'none' },
+  // { value: 'aac', label: 'aac', selected: 'acc' },
+  { value: 'libopus', label: 'opus', selected: 'opus' },
   { value: 'libvorbis', label: 'vorbis' },
-  { value: 'pcm_s16le', label: 'pcm_s16le' },
+]);
+
+//Audio Codecs for mpeg
+const mpegCodecOptions = ref([
+  { value: 'copy', label: 'copy', selected: 'copy' },
+  { value: 'none', label: 'none' },
+  { value: 'libmp3lame', label: 'mp3' },
+  { value: 'pcm_s16be', label: 'pcm s16be' },
+]);
+
+//Audio Codecs for mpeg
+const rmCodecOptions = ref([
+  { value: 'copy', label: 'copy' },
+  { value: 'none', label: 'none' },
+  { value: 'aac', label: 'aac', selected: 'acc' },
+]);
+
+//  video COdec for rmvb
+const rmvbCodecOptions = ref([
+  { value: 'copy', label: 'copy' },
+  { value: 'none', label: 'none' },
+  { value: 'aac', label: 'aac', selected: 'acc' },
+  { value: 'libopus', label: 'opus' },
+  { value: 'wmav2', label: 'wmav2' },
+  { value: 'libvorbis', label: 'vorbis' },
 ]);
 
 // selecting value for video-codec
@@ -260,10 +291,18 @@ const selectedAudioCodecOptions = computed(() => {
       return m2tsCodecOptions.value;
     case '.mpg':
       return mpgCodecOptions.value;
+    case '.mpeg':
+      return mpegCodecOptions.value;
     case '.mts':
       return mtsCodecOptions.value;
     case '.mxf':
       return mxfCodecOptions.value;
+    case '.ogg':
+      return oggCodecOptions.value;
+    case '.rm':
+      return rmCodecOptions.value;
+    case '.rmvb':
+      return rmvbCodecOptions.value;
     default:
       return AudioCodecOptions.value;
   }
