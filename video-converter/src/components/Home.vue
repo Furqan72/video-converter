@@ -90,7 +90,7 @@ const sendFile = async () => {
   formSubmitted.value = true;
 };
 
-const subtitlesNotIncluded = ['.avi', '.flv', '.wmv', '.webm', '.3g2', '.3gp', '.cavs', '.dv', '.m2ts', '.mpg', '.mpeg', '.mts', '.mxf', '.ogg', '.rm', '.rmvb'];
+const subtitlesNotIncluded = ['.avi', '.flv', '.wmv', '.webm', '.3g2', '.3gp', '.cavs', '.dv', '.m2ts', '.mpg', '.mpeg', '.mts', '.mxf', '.ogg', '.rm', '.rmvb', '.swf', '.MOD'];
 const showSubtitlesComponent = computed(() => {
   const selectedFormat = GlobalData.selectedFormat;
   return subtitlesNotIncluded.some((format) => selectedFormat.includes(format));

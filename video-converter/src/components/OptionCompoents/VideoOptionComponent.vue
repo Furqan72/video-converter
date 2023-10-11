@@ -373,8 +373,8 @@ const rmvbCodecOptions = ref([
   { value: 'libvpx-vp9', label: 'vp9' },
   { value: 'libaom-av1', label: 'av1' },
 ]);
-//  video COdec for swf
-const swfCodecOptions = ref([{ value: 'copy', label: 'Copy' }]);
+//  video COdec for swf |  mod
+const swfMODCodecOptions = ref([{ value: 'copy', label: 'Copy' }]);
 
 // removing (.) from selected value
 const formatWithoutDot = computed(() => {
@@ -427,7 +427,8 @@ const selectedVideoCodecOptions = computed(() => {
     case 'rmvb':
       return rmvbCodecOptions.value;
     case 'swf':
-      return swfCodecOptions.value;
+    case 'MOD':
+      return swfMODCodecOptions.value;
     default:
       return videoCodecOptions.value;
   }
@@ -466,6 +467,7 @@ const fields = reactive([
     name: 'ConstantQualitySelect',
     label: 'Constant Quality (CRF)',
     options: computed(() => {
+      // updating the vlaue of CRF according to webm and other formats
       const selectedValue = GlobalData.selectedFormat === '.webm' ? '31' : '23';
 
       return constantQualityOptions.value.map((option) => ({
@@ -520,7 +522,7 @@ const fields = reactive([
 ]);
 
 const videoOptionsToHide = ['presetSelect', 'tuneSelect', 'profileSelect', 'levelSelect'];
-const videoOptionsToHidefor = ['.wmv', '.3g2', '.3gp', '.dv', '.cavs', '.m2ts', '.m4v', '.mpg', '.mpeg', '.mxf', '.ogg', '.rm', '.rmvb'];
+const videoOptionsToHidefor = ['.wmv', '.3g2', '.3gp', '.dv', '.cavs', '.m2ts', '.m4v', '.mpg', '.mpeg', '.mxf', '.ogg', '.rm', '.rmvb', '.swf', '.MOD'];
 
 // to hide certain option for certain video codecs
 const shouldHideField = computed(() => (field) => {

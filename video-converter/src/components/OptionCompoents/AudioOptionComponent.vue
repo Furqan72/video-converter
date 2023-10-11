@@ -232,7 +232,7 @@ const oggCodecOptions = ref([
   { value: 'copy', label: 'copy' },
   { value: 'none', label: 'none' },
   { value: 'aac', label: 'aac', selected: 'acc' },
-  { value: 'libopus', label: 'opus', selected: 'opus' },
+  { value: 'libopus', label: 'opus' },
   { value: 'libvorbis', label: 'vorbis' },
 ]);
 
@@ -251,7 +251,7 @@ const rmCodecOptions = ref([
   { value: 'aac', label: 'aac', selected: 'acc' },
 ]);
 
-//  video COdec for rmvb
+//Video COdec for rmvb
 const rmvbCodecOptions = ref([
   { value: 'copy', label: 'copy' },
   { value: 'none', label: 'none' },
@@ -261,7 +261,16 @@ const rmvbCodecOptions = ref([
   { value: 'libvorbis', label: 'vorbis' },
 ]);
 
-// selecting value for video-codec
+//Audio Codecs for swf | MOD
+const swfMODCodecOptions = ref([
+  { value: 'copy', label: 'copy' },
+  { value: 'none', label: 'none' },
+  { value: 'aac', label: 'aac', selected: 'acc' },
+  { value: 'libopus', label: 'opus' },
+  { value: 'libvorbis', label: 'vorbis' },
+]);
+
+//Selecting value for video-codec
 const selectedAudioCodecOptions = computed(() => {
   const selectedFormat = GlobalData.selectedFormat;
 
@@ -303,6 +312,9 @@ const selectedAudioCodecOptions = computed(() => {
       return rmCodecOptions.value;
     case '.rmvb':
       return rmvbCodecOptions.value;
+    case '.swf':
+    case '.MOD':
+      return swfMODCodecOptions.value;
     default:
       return AudioCodecOptions.value;
   }

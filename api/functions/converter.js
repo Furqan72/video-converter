@@ -67,7 +67,7 @@ const handleFileUpload = (file, destination, processedFiles) => {
 
 // Video Conversion FFmepg events
 const configureFFmpegEvents = (command, io, res) => {
-  let ffmpegErrors = []; //
+  // let ffmpegErrors = []; //
   command
     // .addOptions(['-fflags', ' +genpts'])
 
@@ -88,31 +88,30 @@ const configureFFmpegEvents = (command, io, res) => {
       console.log('message', 'Conversion Finished.');
     })
     .on('error', (err, stdout, stderr) => {
-      console.error('Error:', err);
-      console.error('FFmpeg stderr:', stderr);
-      console.error('FFmpeg stdout:', stdout);
-      // io.emit('message', 'Conversion Error!! Try changing the video file or setting for the editing options.');
-      // io.emit('message', 'Conversion Error!! Either Video not convertable or options selected are not comaptible. Try changing the video file or setting for the options.');
+      try {
+        console.error('Error:', err);
+        console.error('FFmpeg stderr:', stderr);
+        console.error('FFmpeg stdout:', stdout);
 
-      const errorLines = stderr.split('\n');
-      const errorPatterns = /(Could not find|width not|compatible|Unsupported codec|width must be|Only VP8 or VP9 or AV1|Streamcopy|Unable to find|encoder setup failed|does not yet support|can only be written)/;
-      const errorMessages = errorLines.filter((line) => errorPatterns.test(line));
+        const errorLines = stderr.split('\n');
+        const errorPatterns = /(Could not find|width not|compatible|Unsupported codec|width must be|Only VP8 or VP9 or AV1|Streamcopy|Unable to find|encoder setup failed|does not yet support|can only be written|only supports)/;
+        const errorMessages = errorLines.filter((line) => errorPatterns.test(line));
 
-      // Iterate through each error messager
-      let extractedText;
-      errorMessages.forEach((errorMessage) => {
-        const indexOfClosingBracket = errorMessage.indexOf(']');
-        if (indexOfClosingBracket !== -1) {
-          extractedText = errorMessage.substring(indexOfClosingBracket + 1).trim();
-        }
-      });
-      console.log('Error-----------', extractedText);
-      // io.emit('message', extractedText + `.'\n'<br> Covnersion Failed!`);
-      // io.emit('message', `${extractedText}.\nConversion Failed!`);
-      // io.emit('message', extractedText + '.\nConversion Failed!');
-      io.emit('message', extractedText + '. Conversion failed!');
+        let extractedText = '';
+        errorMessages.forEach((errorMessage) => {
+          const indexOfClosingBracket = errorMessage.indexOf(']');
+          if (indexOfClosingBracket !== -1) {
+            extractedText = errorMessage.substring(indexOfClosingBracket + 1).trim();
+          }
+        });
+        console.log('Error  -----------  ', extractedText);
 
-      res.status(500).send('Conversion Error: ' + err.message);
+        // Handle the error gracefully here, e.g., by sending an error response to the client.
+        io.emit('message', extractedText + '. Conversion failed!');
+        res.status(500).send('Conversion Error: ' + err.message);
+      } catch (error) {
+        console.error('An error occurred while handling the FFmpeg error:', error);
+      }
     });
 };
 
