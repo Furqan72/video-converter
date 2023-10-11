@@ -41,7 +41,7 @@ const videoFormats = ref([
   { label: 'M2TS', value: '.m2ts' },
   { label: 'M4V', value: '.m4v' },
   { label: 'MKV', value: '.mkv' },
-  { label: 'MOD', value: '.mod' },
+  { label: 'MOD', value: '.MOD' },
   { label: 'MOV', value: '.mov' },
   { label: 'MP4', value: '.mp4' },
   { label: 'MPEG', value: '.mpeg' },

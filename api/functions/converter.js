@@ -42,8 +42,7 @@ const extractOptionsFromRequest = (req) => {
   options.desiredKeyframeInterval = req.body.KeyframeInterval;
   options.subtitlesType = req.body.subtitleType;
   options.QscaleValue = options.selectMenuValues === '.wmv' ? req.body.Qscale : '';
-
-  console.log(options);
+  // console.log(options);
 
   return options;
 };
@@ -68,6 +67,7 @@ const handleFileUpload = (file, destination, processedFiles) => {
 
 // Video Conversion FFmepg events
 const configureFFmpegEvents = (command, io, res) => {
+  let ffmpegErrors = []; //
   command
     // .addOptions(['-fflags', ' +genpts'])
 
@@ -91,39 +91,56 @@ const configureFFmpegEvents = (command, io, res) => {
       console.error('Error:', err);
       console.error('FFmpeg stderr:', stderr);
       console.error('FFmpeg stdout:', stdout);
-      io.emit('message', 'Conversion Error!! Try changing the video file or setting for the editing options.');
-      // io.emit('message', 'Conversion Error!! -- ' + stderr);
-      // io.emit('errors', '  ------------  ' + stderr);
+      // io.emit('message', 'Conversion Error!! Try changing the video file or setting for the editing options.');
       // io.emit('message', 'Conversion Error!! Either Video not convertable or options selected are not comaptible. Try changing the video file or setting for the options.');
+
+      const errorLines = stderr.split('\n');
+      const errorPatterns = /(Could not find|width not|compatible|Unsupported codec|width must be|Only VP8 or VP9 or AV1|Streamcopy|Unable to find|encoder setup failed|does not yet support|can only be written)/;
+      const errorMessages = errorLines.filter((line) => errorPatterns.test(line));
+
+      // Iterate through each error messager
+      let extractedText;
+      errorMessages.forEach((errorMessage) => {
+        const indexOfClosingBracket = errorMessage.indexOf(']');
+        if (indexOfClosingBracket !== -1) {
+          extractedText = errorMessage.substring(indexOfClosingBracket + 1).trim();
+        }
+      });
+      console.log('Error-----------', extractedText);
+      // io.emit('message', extractedText + `.'\n'<br> Covnersion Failed!`);
+      // io.emit('message', `${extractedText}.\nConversion Failed!`);
+      // io.emit('message', extractedText + '.\nConversion Failed!');
+      io.emit('message', extractedText + '. Conversion failed!');
+
       res.status(500).send('Conversion Error: ' + err.message);
     });
 };
 
 // Video Configuration
 const configureVideoConversion = (command, options, originalDimensions) => {
-  const originalWidth = parseInt(Math.floor(originalDimensions.width / 2) * 2);
-  const originalHeight = parseInt(Math.floor(originalDimensions.height / 2) * 2);
-  console.log(`Video resolution ORGINAL DIMENSIONS-NORMAL : ${originalDimensions.width}x${originalDimensions.height}`);
-  console.log(`Video resolution ORGINAL DIMENSIONS-EVEN : ${originalWidth}x${originalHeight}`);
+  console.log(`Video resolution ORGINAL DIMENSIONS : ${originalDimensions.width}x${originalDimensions.height}`);
 
-  const sample_aspect_ratio = originalDimensions.sample_aspect_ratio;
-  let [sarWidth, sarHeight] = sample_aspect_ratio.split(':');
-  // console.log(`sample_aspect_ratio (SAR) ------------------------------   --------------------------------------- + ${sample_aspect_ratio}`);
+  // covnerting dimensions to even
+  const originalWidth = parseInt(Math.ceil(originalDimensions.width / 4) * 4);
+  const originalHeight = parseInt(Math.ceil(originalDimensions.height / 4) * 4);
+  console.log(`Video resolution ORGINAL DIMENSIONS (EVEN-Number) : ${originalWidth}x${originalHeight}`);
 
-  let [width, height] = options.resolution.split('x');
+  // const sample_aspect_ratio = originalDimensions.sample_aspect_ratio;
+  // let [width, height] = options.resolution.split('x');
 
   if (options.videoCOdec === 'copy') {
     command.videoCodec(options.videoCOdec);
-  } else {
+
     // videoCodec without 'copy'
+  } else {
     command.videoCodec(options.videoCOdec);
     let filtersForVideo = [];
 
-    // const aspectRatio = options.aspectRatio || '1:1';
     if (options.resolution !== 'no change') {
-      filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, width, height, options.aspectRatio, sarWidth, sarHeight));
+      console.log('no change option');
+      // filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, width, height, options.aspectRatio));
     } else if (options.resolution === 'no change') {
-      filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, originalWidth, originalHeight, options.aspectRatio, sarWidth, sarHeight));
+      filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, originalWidth, originalHeight, options.aspectRatio));
     }
     if (filtersForVideo.length > 0) {
       const complexFilterExpression = filtersForVideo.join(';');
@@ -229,9 +246,6 @@ const configureTrimming = async (command, options, path) => {
     checkSubtitles = metadata.streams.some((stream) => stream.codec_type === 'subtitle');
     videoStream = metadata.streams.find((stream) => stream.codec_type === 'video');
     completeData = metadata; // all metadata
-
-    const sar = videoStream.sample_aspect_ratio;
-    console.log('Sample Aspect Ratio (SAR):----------------------------------------------------------', sar);
 
     let startingInSeconds = functions.parseTime(options.startingTime);
     let endingInSeconds = functions.parseTime(options.endingTime);
@@ -356,8 +370,6 @@ const videoConversionFunction = async (req, res, io) => {
     }
 
     // console.log('FFmpeg Command:', command.toString());
-    // command.save(outputPath);
-
     command.save(outputPath);
     // Handle any unexpected errors
   } catch (error) {
@@ -367,3 +379,21 @@ const videoConversionFunction = async (req, res, io) => {
 };
 
 module.exports = { videoConversionFunction };
+
+// // OPTIONS;
+// // Video
+// //   ->Resolution
+// //   ->Aspect Ratio
+// //   ->Constant Quality (CRF)
+// //   ->Video Codec
+// //   ->Preset
+// //   ->Tune
+// //   ->Profile
+// //   ->Level
+// // scale
+// // Fps
+// // Audio
+// // Sample Rate
+// // Trim
+// // Watermark
+// // Other

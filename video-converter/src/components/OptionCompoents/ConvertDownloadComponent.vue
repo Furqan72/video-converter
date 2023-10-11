@@ -1,10 +1,10 @@
 <template>
   <!-- Convert -->
   <div class="mt-14 flex flex-col items-center justify-center">
-    <p class="my-5 text-center text-red-600" v-if="GlobalData.errMessage">{{ GlobalData.errMessage }}</p>
+    <p class="my-5 text-center text-lg text-red-600" v-if="GlobalData.errMessage">{{ GlobalData.errMessage }}.</p>
     <!-- <p class="my-5 px-10 text-center text-red-600" v-if="allErrors">{{ allErrors }}</p> -->
-    <button type="submit" class="flex w-44 items-center justify-center rounded-lg border-0 bg-[#b53836ff] bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:shadow-xl focus:outline-none" :disabled="GlobalData.fileSizeExceeded === true || GlobalData.markWrongFormat === true || GlobalData.formatCheck === true || GlobalData.selectedFormat === '...' || GlobalData.selectedFileFormat === '...'">
-      <ConvertIcon />
+    <button type="submit" class="flex w-44 items-center justify-center rounded-lg border-0 bg-[#b53836ff] bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:shadow-xl focus:outline-none" :disabled="GlobalData.fileSizeExceeded === true || GlobalData.markWrongFormat === true || GlobalData.formatCheck === true || GlobalData.selectedFormat === '...' || GlobalData.selectedFileFormat === '...' || (progressElement !== 0 && progressElement !== 100)">
+      <ConvertIcon :class="progressElement !== 0 && progressElement !== 100 ? 'rectangle' : ''" />
       <span>Convert</span>
     </button>
     <!-- loading -->
@@ -92,5 +92,20 @@ onMounted(() => {
 }
 .pulse-bubble-3 {
   animation: pulse 0.4s ease 0.4s infinite alternate;
+}
+
+/* convert svg */
+/* svg {
+  max-width:100%;
+} */
+
+.rectangle {
+  animation: spin 3s infinite;
+  transform-origin: 10px 10px;
+}
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

@@ -74,13 +74,21 @@ function calculateDuration(startTime, endTime) {
 }
 
 // checking values for Fit (in video options)
-function createComplexVideoFilter(fitValue, widthValue, heightValue, aspectRatio, originalSARWidth, originalSARHeight) {
+function createComplexVideoFilter(fitValue, widthValue, heightValue, aspectRatio) {
   let complexFilter = [];
+  // widthValue = Math.floor(widthValue / 2) * 2;
+
+  const scaledWidth = `(iw/2)*2`;
+  const scaledHeight = `ih*${scaledWidth}/${widthValue}`;
+
+  const scaleFilter = `scale=${scaledWidth}:${scaledHeight}`;
 
   switch (fitValue) {
     case 'scale':
       console.log('scale');
-      complexFilter.push(`scale=${widthValue}:${heightValue}`);
+      complexFilter.push(scaleFilter);
+      // complexFilter.push(`scale=${widthValue}:${heightValue}`);
+
       break;
     case 'max':
       console.log('max');
@@ -99,28 +107,11 @@ function createComplexVideoFilter(fitValue, widthValue, heightValue, aspectRatio
       break;
   }
 
-  // const configureVideoConversion = (command, options, originalDimensions) => {
-  // ... (existing code)
-
-  // Add the Sample Aspect Ratio (SAR) filter
-  // const sarWidth = options.sarWidth || 1; // Default to 1 if not provided
-  // const sarHeight = options.sarHeight || 1; // Default to 1 if not provided
-  // let [sarWidth, sarHeight] = sample_aspect_ratio.split('x');
-
-  // const originalSARWidth = parseInt(Math.floor(sarWidth / 2) * 2);
-  // const originalSARHeight = parseInt(Math.floor(sarHeight / 2) * 2);
-  // if (sarWidth % 2 == 0 && sarHeight % 2 == 0) {
-  //   complexFilter.push(`setsar=${originalSARWidth}:${originalSARHeight}`);
+  // complexFilter.push(`setsar=${widthValue}:${heightValue}`);
+  // if (aspectRatio === 'no change') {
+  complexFilter.push('setsar=1');
+  // console.log('aspect --------------------------setsar++++++-- ');
   // }
-
-  if (originalSARWidth % 2 !== 0 && originalSARHeight % 2 !== 0) {
-    const SARWidth = parseInt(Math.floor(originalSARWidth / 2) * 2);
-    const SARHeight = parseInt(Math.floor(originalSARHeight / 2) * 2);
-    complexFilter.push(`setsar=${SARWidth}:${SARHeight}`);
-  }
-
-  // console.log(`aspect (SAR) ------------------------------  ${originalSARWidth}  --------------------------------------- + ${originalSARHeight}`);
-  // console.log(`aspect ------------------------------  ${widthValue}  --------------------------------------- + ${heightValue}`);
 
   if (aspectRatio !== 'no change') {
     complexFilter.push(`setdar=${aspectRatio}`);

@@ -373,8 +373,8 @@ const rmvbCodecOptions = ref([
   { value: 'libvpx-vp9', label: 'vp9' },
   { value: 'libaom-av1', label: 'av1' },
 ]);
-// //  video COdec for rm
-// const rmCodecOptions = ref([{ value: 'copy', label: 'Copy' }]);
+//  video COdec for swf
+const swfCodecOptions = ref([{ value: 'copy', label: 'Copy' }]);
 
 // removing (.) from selected value
 const formatWithoutDot = computed(() => {
@@ -426,6 +426,8 @@ const selectedVideoCodecOptions = computed(() => {
       return oggCodecOptions.value;
     case 'rmvb':
       return rmvbCodecOptions.value;
+    case 'swf':
+      return swfCodecOptions.value;
     default:
       return videoCodecOptions.value;
   }

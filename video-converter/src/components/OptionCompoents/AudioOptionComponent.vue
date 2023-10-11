@@ -231,7 +231,7 @@ const mxfCodecOptions = ref([
 const oggCodecOptions = ref([
   { value: 'copy', label: 'copy' },
   { value: 'none', label: 'none' },
-  // { value: 'aac', label: 'aac', selected: 'acc' },
+  { value: 'aac', label: 'aac', selected: 'acc' },
   { value: 'libopus', label: 'opus', selected: 'opus' },
   { value: 'libvorbis', label: 'vorbis' },
 ]);
@@ -244,7 +244,7 @@ const mpegCodecOptions = ref([
   { value: 'pcm_s16be', label: 'pcm s16be' },
 ]);
 
-//Audio Codecs for mpeg
+//Audio Codecs for rm
 const rmCodecOptions = ref([
   { value: 'copy', label: 'copy' },
   { value: 'none', label: 'none' },
