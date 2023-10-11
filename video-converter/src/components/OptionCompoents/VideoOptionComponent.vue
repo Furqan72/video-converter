@@ -273,7 +273,7 @@ const aviCodecOptions = ref([
 const flvCodecOptions = ref([
   { value: 'copy', label: 'Copy' },
   { value: 'libx264', label: 'x264', selected: 'x264' },
-  // { value: 'flv', label: 'sorenson' }, // check it for the value to complete validation
+  // { value: 'flv1', label: 'sorenson' }, // check it for the value to complete validation
 ]);
 //  video COdec for mkv
 const mkvCodecOptions = ref([

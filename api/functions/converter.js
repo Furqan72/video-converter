@@ -94,7 +94,7 @@ const configureFFmpegEvents = (command, io, res) => {
         console.error('FFmpeg stdout:', stdout);
 
         const errorLines = stderr.split('\n');
-        const errorPatterns = /(Could not find|width not|compatible|Unsupported codec|width must be|Only VP8 or VP9 or AV1|Streamcopy|Unable to find|encoder setup failed|does not yet support|can only be written|only supports)/;
+        const errorPatterns = /(Could not find|width not|compatible|Unsupported codec|width must be|Only VP8 or VP9 or AV1|Streamcopy|Unable to find|encoder setup failed|does not yet support|can only be written|only supports|is not available)/;
         const errorMessages = errorLines.filter((line) => errorPatterns.test(line));
 
         let extractedText = '';
