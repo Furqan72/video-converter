@@ -373,8 +373,8 @@ const rmvbCodecOptions = ref([
   { value: 'libvpx-vp9', label: 'vp9' },
   { value: 'libaom-av1', label: 'av1' },
 ]);
-//  video COdec for swf |  mod
-const swfMODCodecOptions = ref([{ value: 'copy', label: 'Copy' }]);
+//  video COdec for swf |  mod | ts
+const multipleAudioCodecsOption = ref([{ value: 'copy', label: 'Copy' }]);
 
 // removing (.) from selected value
 const formatWithoutDot = computed(() => {
@@ -428,7 +428,8 @@ const selectedVideoCodecOptions = computed(() => {
       return rmvbCodecOptions.value;
     case 'swf':
     case 'MOD':
-      return swfMODCodecOptions.value;
+    case 'ts':
+      return multipleAudioCodecsOption.value;
     default:
       return videoCodecOptions.value;
   }
@@ -522,7 +523,7 @@ const fields = reactive([
 ]);
 
 const videoOptionsToHide = ['presetSelect', 'tuneSelect', 'profileSelect', 'levelSelect'];
-const videoOptionsToHidefor = ['.wmv', '.3g2', '.3gp', '.dv', '.cavs', '.m2ts', '.m4v', '.mpg', '.mpeg', '.mxf', '.ogg', '.rm', '.rmvb', '.swf', '.MOD'];
+const videoOptionsToHidefor = ['.wmv', '.3g2', '.3gp', '.dv', '.cavs', '.m2ts', '.m4v', '.mpg', '.mpeg', '.mxf', '.ogg', '.rm', '.rmvb', '.swf', '.MOD', '.ts'];
 
 // to hide certain option for certain video codecs
 const shouldHideField = computed(() => (field) => {

@@ -94,7 +94,7 @@ const configureFFmpegEvents = (command, io, res) => {
         console.error('FFmpeg stdout:', stdout);
 
         const errorLines = stderr.split('\n');
-        const errorPatterns = /(Could not find|width not|compatible|Unsupported codec|width must be|Only VP8 or VP9 or AV1|Streamcopy|Unable to find|encoder setup failed|does not yet support|can only be written|only supports|is not available)/;
+        const errorPatterns = /(Could not find|width not|compatible|Unsupported codec|width must be|Only VP8 or VP9 or AV1|Streamcopy|Unable to find|encoder setup failed|does not yet support|can only be written|only supports|is not available|codec tag found for|only supported in)/;
         const errorMessages = errorLines.filter((line) => errorPatterns.test(line));
 
         let extractedText = '';
@@ -106,8 +106,7 @@ const configureFFmpegEvents = (command, io, res) => {
         });
         console.log('Error  -----------  ', extractedText);
 
-        // Handle the error gracefully here, e.g., by sending an error response to the client.
-        io.emit('message', extractedText + '. Conversion failed!');
+        io.emit('message', extractedText + ' Conversion failed!!');
         res.status(500).send('Conversion Error: ' + err.message);
       } catch (error) {
         console.error('An error occurred while handling the FFmpeg error:', error);
@@ -119,6 +118,8 @@ const configureFFmpegEvents = (command, io, res) => {
 const configureVideoConversion = (command, options, originalDimensions) => {
   console.log(`Video resolution ORGINAL DIMENSIONS : ${originalDimensions.width}x${originalDimensions.height}`);
 
+  // command.outputOptions('-map 0'); // Include all streams
+  // command.outputOptions('-map_metadata -1');
   // covnerting dimensions to even
   const originalWidth = parseInt(Math.ceil(originalDimensions.width / 4) * 4);
   const originalHeight = parseInt(Math.ceil(originalDimensions.height / 4) * 4);
@@ -189,6 +190,17 @@ const configureVideoConversion = (command, options, originalDimensions) => {
   if (options.qualityConstant !== '') {
     command.addOptions([`-crf ${options.qualityConstant}`]);
   }
+
+  // console.log(originalDimensions.buffer_size);
+  // console.log(originalDimensions.max_bitrate);
+  if (originalDimensions.buffer_size && originalDimensions.max_bitrate) {
+    command.addOptions([`-bufsize ${originalDimensions.buffer_size}`]);
+    command.addOptions([`-maxrate ${originalDimensions.max_bitrate}`]);
+  }
+  // if (originalDimensions.buffer_size && originalDimensions.max_bitrate) {
+  //   command.addOptions([`-bufsize ${originalDimensions.buffer_size}`]);
+  //   command.addOptions([`-maxrate ${originalDimensions.max_bitrate}`]);
+  // }
 };
 
 // Audio Configuration
@@ -338,11 +350,12 @@ const videoConversionFunction = async (req, res, io) => {
     res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData });
 
     // checking for multiple video streams
-    if (editingoptions.selectMenuValues === '.flv') {
+    if (editingoptions.selectMenuValues === '.flv' || editingoptions.selectMenuValues === '.mkv') {
       if (videoStream && videoStream.length > 1) {
         command.inputOptions(['-map 0:v:0']);
       }
     }
+
     // error
     if (errorMessages !== '') {
       console.log('Error while trimming the video..........' + errorMessages);
@@ -364,9 +377,10 @@ const videoConversionFunction = async (req, res, io) => {
     //  Subtitles
     configureSubtitles(command, editingoptions, subtitlePath, hasEmbeddedSubtitles);
 
-    if (editingoptions.selectMenuValues !== '.flv') {
+    if (editingoptions.selectMenuValues !== '.flv' || editingoptions.selectMenuValues !== '.mkv') {
       command.outputOptions(['-map 0']);
     }
+    // command.outputOptions(['-map 0:v:0', '-map 0:a:0']);
 
     // console.log('FFmpeg Command:', command.toString());
     command.save(outputPath);
@@ -378,21 +392,3 @@ const videoConversionFunction = async (req, res, io) => {
 };
 
 module.exports = { videoConversionFunction };
-
-// // OPTIONS;
-// // Video
-// //   ->Resolution
-// //   ->Aspect Ratio
-// //   ->Constant Quality (CRF)
-// //   ->Video Codec
-// //   ->Preset
-// //   ->Tune
-// //   ->Profile
-// //   ->Level
-// // scale
-// // Fps
-// // Audio
-// // Sample Rate
-// // Trim
-// // Watermark
-// // Other

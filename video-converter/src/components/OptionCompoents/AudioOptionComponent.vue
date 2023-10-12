@@ -261,8 +261,8 @@ const rmvbCodecOptions = ref([
   { value: 'libvorbis', label: 'vorbis' },
 ]);
 
-//Audio Codecs for swf | MOD
-const swfMODCodecOptions = ref([
+//Audio Codecs for swf | MOD | ts
+const multipleVideoCodecOptions = ref([
   { value: 'copy', label: 'copy' },
   { value: 'none', label: 'none' },
   { value: 'aac', label: 'aac', selected: 'acc' },
@@ -314,7 +314,8 @@ const selectedAudioCodecOptions = computed(() => {
       return rmvbCodecOptions.value;
     case '.swf':
     case '.MOD':
-      return swfMODCodecOptions.value;
+    case '.ts':
+      return multipleVideoCodecOptions.value;
     default:
       return AudioCodecOptions.value;
   }
