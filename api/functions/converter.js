@@ -91,7 +91,7 @@ const configureFFmpegEvents = (command, io, res) => {
         console.error('FFmpeg stdout:', stdout);
 
         const errorLines = stderr.split('\n');
-        const errorPatterns = /(Could not find|width not|compatible|Unsupported codec|width must be|Only VP8 or VP9 or AV1|Streamcopy|Unable to find|encoder setup failed|does not yet support|can only be written|only supports|is not available|codec tag found for|only supported in|codec failed|is not supported in|Packet is missing PTS|at most one )/;
+        const errorPatterns = /(Could not find|width not|compatible|Unsupported codec|width must be|Only VP8 or VP9 or AV1|Streamcopy|Unable to find|encoder setup failed|does not yet support|can only be written|only supports|is not available|codec tag found for|only supported in|codec failed|is not supported in|Packet is missing PTS|at most one|Error setting option profile|Possible tunes: psnr ssim grain|Error setting option tune to )/;
         const errorMessages = errorLines.filter((line) => errorPatterns.test(line));
 
         let extractedText = '';
@@ -114,16 +114,29 @@ const configureFFmpegEvents = (command, io, res) => {
 // Video Configuration
 const configureVideoConversion = (command, options, originalDimensions) => {
   console.log(`Video resolution ORGINAL DIMENSIONS : ${originalDimensions.width}x${originalDimensions.height}`);
-
-  // command.outputOptions('-map 0'); // Include all streams
-  // command.outputOptions('-map_metadata -1');
   // covnerting dimensions to even
   const originalWidth = parseInt(Math.ceil(originalDimensions.width / 4) * 4);
   const originalHeight = parseInt(Math.ceil(originalDimensions.height / 4) * 4);
   console.log(`Video resolution ORGINAL DIMENSIONS (EVEN-Number) : ${originalWidth}x${originalHeight}`);
 
-  // const sample_aspect_ratio = originalDimensions.sample_aspect_ratio;
-  // let [width, height] = options.resolution.split('x');
+  let [width, height] = options.resolution.split('x');
+  let filtersForVideo = [];
+
+  if (options.resolution !== 'no change') {
+    console.log('no change option');
+    filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, width, height, options.aspectRatio));
+  } else if (options.resolution === 'no change') {
+    filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, originalWidth, originalHeight, options.aspectRatio));
+  }
+  if (filtersForVideo.length > 0) {
+    const complexFilterExpression = filtersForVideo.join(';');
+    command.complexFilter(complexFilterExpression);
+  }
+  // CRF
+  console.log(options.qualityConstant);
+  if (options.qualityConstant) {
+    command.addOptions([`-crf ${options.qualityConstant}`]);
+  }
 
   if (options.videoCOdec === 'copy') {
     command.videoCodec(options.videoCOdec);
@@ -131,76 +144,41 @@ const configureVideoConversion = (command, options, originalDimensions) => {
     // videoCodec without 'copy'
   } else {
     command.videoCodec(options.videoCOdec);
-    let filtersForVideo = [];
 
-    if (options.resolution !== 'no change') {
-      console.log('no change option');
-      // filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, width, height, options.aspectRatio));
-    } else if (options.resolution === 'no change') {
-      filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, originalWidth, originalHeight, options.aspectRatio));
-    }
-    if (filtersForVideo.length > 0) {
-      const complexFilterExpression = filtersForVideo.join(';');
-      command.complexFilter(complexFilterExpression);
-    }
-    //  tune --> none film animation grain stillimage fastdecode zerolatency psnr ssim
-    // video options
-    if (options.tuning && options.tuning !== 'none' && options.videoCOdec !== 'flv') {
-      const supportedCodecs = ['libvpx', 'libvpx-vp9', 'libaom-av1'];
-
-      if (supportedCodecs.includes(options.videoCOdec) && !['film', 'animation', 'grain', 'stillimage', 'fastdecode', 'zerolatency'].includes(options.tuning)) {
-        command.addOptions([`-tune ${options.tuning}`]);
-      } else if (options.videoCOdec === 'libx265' && options.tuning !== 'stillimage' && options.tuning !== 'film') {
-        command.addOptions([`-tune ${options.tuning}`]);
-      } else if (options.videoCOdec === 'libx264') {
-        command.addOptions([`-tune ${options.tuning}`]);
-      }
+    if (options.tuning && options.tuning !== 'none') {
+      command.addOptions([`-tune ${options.tuning}`]);
     }
     // Profile
-    if (options.profileValue !== '' && options.profileValue !== 'none' && options.videoCOdec !== 'libx265' && options.videoCOdec !== 'libxvid' && options.videoCOdec !== 'libvpx' && options.videoCOdec !== 'libvpx-vp9' && options.videoCOdec !== 'libaom-av1' && options.videoCOdec !== 'flv') {
+    if (options.profileValue && options.profileValue !== 'none') {
       command.addOption(`-profile:v ${options.profileValue}`);
     }
     // Levels
-    if (options.levelValue !== '' && options.levelValue !== 'none') {
+    if (options.levelValue && options.levelValue !== 'none') {
       command.addOptions([`-level ${options.levelValue}`]);
     }
     // Preset
     console.log(options.presetValue);
-    if (options.presetValue !== '') {
+    if (options.presetValue) {
       command.addOptions([`-preset ${options.presetValue}`]);
     }
   }
   // FPS
-  // if (options.framePersecond !== '') {
-  // command.addOption('-r', options.framePersecond || originalDimensions.r_frame_rate);
-  // }
-  if (options.framePersecond !== '') {
+  if (options.framePersecond) {
     command.addOption('-r', options.framePersecond);
   }
   // Key Frame Interval
-  if (options.desiredKeyframeInterval !== '') {
+  if (options.desiredKeyframeInterval) {
     command.addOption(`-g ${options.desiredKeyframeInterval}`);
   }
   // Qscale
-  if (options.QscaleValue !== '' && options.selectMenuValues === '.wmv') {
+  if (options.QscaleValue && options.selectMenuValues === '.wmv') {
     command.addOption(`-q:v ${options.QscaleValue}`);
   }
-  // CRF
-  console.log(options.qualityConstant);
-  if (options.qualityConstant !== '') {
-    command.addOptions([`-crf ${options.qualityConstant}`]);
-  }
 
-  // console.log(originalDimensions.buffer_size);
-  // console.log(originalDimensions.max_bitrate);
   if (originalDimensions.buffer_size && originalDimensions.max_bitrate) {
     command.addOptions([`-bufsize ${originalDimensions.buffer_size}`]);
     command.addOptions([`-maxrate ${originalDimensions.max_bitrate}`]);
   }
-  // if (originalDimensions.buffer_size && originalDimensions.max_bitrate) {
-  //   command.addOptions([`-bufsize ${originalDimensions.buffer_size}`]);
-  //   command.addOptions([`-maxrate ${originalDimensions.max_bitrate}`]);
-  // }
 };
 
 // Audio Configuration
@@ -228,9 +206,7 @@ const configureAudioConversion = (command, options) => {
     // Audio Codec
     command.audioCodec(options.AudioCodecSelect);
     // audio Bitrate
-    if ((options.AudioBitrateValue !== '' || (options.selectMenuValues !== '.mp4' && options.audioCodec !== 'libvorbis' && options.selectForFile !== '.3gp')) && options.AudioCodecSelect === 'wmav2' && options.videoCOdec == 'wmv2' && options.selectMenuValues === '.wmv') {
-      command.audioBitrate('128');
-    } else if (options.AudioBitrateValue !== '') {
+    if (options.AudioBitrateValue !== '') {
       command.audioBitrate(`${options.AudioBitrateValue}`);
     }
 
@@ -246,10 +222,8 @@ const configureAudioConversion = (command, options) => {
 
 // Trimming
 const configureTrimming = async (command, options, path) => {
-  let errorMessages = '';
-  let checkSubtitles = false;
-  let videoStream = '';
-  let completeData = '';
+  let [errorMessages, checkSubtitles, videoStream, completeData] = ['', false, '', ''];
+
   try {
     const metadata = await functions.getVideoMetadata(path);
     const totalVideoDurationInSeconds = metadata.format.duration;
@@ -290,8 +264,8 @@ const configureTrimming = async (command, options, path) => {
 // WaterMark
 const configurewaterMark = (command, options, path) => {
   if (options.imageWatermark) {
+    console.log(`checking for the path of watermark image -->> ${path}`);
     console.log('Image Watermark Path:', path);
-    command.input(path);
     if (options.resolution === 'no change') {
       console.log('Applying Watermark without Scaling');
       command.complexFilter(`[0:v][1:v]overlay=(W-w)/2:(H-h)/2`);
@@ -299,6 +273,7 @@ const configurewaterMark = (command, options, path) => {
       console.log('Scaling Watermark and Overlaying');
       command.complexFilter(`[1:v]scale=150:150 [watermark];[0:v][watermark]overlay=(W-w)/2:(H-h)/2`);
     }
+    command.input(path);
   }
 };
 
@@ -336,7 +311,6 @@ const videoConversionFunction = async (req, res, io) => {
     // Upload  Subtitles | Watermark
     const subtitlePath = editingoptions.subtitleFiles ? await handleFileUpload(editingoptions.subtitleFiles, 'temp-files/', functions.processedFiles) : '';
     const imageWatermarkPath = editingoptions.imageWatermark ? await handleFileUpload(editingoptions.imageWatermark, 'temp-files/', functions.processedFiles) : '';
-
     // Upload input file (video)
     const inputPath = await handleFileUpload(editingoptions.inputFile, 'temp-files/', functions.processedFiles);
 
@@ -347,9 +321,9 @@ const videoConversionFunction = async (req, res, io) => {
     // let errorMessage = '';
     let hasEmbeddedSubtitles = '';
 
-    // FFmpeg --> start,progress,end,error
     const command = new ffmpeg(inputPath);
 
+    // FFmpeg --> start,progress,end,error
     configureFFmpegEvents(command, io, res);
 
     // Trimming Configuration
@@ -357,7 +331,7 @@ const videoConversionFunction = async (req, res, io) => {
     res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData });
 
     // checking for multiple video streams
-    if (editingoptions.selectMenuValues === '.flv' || editingoptions.selectMenuValues === '.mkv') {
+    if (editingoptions.selectMenuValues === '.flv') {
       if (videoStream && videoStream.length > 1) {
         command.inputOptions(['-map 0:v:0']);
       }
@@ -384,18 +358,17 @@ const videoConversionFunction = async (req, res, io) => {
     //  Subtitles
     configureSubtitles(command, editingoptions, subtitlePath, hasEmbeddedSubtitles);
 
-    // command.inputOptions('-loglevel debug');
+    // if (editingoptions.selectMenuValues === '.mkv') {
+    //   command.addInputOptions('-fflags +genpts');
+    //   command.inputOption('-copyts'); // Copy timestamps
+    // }
 
-    if (editingoptions.selectMenuValues === '.mkv') {
-      command.addInputOptions('-fflags +genpts');
-      command.inputOption('-copyts'); // Copy timestamps
-    }
-
-    if (editingoptions.selectMenuValues !== '.flv' || editingoptions.selectMenuValues !== '.mkv') {
+    if (editingoptions.selectMenuValues !== '.flv') {
       command.outputOptions(['-map 0']);
     }
 
     // console.log('FFmpeg Command:', command.toString()); // log for everything
+    // command.inputOptions('-loglevel debug');
     command.save(outputPath);
 
     // Handle any unexpected errors
