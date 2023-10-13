@@ -67,10 +67,7 @@ const handleFileUpload = (file, destination, processedFiles) => {
 
 // Video Conversion FFmepg events
 const configureFFmpegEvents = (command, io, res) => {
-  // let ffmpegErrors = []; //
   command
-    // .addOptions(['-fflags', ' +genpts'])
-
     .on('start', () => {
       // io.emit('message', 'Conversion Started.');
       console.log('message', 'Conversion Started.');
@@ -94,7 +91,7 @@ const configureFFmpegEvents = (command, io, res) => {
         console.error('FFmpeg stdout:', stdout);
 
         const errorLines = stderr.split('\n');
-        const errorPatterns = /(Could not find|width not|compatible|Unsupported codec|width must be|Only VP8 or VP9 or AV1|Streamcopy|Unable to find|encoder setup failed|does not yet support|can only be written|only supports|is not available|codec tag found for|only supported in)/;
+        const errorPatterns = /(Could not find|width not|compatible|Unsupported codec|width must be|Only VP8 or VP9 or AV1|Streamcopy|Unable to find|encoder setup failed|does not yet support|can only be written|only supports|is not available|codec tag found for|only supported in|codec failed|is not supported in|Packet is missing PTS|at most one )/;
         const errorMessages = errorLines.filter((line) => errorPatterns.test(line));
 
         let extractedText = '';
@@ -174,8 +171,11 @@ const configureVideoConversion = (command, options, originalDimensions) => {
     }
   }
   // FPS
+  // if (options.framePersecond !== '') {
+  // command.addOption('-r', options.framePersecond || originalDimensions.r_frame_rate);
+  // }
   if (options.framePersecond !== '') {
-    command.addOption(`-r ${options.framePersecond}`);
+    command.addOption('-r', options.framePersecond);
   }
   // Key Frame Interval
   if (options.desiredKeyframeInterval !== '') {
@@ -264,12 +264,20 @@ const configureTrimming = async (command, options, path) => {
     if (startingInSeconds < 0 || endingInSeconds < 0) {
       errorMessages = 'Start and end times must be non-negative values.';
     } else if (startingInSeconds >= endingInSeconds || totalVideoDurationInSeconds <= startingInSeconds || totalVideoDurationInSeconds < endingInSeconds) {
-      errorMessages = 'Invalid start or end time.';
+      errorMessages = 'Invalid start or end time. The duration of this video is ' + totalVideoDurationInSeconds + ' seconds.';
+
       // trimming
     } else if (options.startingTime && options.endingTime && options.endingTime !== '00:00:00') {
+      let formattedDuration = functions.formatTime(totalVideoDurationInSeconds);
+      console.log('formattedDuration------>>> ', formattedDuration);
       let totalDuration = functions.calculateDuration(options.startingTime, options.endingTime);
-      command.setStartTime(options.startingTime);
-      command.setDuration(totalDuration);
+
+      console.log('Starting Time (in sec): >>>>>>>>>>>>>>>>>>>  ' + startingInSeconds);
+      console.log('Ending Time (in sec): >>>>>>>>>>>>>>>>>>>  ' + endingInSeconds);
+      console.log('Total Time (Duration): >>>>>>>>>>>>>>>>>>>  ' + totalDuration);
+
+      command.setStartTime(options.startingTime || `00:00:00`);
+      command.setDuration(totalDuration || formattedDuration);
     }
   } catch (err) {
     console.log('not working');
@@ -341,7 +349,6 @@ const videoConversionFunction = async (req, res, io) => {
 
     // FFmpeg --> start,progress,end,error
     const command = new ffmpeg(inputPath);
-    // command.inputOptions('-fflags +genpts');
 
     configureFFmpegEvents(command, io, res);
 
@@ -377,13 +384,20 @@ const videoConversionFunction = async (req, res, io) => {
     //  Subtitles
     configureSubtitles(command, editingoptions, subtitlePath, hasEmbeddedSubtitles);
 
+    // command.inputOptions('-loglevel debug');
+
+    if (editingoptions.selectMenuValues === '.mkv') {
+      command.addInputOptions('-fflags +genpts');
+      command.inputOption('-copyts'); // Copy timestamps
+    }
+
     if (editingoptions.selectMenuValues !== '.flv' || editingoptions.selectMenuValues !== '.mkv') {
       command.outputOptions(['-map 0']);
     }
-    // command.outputOptions(['-map 0:v:0', '-map 0:a:0']);
 
-    // console.log('FFmpeg Command:', command.toString());
+    // console.log('FFmpeg Command:', command.toString()); // log for everything
     command.save(outputPath);
+
     // Handle any unexpected errors
   } catch (error) {
     console.error('An error occurred in the last try catch:', error);

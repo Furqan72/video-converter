@@ -29,7 +29,7 @@ const formatIntroduction = ref([
   { label: 'm2ts', description: 'M2TS is a format commonly used for high-definition video storage on Blu-ray discs. It offers excellent video quality and supports advanced features like multiple audio tracks.' },
   { label: 'm4v', description: 'M4V is a video format developed by Apple. It is similar to MP4 and is commonly used for iTunes video content, providing good quality and compatibility with Apple devices.' },
   { label: 'mkv', description: 'MKV is a versatile video format known for its support of multiple audio and video tracks. It is often used for high-definition video content and offers great flexibility.' },
-  { label: 'mod', description: 'MOD is a format used by digital camcorders. It provides good video quality and is known for its ease of editing and playback.' },
+  { label: 'MOD', description: 'MOD is a format used by digital camcorders. It provides good video quality and is known for its ease of editing and playback.' },
   { label: 'mov', description: 'MOV is an Apple QuickTime format suitable for high-quality video playback. It is widely supported and is used for various multimedia applications.' },
   { label: 'mp4', description: 'MP4 is a widely supported format used for streaming and storing video content. It offers excellent compression and compatibility with a wide range of devices.' },
   { label: 'mpeg', description: 'MPEG is a standard for video and audio compression. It is widely used for DVD video and offers good video quality and compression efficiency.' },

@@ -187,7 +187,6 @@ const FitOptions = ref([
 // FPS
 const FPSvalue = ref([
   { value: '', label: 'none', selected: '' },
-  { value: '0', label: '0' },
   { value: '1', label: '1' },
   { value: '2', label: '2' },
   { value: '3', label: '3' },
@@ -322,8 +321,8 @@ const threeGPCodecOptions = ref([
   { value: 'libx264', label: 'x264', selected: 'x264' },
   { value: 'libxvid', label: 'xvid' },
 ]);
-//  video COdec for cavs | mpg | rm
-const RMmpgcavsCodecOptions = ref([{ value: 'copy', label: 'copy' }]);
+//  video COdec for cavs | mpg | rm | wtv
+const multiVideoCodecsOption = ref([{ value: 'copy', label: 'copy' }]);
 //  video COdec for dv
 const dvCodecOptions = ref([
   { value: 'copy', label: 'Copy (No Re-encoding)' },
@@ -412,7 +411,8 @@ const selectedVideoCodecOptions = computed(() => {
     case 'cavs':
     case 'mpg':
     case 'rm':
-      return RMmpgcavsCodecOptions.value;
+    case 'wtv':
+      return multiVideoCodecsOption.value;
     case 'mpeg':
       return mpegCodecOptions.value;
     case 'm2ts':
@@ -523,7 +523,7 @@ const fields = reactive([
 ]);
 
 const videoOptionsToHide = ['presetSelect', 'tuneSelect', 'profileSelect', 'levelSelect'];
-const videoOptionsToHidefor = ['.wmv', '.3g2', '.3gp', '.dv', '.cavs', '.m2ts', '.m4v', '.mpg', '.mpeg', '.mxf', '.ogg', '.rm', '.rmvb', '.swf', '.MOD', '.ts'];
+const videoOptionsToHidefor = ['.wmv', '.3g2', '.3gp', '.dv', '.cavs', '.m2ts', '.m4v', '.mpg', '.mpeg', '.mxf', '.ogg', '.rm', '.rmvb', '.swf', '.MOD', '.ts', '.wtv'];
 
 // to hide certain option for certain video codecs
 const shouldHideField = computed(() => (field) => {
