@@ -10,11 +10,11 @@
     <div class="flex justify-center text-center maxlg:pb-12">
       <div class="mt-10 font-semibold">
         <span class="mr-3">Convert</span>
-        <select v-model="GlobalData.selectedFileFormat" name="ConvertFromSelect" class="w-36 rounded-lg border bg-[#363636ff] px-4 py-3 text-lg outline-none">
+        <select v-model="GlobalData.selectedFileFormat" name="ConvertFromSelect" selected=".mp4" class="w-36 rounded-lg border bg-[#363636ff] px-4 py-3 text-lg outline-none">
           <option v-for="(option, index) in videoFormats" :key="index" :value="option.value">{{ option.label }}</option>
         </select>
         <span class="mx-3">to</span>
-        <select @change="updateSelectedFormat" name="selectMenu" class="w-36 rounded-lg border bg-[#363636ff] px-4 py-3 text-lg outline-none">
+        <select @change="updateSelectedFormat" name="selectMenu" selected=".mp4" class="w-36 rounded-lg border bg-[#363636ff] px-4 py-3 text-lg outline-none">
           <option v-for="(option, index) in computedconvertTo" :key="index" :value="option.value">{{ option.label }}</option>
         </select>
       </div>
@@ -79,7 +79,7 @@ const computedconvertTo = computed(() => {
   return existingOption ? covnertTo.value : [...covnertTo.value, videoFormats.value.find((option) => option.value === selectedValue)];
 });
 
-// checking the update value of second array
+// checking the updated value of second array
 const updateSelectedFormat = (event) => {
   GlobalData.selectedFormat = event.target.value;
 };

@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 
 export const useGlobalStore = defineStore('GlobalStore', () => {
   const selectedFormat = ref('...');
-  const selectedFileFormat = ref('...');
+  const selectedFileFormat = ref('.mp4');
   const fileSizeExceeded = ref(false);
   const fileSize = ref(null);
   const formatCheck = ref(false);

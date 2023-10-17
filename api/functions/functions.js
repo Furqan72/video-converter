@@ -62,7 +62,13 @@ function formatTime(seconds) {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const remainingSeconds = seconds % 60;
-  return `${hours}:${minutes}:${remainingSeconds}`;
+
+  // adding a  zero if less than 10 to make h:m:s to hh:mm:ss
+  const formattedHours = hours < 10 ? `0${hours}` : hours.toString();
+  const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes.toString();
+  const formattedSeconds = remainingSeconds < 10 ? `0${remainingSeconds}` : remainingSeconds.toString();
+
+  return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
 }
 
 // calculating end-time
@@ -76,19 +82,16 @@ function calculateDuration(startTime, endTime) {
 // checking values for Fit (in video options)
 function createComplexVideoFilter(fitValue, widthValue, heightValue, aspectRatio) {
   let complexFilter = [];
-  // widthValue = Math.floor(widthValue / 2) * 2;
 
-  const scaledWidth = `(iw/2)*2`;
-  const scaledHeight = `ih*${scaledWidth}/${widthValue}`;
-
-  const scaleFilter = `scale=${scaledWidth}:${scaledHeight}`;
+  // console.log('width ----------------: ' + widthValue);
+  // console.log('height --------------: ' + heightValue);
+  // complexFilter.push(`scale=1280:910`);
+  // complexFilter.push(`scale=1280:728`);
 
   switch (fitValue) {
     case 'scale':
       console.log('scale');
-      complexFilter.push(scaleFilter);
-      // complexFilter.push(`scale=${widthValue}:${heightValue}`);
-
+      complexFilter.push(`scale=${widthValue}:${heightValue}`);
       break;
     case 'max':
       console.log('max');
@@ -109,7 +112,7 @@ function createComplexVideoFilter(fitValue, widthValue, heightValue, aspectRatio
 
   // complexFilter.push(`setsar=${widthValue}:${heightValue}`);
   // if (aspectRatio === 'no change') {
-  complexFilter.push('setsar=1');
+  // complexFilter.push('setsar=1:1');
   // console.log('aspect --------------------------setsar++++++-- ');
   // }
 

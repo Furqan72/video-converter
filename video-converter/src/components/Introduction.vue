@@ -1,6 +1,6 @@
 <template>
   <article class="bg-[#f9f9f9] px-28 py-10">
-    <div class="bg-white px-10 py-10" v-if="GlobalData.selectedFileFormat !== '...'">
+    <div class="bg-white px-10 py-10" v-if="formatDescription[0] !== ''">
       <h3 class="flex items-center justify-start py-3 text-lg font-bold text-gray-color">
         <img src="../assets/images/file.png" alt="" class="mr-[14px] h-5 w-5" />
         <span class="uppercase">{{ formatDescription[0] }}</span>
