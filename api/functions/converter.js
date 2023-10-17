@@ -240,16 +240,6 @@ const configureTrimming = async (command, options, path) => {
 
       // trimming
     } else if (options.startingTime && options.endingTime && options.endingTime !== '00:00:00') {
-      const videoStreamStartTime = videoStream.start_time || '00:00:00';
-
-      // Parse the video stream's start time and convert it to seconds
-      const offsetInSeconds = functions.parseTime(videoStreamStartTime);
-
-      let startingInSeconds = functions.parseTime(options.startingTime);
-      let endingInSeconds = functions.parseTime(options.endingTime);
-
-      let adjustedStartingTime = functions.formatTime(startingInSeconds + offsetInSeconds);
-
       let formattedDuration = functions.formatTime(totalVideoDurationInSeconds);
       console.log('formattedDuration------>>> ', formattedDuration);
       let totalDuration = functions.calculateDuration(options.startingTime, options.endingTime);
@@ -258,7 +248,7 @@ const configureTrimming = async (command, options, path) => {
       console.log('Ending Time (in sec): >>>>>>>>>>>>>>>>>>>  ' + endingInSeconds);
       console.log('Total Time (Duration): >>>>>>>>>>>>>>>>>>>  ' + totalDuration);
 
-      command.setStartTime(adjustedStartingTime || `00:00:00`);
+      command.setStartTime(options.startingTime || `00:00:00`);
       command.setDuration(totalDuration || formattedDuration);
     }
   } catch (err) {
