@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
+  safelist: ['col-span-4', 'col-span-2', 'grid-cols-2'],
   theme: {
     screens: {
       coxs: '375px',

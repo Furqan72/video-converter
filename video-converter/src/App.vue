@@ -1,10 +1,11 @@
 <template>
-  <div>
-    <Navbar />
+  <!-- <div> -->
+  <!-- <Navbar />
     <Home />
     <Introduction />
-    <Footer />
-  </div>
+    <Footer /> -->
+  <router-view />
+  <!-- </div> -->
 </template>
 
 <script setup>
