@@ -83,10 +83,9 @@ function calculateDuration(startTime, endTime) {
 function createComplexVideoFilter(fitValue, widthValue, heightValue, aspectRatio) {
   let complexFilter = [];
 
-  // console.log('width ----------------: ' + widthValue);
-  // console.log('height --------------: ' + heightValue);
-  // complexFilter.push(`scale=1280:910`);
-  // complexFilter.push(`scale=1280:728`);
+  if (widthValue % 2 !== 0) {
+    widthValue++;
+  }
 
   switch (fitValue) {
     case 'scale':
@@ -109,12 +108,6 @@ function createComplexVideoFilter(fitValue, widthValue, heightValue, aspectRatio
       console.log('error error error error error (error in the createComplexVideoFilter function)');
       break;
   }
-
-  // complexFilter.push(`setsar=${widthValue}:${heightValue}`);
-  // if (aspectRatio === 'no change') {
-  // complexFilter.push('setsar=1:1');
-  // console.log('aspect --------------------------setsar++++++-- ');
-  // }
 
   if (aspectRatio !== 'no change') {
     complexFilter.push(`setdar=${aspectRatio}`);

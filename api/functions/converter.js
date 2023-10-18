@@ -90,7 +90,7 @@ const configureFFmpegEvents = (command, io, res) => {
         console.error('FFmpeg stdout:', stdout);
 
         const errorLines = stderr.split('\n');
-        const errorPatterns = /(Could not find|width not|compatible|Unsupported codec|width must be|Only VP8 or VP9 or AV1|Streamcopy|Unable to find|encoder setup failed|does not yet support|can only be written|only supports|is not available|codec tag found for|only supported in|codec failed|is not supported in|Packet is missing PTS|at most one|Error setting option profile|Possible tunes: psnr ssim grain|Error setting option tune to| Unsupported audio codec. Must be one of )/;
+        const errorPatterns = /(Could not find|width not|compatible|Unsupported codec|width must be|Only VP8 or VP9 or AV1|Streamcopy|Unable to find|encoder setup failed|does not yet support|can only be written|only supports|is not available|codec tag found for|only supported in|codec failed|is not supported in|Packet is missing PTS|at most one|Error setting option profile|Possible tunes: psnr ssim grain|Error setting option tune to|Unsupported audio codec. Must be one of| not create encoder reference|Cannot open libx265 encoder)/;
         const errorMessages = errorLines.filter((line) => errorPatterns.test(line));
 
         let extractedText = '';
@@ -114,11 +114,6 @@ const configureFFmpegEvents = (command, io, res) => {
 const configureVideoConversion = (command, options, originalDimensions) => {
   console.log(`Video resolution ORGINAL DIMENSIONS : ${originalDimensions.width}x${originalDimensions.height}`);
 
-  // covnerting dimensions to even
-  const originalWidth = parseInt(Math.ceil(originalDimensions.width / 2) * 2);
-  const originalHeight = parseInt(Math.ceil(originalDimensions.height / 2) * 2);
-  console.log(`Video resolution ORGINAL DIMENSIONS (EVEN-Number) : ${originalWidth}x${originalHeight}`);
-
   let filtersForVideo = [];
   let [width, height] = options.resolution.split('x');
 
@@ -129,16 +124,22 @@ const configureVideoConversion = (command, options, originalDimensions) => {
     // videoCodec without 'copy' . using codec other than copy
   } else {
     command.videoCodec(options.videoCOdec);
-    // resolution
-    if (options.resolution !== 'no change') {
-      filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, width, height, options.aspectRatio));
-    } else if (options.resolution === 'no change') {
+
+    // resolution is 'no change'
+    if (options.resolution === 'no change') {
       filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, originalDimensions.width, originalDimensions.height, options.aspectRatio));
+      console.log(`Video resolution ORGINAL DIMENSIONS (condition working ==='no change') : ${originalDimensions.width}x${originalDimensions.height}`);
+
+      // any reolution other than  'no change'
+    } else if (options.resolution !== 'no change') {
+      filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, width, height, options.aspectRatio)); // pre-defined values are all even-numbers
     }
-    if (filtersForVideo.length > 0) {
-      const complexFilterExpression = filtersForVideo.join(';');
+
+    if (filtersForVideo[0] && filtersForVideo[0].length > 0) {
+      const complexFilterExpression = filtersForVideo[0].join(';');
       command.complexFilter(complexFilterExpression);
     }
+
     // CRF
     if (options.qualityConstant) {
       command.addOptions([`-crf ${options.qualityConstant}`]);
@@ -300,7 +301,7 @@ const configureSubtitles = (command, options, path, checkSubtitles) => {
 
 // video conversion function
 const videoConversionFunction = async (req, res, io) => {
-  // deleting previous files
+  // deleting previous converted files
   functions.deleteProcessedFiles();
 
   // values from the from
@@ -337,7 +338,6 @@ const videoConversionFunction = async (req, res, io) => {
       }
     }
 
-    //
     // error
     if (errorMessages !== '') {
       console.log('Error while trimming the video..........' + errorMessages);
