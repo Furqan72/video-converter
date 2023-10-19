@@ -254,7 +254,7 @@ const configureTrimming = async (command, options, path) => {
     }
   } catch (err) {
     console.log('not working');
-    errorMessages = 'Error retrieving video metadata. Please try again or upload another video.';
+    errorMessages = 'Error retrieving video metadata. Please try again or upload another file.';
   }
 
   return { errorMessages, checkSubtitles, videoStream, completeData };

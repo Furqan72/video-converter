@@ -7,10 +7,15 @@
 
     <form @submit.prevent="sendFile">
       <!-- Video Conversion -->
-      <VideoConverter />
+      <VideoConverter v-if="GlobalData.activeConverter === '/'" />
 
       <!-- Image Conversion -->
-      <ImageConverter />
+      <ImageConverter v-if="GlobalData.activeConverter === '/image-converter'" />
+
+      <!-- Convert And Download -->
+      <ConvertDownloadComponent />
+
+      <!--  -->
     </form>
   </main>
 </template>
@@ -21,6 +26,8 @@ import axios from 'axios';
 // components
 import VideoConverter from '../../src/components/VideoCovnersionOptions/VideoConverter.vue';
 import ImageConverter from '../../src/components/ImageCovnersionOptions/ImageConverter.vue';
+
+import ConvertDownloadComponent from '../../src/components/ConvertDownloadComponent.vue';
 
 // global store
 import { useGlobalStore } from '../../src/Store/GlobalStore.js';

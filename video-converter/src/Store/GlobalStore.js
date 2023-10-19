@@ -13,6 +13,9 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
   const markWrongFormat = ref(false);
   const uploadLoading = ref('');
 
+  // active covnerter
+  const activeConverter = ref('/');
+
   return {
     selectedFormat,
     markWrongFormat,
@@ -24,6 +27,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
     uploadLoading,
     formatCheck,
     selectedFileFormat,
+    activeConverter,
 
     // functions
     // updateSelectedFormat,

@@ -11,9 +11,6 @@
       <div class="bg-white pb-14">
         <!-- Video options -->
         <EditingOptions />
-
-        <!-- covnert  -->
-        <ConvertDownloadComponent />
       </div>
     </div>
   </div>
@@ -25,7 +22,7 @@ import { ref, watch, computed } from 'vue';
 import FileUploadComponent from '../../components/FileUploadComponent.vue';
 import SelectImageFormat from '../../../src/components/ImageCovnersionOptions/SelectImageFormat.vue';
 import EditingOptions from '../../../src/components/ImageCovnersionOptions/EditingOptions.vue';
-import ConvertDownloadComponent from '../ConvertDownloadComponent.vue';
+// import ConvertDownloadComponent from '../ConvertDownloadComponent.vue';
 
 // global store
 import { useGlobalStore } from '../../../src/Store/GlobalStore.js';

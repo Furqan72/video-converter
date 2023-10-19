@@ -8,7 +8,7 @@
 
     <!-- Options -->
     <div class="mx-auto h-full bg-[#f9f9f9ff] px-28">
-      <div class="bg-white pb-14">
+      <div class="bg-white">
         <!-- Video options -->
         <VideoOptionComponent />
 
@@ -28,7 +28,7 @@
         <OthersComponent />
 
         <!-- covnert  -->
-        <ConvertDownloadComponent />
+        <!-- <ConvertDownloadComponent /> -->
       </div>
     </div>
   </div>
@@ -38,14 +38,14 @@
 import { ref, watch, computed } from 'vue';
 // components
 import SelectMenu from '../../../src/components/VideoCovnersionOptions/SelectMenu.vue';
-import FileUploadComponent from '../../components/FileUploadCOmponent.vue';
+import FileUploadComponent from '../../components/FileUploadComponent.vue';
 import VideoOptionComponent from '../../../src/components/VideoCovnersionOptions/VideoOptionComponent.vue';
 import AudioOptionComponent from '../../../src/components/VideoCovnersionOptions/AudioOptionComponent.vue';
 import SubtitlesComponent from '../../../src/components/VideoCovnersionOptions/SubtitlesComponent.vue';
 import TrimmingComponent from '../../../src/components/VideoCovnersionOptions/TrimmingComponent.vue';
 import WaterMarkComponent from '../../../src/components/VideoCovnersionOptions/WaterMarkComponent.vue';
 import OthersComponent from '../../../src/components/VideoCovnersionOptions/OthersComponent.vue';
-import ConvertDownloadComponent from '../ConvertDownloadComponent.vue';
+// import ConvertDownloadComponent from '../../components/ConvertDownloadComponent.vue';
 
 // global store
 import { useGlobalStore } from '../../../src/Store/GlobalStore.js';

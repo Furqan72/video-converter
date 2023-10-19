@@ -2,6 +2,8 @@
   <div>
     <Navbar />
     <router-view />
+
+    <!-- <Home /> -->
     <Introduction />
     <Footer />
   </div>
@@ -10,6 +12,6 @@
 <script setup>
 import Navbar from '../components/Navbar.vue';
 import Home from '../components/Home.vue';
-import Introduction from '../components/Introduction.vue';
+import Introduction from '../components/introduction.vue';
 import Footer from '../components/Footer.vue';
 </script>
