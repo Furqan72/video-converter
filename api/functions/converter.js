@@ -2,6 +2,7 @@ const ffmpeg = require('fluent-ffmpeg');
 const socketIo = require('socket.io');
 
 // functions
+const globalFunctions = require('../global/globalFunctions');
 const functions = require('../functions/functions');
 
 // Extracting Options From Request
@@ -45,24 +46,6 @@ const extractOptionsFromRequest = (req) => {
   // console.log(options);
 
   return options;
-};
-
-// Define a function to handle file uploads and return a Promise
-// check for file uploading
-const handleFileUpload = (file, destination, processedFiles) => {
-  return new Promise((resolve, reject) => {
-    functions
-      .uploadFile(file, destination)
-      .then((uploadedFilePath) => {
-        processedFiles.push(uploadedFilePath);
-        resolve(uploadedFilePath);
-        console.log('file uploaded successfully.' + processedFiles);
-      })
-      .catch((error) => {
-        console.log('Error uploading file: ' + error);
-        reject(error);
-      });
-  });
 };
 
 // Video Conversion FFmepg events
@@ -308,10 +291,10 @@ const videoConversionFunction = async (req, res, io) => {
   const editingoptions = extractOptionsFromRequest(req);
   try {
     // Upload  Subtitles | Watermark
-    const subtitlePath = editingoptions.subtitleFiles ? await handleFileUpload(editingoptions.subtitleFiles, 'temp-files/', functions.processedFiles) : '';
-    const imageWatermarkPath = editingoptions.imageWatermark ? await handleFileUpload(editingoptions.imageWatermark, 'temp-files/', functions.processedFiles) : '';
+    const subtitlePath = editingoptions.subtitleFiles ? await globalFunctions.uploadAndHandleFile(editingoptions.subtitleFiles, 'temp-files/', functions.processedFiles) : '';
+    const imageWatermarkPath = editingoptions.imageWatermark ? await globalFunctions.uploadAndHandleFile(editingoptions.imageWatermark, 'temp-files/', functions.processedFiles) : '';
     // Upload input file (video)
-    const inputPath = await handleFileUpload(editingoptions.inputFile, 'temp-files/', functions.processedFiles);
+    const inputPath = await globalFunctions.uploadAndHandleFile(editingoptions.inputFile, 'temp-files/', functions.processedFiles);
 
     const lastDotIndex = editingoptions.inputFile.name.lastIndexOf('.');
     const fileNameWithoutExtension = editingoptions.inputFile.name.substring(0, lastDotIndex);

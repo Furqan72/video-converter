@@ -16,21 +16,21 @@
       <div class="grid grid-cols-4 justify-center text-gray-color">
         <label for="" class="mr-2 mt-2 text-15px">Width</label>
         <div class="col-span-3 flex flex-col">
-          <input type="number" name="Width" class="w-full rounded-lg border px-4 py-2 outline-none" value="" />
+          <input type="number" name="width" class="w-full rounded-lg border px-4 py-2 outline-none" value="" />
           <span class="mt-2 text-xs text-light-gray">Output width in pixels.</span>
         </div>
       </div>
       <div class="grid grid-cols-4 justify-center text-gray-color">
         <label for="" class="mr-2 mt-2 text-15px">Height</label>
         <div class="col-span-3 flex flex-col">
-          <input type="number" name="Height" class="w-full rounded-lg border px-4 py-2 outline-none" value="" />
+          <input type="number" name="height" class="w-full rounded-lg border px-4 py-2 outline-none" value="" />
           <span class="mt-2 text-xs text-light-gray">Output height in pixels.</span>
         </div>
       </div>
       <div class="grid grid-cols-4 justify-center text-gray-color">
         <label for="" class="mr-2 mt-2 text-15px">Fit</label>
         <div class="col-span-3 flex flex-col">
-          <select name="Fit" class="w-full rounded-lg border px-4 py-2 outline-none">
+          <select name="fit" class="w-full rounded-lg border px-4 py-2 outline-none">
             <option value="max">Max</option>
             <option value="crop">Crop</option>
             <option value="scale">Scale</option>
@@ -42,11 +42,11 @@
         <label for="" class="mr-2 mt-2 text-15px">Strip</label>
         <div class="col-span-3 flex flex-col">
           <div class="flex items-center">
-            <input type="radio" id="yes" name="Strip" value="yes" class="mr-2 h-4 w-4 border outline-none" checked />
+            <input type="radio" id="yes" name="strip" value="yes" class="mr-2 h-4 w-4 border outline-none" checked />
             <label for="yes" class="text-black">Yes</label>
           </div>
           <div class="flex items-center">
-            <input type="radio" id="no" name="Strip" value="no" class="mr-2 h-4 w-4 border outline-none" />
+            <input type="radio" id="no" name="strip" value="no" class="mr-2 h-4 w-4 border outline-none" />
             <label for="no" class="text-black">No</label>
           </div>
           <span class="mt-2 text-xs text-light-gray">Remove any metadata such as EXIF data.</span>

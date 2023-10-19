@@ -7,6 +7,8 @@ const fileUpload = require('express-fileupload');
 
 // routes
 const router = require('./router');
+// Global Functions
+const globalFunctions = require('./global/globalFunctions');
 
 const app = express();
 const server = http.createServer(app);
@@ -33,8 +35,19 @@ app.use(
   })
 );
 
-// for downloading
-app.use('/temp-output', express.static('temp-output'));
+// app.use('/temp-output', express.static('temp-output'));
+
+app.use(
+  '/temp-output',
+  (req, res, next) => {
+    const fileName = `${globalFunctions.fileName}`;
+    const disposition = `attachment; filename="${fileName}"`;
+    res.setHeader('Content-Disposition', disposition);
+
+    next();
+  },
+  express.static('temp-output')
+);
 
 app.use((req, res, next) => {
   req.io = io;

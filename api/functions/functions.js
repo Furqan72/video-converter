@@ -2,20 +2,20 @@ const ffmpeg = require('fluent-ffmpeg');
 const fs = require('fs');
 
 // file upload function
-function uploadFile(file, directory) {
-  return new Promise((resolve, reject) => {
-    let fileDirectory = directory + file.name;
+// function uploadFile(file, directory) {
+//   return new Promise((resolve, reject) => {
+//     let fileDirectory = directory + file.name;
 
-    file.mv(fileDirectory, (err) => {
-      if (err) {
-        console.error('File Upload Error:', err);
-        reject(err);
-      } else {
-        resolve(fileDirectory);
-      }
-    });
-  });
-}
+//     file.mv(fileDirectory, (err) => {
+//       if (err) {
+//         console.error('File Upload Error:', err);
+//         reject(err);
+//       } else {
+//         resolve(fileDirectory);
+//       }
+//     });
+//   });
+// }
 
 // delete function
 const processedFiles = [];
@@ -121,7 +121,7 @@ module.exports = {
   processedFiles,
 
   // functions
-  uploadFile,
+  // uploadFile,
   deleteProcessedFiles,
   getVideoMetadata,
   parseTime,

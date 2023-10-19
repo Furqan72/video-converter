@@ -21,8 +21,8 @@
         </div>
       </div>
     </div>
-    <!-- Download -->
-    <a @click="downloadClick()" :target="GlobalData.selectedFormat === '.webm' || GlobalData.selectedFormat === '.mp4' || GlobalData.selectedFormat === '.3gp' ? '_blank' : ''" :href="GlobalData.downloadUrlFromNode" id="downloadBtn" :download="GlobalData.downloadName" class="mt-3 flex w-44 rounded-lg border-0 bg-green-500 bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:text-white hover:shadow-xl focus:outline-none" :class="[progressElement === 100 ? 'flex' : 'hidden', progressElement !== 100 ? 'pointer-events-none' : 'cursor-pointer']">
+    <!-- Download -->{{ GlobalData.selectedFormat }}
+    <a @click="downloadClick()" :href="GlobalData.downloadUrlFromNode" id="downloadBtn" :download="GlobalData.downloadName" class="mt-3 flex w-44 rounded-lg border-0 bg-green-500 bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:text-white hover:shadow-xl focus:outline-none" :class="[progressElement === 100 ? 'flex' : 'hidden', progressElement !== 100 ? 'pointer-events-none' : 'cursor-pointer']">
       <DownloadIcon />
       Download</a
     >
@@ -45,6 +45,9 @@ const downloadClick = () => {
     showConvertButton.value = !showConvertButton.value;
   }
 };
+
+// // which formats to show in the next window
+// const blankShow = ['.3gp', '.mp4', '.webm', '.png', '.jpg'];
 
 // response from the socket.io (provides duration of converting the file, errors and other messages from the server)
 const allErrors = ref('');
