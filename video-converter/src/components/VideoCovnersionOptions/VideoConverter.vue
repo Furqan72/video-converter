@@ -4,7 +4,7 @@
     <SelectMenu />
 
     <!-- Upload -->
-    <FileUploadCOmponent />
+    <FileUploadComponent />
 
     <!-- Options -->
     <div class="mx-auto h-full bg-[#f9f9f9ff] px-28">
@@ -37,15 +37,15 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 // components
-import SelectMenu from '../../../src/components/OptionCompoents/SelectMenu.vue';
-import FileUploadCOmponent from '../../../src/components/OptionCompoents/FileUploadCOmponent.vue';
-import VideoOptionComponent from '../../../src/components/OptionCompoents/VideoOptionComponent.vue';
-import AudioOptionComponent from '../../../src/components/OptionCompoents/AudioOptionComponent.vue';
-import SubtitlesComponent from '../../../src/components/OptionCompoents/SubtitlesComponent.vue';
-import TrimmingComponent from '../../../src/components/OptionCompoents/TrimmingComponent.vue';
-import WaterMarkComponent from '../../../src/components/OptionCompoents/WaterMarkComponent.vue';
-import OthersComponent from '../../../src/components/OptionCompoents/OthersComponent.vue';
-import ConvertDownloadComponent from '../../../src/components/OptionCompoents/ConvertDownloadComponent.vue';
+import SelectMenu from '../../../src/components/VideoCovnersionOptions/SelectMenu.vue';
+import FileUploadComponent from '../../components/FileUploadCOmponent.vue';
+import VideoOptionComponent from '../../../src/components/VideoCovnersionOptions/VideoOptionComponent.vue';
+import AudioOptionComponent from '../../../src/components/VideoCovnersionOptions/AudioOptionComponent.vue';
+import SubtitlesComponent from '../../../src/components/VideoCovnersionOptions/SubtitlesComponent.vue';
+import TrimmingComponent from '../../../src/components/VideoCovnersionOptions/TrimmingComponent.vue';
+import WaterMarkComponent from '../../../src/components/VideoCovnersionOptions/WaterMarkComponent.vue';
+import OthersComponent from '../../../src/components/VideoCovnersionOptions/OthersComponent.vue';
+import ConvertDownloadComponent from '../ConvertDownloadComponent.vue';
 
 // global store
 import { useGlobalStore } from '../../../src/Store/GlobalStore.js';

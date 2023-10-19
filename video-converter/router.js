@@ -9,7 +9,7 @@ const router = createRouter({
       name: 'Mainlayout',
       component: Mainlayout,
       children: [
-        { path: '/', name: 'VideoConverter', component: () => import('./src/components/Home.vue') },
+        { path: '/', name: 'VideoConverter', component: () => import('./src/components/VideoCovnersionOptions/VideoConverter.vue') },
         { path: '/image-converter', name: 'ImageConverter', component: () => import('./src/components/ImageCovnersionOptions/ImageConverter.vue') },
         // { path: '/video-converter', name: 'ImageConverter', component: () => import('./src/components/VideoCovnersionOptions/VideoConverter.vue') },
       ],

@@ -67,7 +67,7 @@ const navbarMenu = ref([
     icon: 'covnerter',
     listitems1: [
       { label: 'Image Converter', link: '/image-converter' },
-      { label: 'Video Converter', link: '/video-converter' },
+      { label: 'Video Converter', link: '/' },
       { label: 'Archive Converter', link: '' },
       { label: 'Audio Converter', link: '' },
       { label: 'CAD Converter', link: '' },

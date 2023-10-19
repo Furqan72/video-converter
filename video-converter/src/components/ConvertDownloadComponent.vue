@@ -35,10 +35,10 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import io from 'socket.io-client';
 // icons
-import DownloadIcon from '../../../src/assets/icons/DownloadIcon.vue';
-import ConvertIcon from '../../../src/assets/icons/ConvertIcon.vue';
+import DownloadIcon from '../../src/assets/icons/DownloadIcon.vue';
+import ConvertIcon from '../../src/assets/icons/ConvertIcon.vue';
 
-import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
+import { useGlobalStore } from '../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 
 const showConvertButton = ref(true);

@@ -1,14 +1,33 @@
 <template>
-  <div>
-    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium consectetur aut iusto eligendi enim sequi facere reprehenderit deserunt reiciendis non. Deserunt odio libero hic fuga neque dolore perferendis et sapiente.</p>
-    <div>
-      Lorem Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem nostrum quaerat explicabo exercitationem ullam laborum dolorum veritatis debitis fugiat eius maiores aperiam provident voluptate aliquam assumenda, aspernatur laboriosam, ducimus sed, quas accusamus excepturi corrupti magni sequi commodi. Deserunt commodi quia, officiis minus adipisci quaerat. Sit voluptatum vitae molestias et tempora? ipsum dolor sit amet consectetur adipisicing elit. Fugiat incidunt quis ipsum excepturi dolorum, blanditiis inventore modi quae illum rerum quasi aut numquam soluta sit pariatur esse perferendis et iure. Lorem Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem nostrum quaerat explicabo exercitationem ullam laborum dolorum veritatis debitis fugiat eius maiores aperiam provident voluptate aliquam assumenda, aspernatur laboriosam, ducimus sed, quas accusamus excepturi corrupti magni sequi commodi. Deserunt commodi quia, officiis minus adipisci quaerat. Sit voluptatum vitae molestias et tempora? ipsum dolor sit amet consectetur adipisicing elit. Fugiat incidunt quis ipsum excepturi dolorum, blanditiis inventore modi quae illum rerum quasi aut numquam soluta sit pariatur esse perferendis et iure. Lorem Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem nostrum quaerat explicabo exercitationem ullam laborum dolorum veritatis debitis fugiat eius maiores aperiam provident voluptate aliquam assumenda, aspernatur laboriosam, ducimus sed, quas accusamus excepturi corrupti magni sequi commodi. Deserunt commodi quia, officiis minus adipisci quaerat. Sit voluptatum vitae molestias et tempora? ipsum dolor sit amet consectetur adipisicing elit. Fugiat incidunt quis ipsum excepturi dolorum, blanditiis inventore modi quae illum rerum quasi aut numquam soluta sit pariatur esse perferendis et iure. Lorem Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem nostrum quaerat explicabo exercitationem ullam laborum dolorum veritatis debitis fugiat eius maiores aperiam provident voluptate aliquam assumenda, aspernatur laboriosam, ducimus sed, quas accusamus excepturi corrupti magni sequi commodi. Deserunt commodi quia, officiis minus adipisci quaerat. Sit voluptatum vitae molestias et tempora? ipsum dolor sit amet consectetur adipisicing elit. Fugiat incidunt quis ipsum excepturi dolorum, blanditiis inventore modi quae illum rerum quasi aut numquam soluta sit pariatur esse perferendis et iure. Lorem Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem nostrum quaerat explicabo exercitationem ullam laborum dolorum veritatis debitis fugiat eius maiores aperiam provident voluptate aliquam assumenda, aspernatur laboriosam, ducimus sed, quas accusamus excepturi corrupti magni sequi commodi. Deserunt commodi quia, officiis minus adipisci quaerat. Sit voluptatum vitae molestias et tempora? ipsum dolor sit amet consectetur adipisicing elit. Fugiat incidunt quis ipsum excepturi dolorum, blanditiis inventore modi quae illum rerum quasi aut
-      numquam soluta sit pariatur esse perferendis et iure. Lorem Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem nostrum quaerat explicabo exercitationem ullam laborum dolorum veritatis debitis fugiat eius maiores aperiam provident voluptate aliquam assumenda, aspernatur laboriosam, ducimus sed, quas accusamus excepturi corrupti magni sequi commodi. Deserunt commodi quia, officiis minus adipisci quaerat. Sit voluptatum vitae molestias et tempora? ipsum dolor sit amet consectetur adipisicing elit. Fugiat incidunt quis ipsum excepturi dolorum, blanditiis inventore modi quae illum rerum quasi aut numquam soluta sit pariatur esse perferendis et iure. Lorem Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem nostrum quaerat explicabo exercitationem ullam laborum dolorum veritatis debitis fugiat eius maiores aperiam provident voluptate aliquam assumenda, aspernatur laboriosam, ducimus sed, quas accusamus excepturi corrupti magni sequi commodi. Deserunt commodi quia, officiis minus adipisci quaerat. Sit voluptatum vitae molestias et tempora? ipsum dolor sit amet consectetur adipisicing elit. Fugiat incidunt quis ipsum excepturi dolorum, blanditiis inventore modi quae illum rerum quasi aut numquam soluta sit pariatur esse perferendis et iure. Lorem Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem nostrum quaerat explicabo exercitationem ullam laborum dolorum veritatis debitis fugiat eius maiores aperiam provident voluptate aliquam assumenda, aspernatur laboriosam, ducimus sed, quas accusamus excepturi corrupti magni sequi commodi. Deserunt commodi quia, officiis minus adipisci quaerat. Sit voluptatum vitae molestias et tempora? ipsum dolor sit amet consectetur adipisicing elit. Fugiat incidunt quis ipsum excepturi dolorum, blanditiis inventore modi quae illum rerum quasi aut numquam soluta sit pariatur esse perferendis et iure. Lorem Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem nostrum quaerat explicabo exercitationem ullam laborum dolorum veritatis debitis fugiat eius maiores aperiam provident voluptate aliquam assumenda, aspernatur laboriosam, ducimus sed, quas accusamus excepturi corrupti magni sequi commodi. Deserunt commodi quia, officiis minus adipisci quaerat. Sit voluptatum vitae molestias et tempora? ipsum dolor sit amet consectetur adipisicing elit. Fugiat incidunt quis ipsum excepturi dolorum, blanditiis inventore modi quae illum rerum quasi aut numquam soluta sit pariatur esse perferendis et iure. Lorem Lorem ipsum dolor sit amet consectetur adipisicing elit. Rem nostrum quaerat explicabo exercitationem ullam laborum dolorum veritatis debitis fugiat eius maiores aperiam provident voluptate aliquam assumenda, aspernatur laboriosam, ducimus sed, quas accusamus excepturi corrupti magni sequi commodi. Deserunt commodi quia, officiis minus adipisci quaerat. Sit voluptatum vitae molestias et tempora? ipsum dolor sit amet consectetur adipisicing elit. Fugiat incidunt quis ipsum excepturi dolorum,
-      blanditiis inventore modi quae illum rerum quasi aut numquam soluta sit pariatur esse perferendis et iure.
+  <div class="bg-[#f9f9f9ff]">
+    <!-- select format -->
+    <SelectImageFormat />
+
+    <!-- Upload -->
+    <FileUploadComponent />
+
+    <!-- Options -->
+    <div class="mx-auto h-full bg-[#f9f9f9ff] px-28">
+      <div class="bg-white pb-14">
+        <!-- Video options -->
+        <EditingOptions />
+
+        <!-- covnert  -->
+        <ConvertDownloadComponent />
+      </div>
     </div>
   </div>
 </template>
 
-<script>
-import { ref } from 'vue';
+<script setup>
+import { ref, watch, computed } from 'vue';
+// components
+import FileUploadComponent from '../../components/FileUploadComponent.vue';
+import SelectImageFormat from '../../../src/components/ImageCovnersionOptions/SelectImageFormat.vue';
+import EditingOptions from '../../../src/components/ImageCovnersionOptions/EditingOptions.vue';
+import ConvertDownloadComponent from '../ConvertDownloadComponent.vue';
+
+// global store
+import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
+const GlobalData = useGlobalStore();
 </script>

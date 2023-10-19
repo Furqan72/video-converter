@@ -1,5 +1,3 @@
-<!-- 3G2,3GP,3GPP,AVI,CAVS,DV,DVR,FLV,M2TS,M4V,MKV,MOD,MOV,MP4,MPEG,MPG,MTS,MXF,OGG,RM,RMVB,SWF,TS,VOB,WEBM,WMV,WTV -->
-
 <template>
   <div class="flex flex-col items-center justify-center gap-y-5 px-28 py-14">
     <!-- Upload -->
@@ -34,7 +32,7 @@
 <script setup>
 import { ref } from 'vue';
 // global store
-import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
+import { useGlobalStore } from '../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 
 // file size & type check

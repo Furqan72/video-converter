@@ -9,11 +9,9 @@
       <!-- Video Conversion -->
       <VideoConverter />
 
-      <!-- Video Conversion -->
-      <!-- <ImageConverter /> -->
+      <!-- Image Conversion -->
+      <ImageConverter />
     </form>
-    <!-- Introduction  -->
-    <Introduction />
   </main>
 </template>
 
@@ -22,8 +20,7 @@ import { ref, watch, computed } from 'vue';
 import axios from 'axios';
 // components
 import VideoConverter from '../../src/components/VideoCovnersionOptions/VideoConverter.vue';
-// import ImageConverter from '../../src/components/ImageCovnersionOptions/ImageConverter.vue';
-import Introduction from '../components/Introduction.vue';
+import ImageConverter from '../../src/components/ImageCovnersionOptions/ImageConverter.vue';
 
 // global store
 import { useGlobalStore } from '../../src/Store/GlobalStore.js';
