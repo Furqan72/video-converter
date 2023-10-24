@@ -9,7 +9,7 @@ const functions = require('../functions/functions');
 const extractOptionsFromRequest = (req) => {
   const options = {};
 
-  options.inputFile = req.files.videoFile;
+  options.inputFile = req.files.uploadFile;
   console.log(options.inputFile);
   options.subtitleFiles = req.files.subtitleFile;
   options.selectMenuValues = req.body.selectMenu;

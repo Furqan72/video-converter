@@ -23,17 +23,17 @@
             <div class="grid" :class="menuItem.heading2 === '' ? ' grid-cols-' + menuItem.columns2 + ' gap-5' : ''">
               <div class="mt-2">
                 <template v-for="(item, index) in menuItem.listitems1" :key="index">
-                  <p class="cursor-pointer" @click="closeTransition(item.link)">
+                  <router-link :to="item.link" class="cursor-pointer" @click="closeTransition(item.link)">
                     <span class="block rounded-sm p-[10px] text-sm duration-200 hover:bg-white hover:text-black">{{ item.label }}</span>
-                  </p>
+                  </router-link>
                 </template>
               </div>
               <h4 v-if="menuItem.heading2 !== ''" class="broder broder-[#5a5a5a] mt-2 flex items-center border-b text-lg font-semibold"><img src="../../src/assets/images/covnerter.png" alt="" class="mr-1 h-4 w-4" /> {{ menuItem.heading2 }}</h4>
               <div class="mt-2">
                 <template v-for="(item, index) in menuItem.listitems2" :key="index">
-                  <p class="cursor-pointer" @click="closeTransition(item.link)">
+                  <router-link :to="item.link" class="cursor-pointer" @click="closeTransition(item.link)">
                     <span class="block rounded-sm p-[10px] text-sm duration-200 hover:bg-white hover:text-black">{{ item.label }}</span>
-                  </p>
+                  </router-link>
                 </template>
               </div>
             </div>

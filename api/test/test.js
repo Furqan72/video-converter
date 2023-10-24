@@ -1,5 +1,5 @@
 // app.post('/convert', (req, res) => {
-//   let inputFile = req.files.videoFile;
+//   let inputFile = req.files.uploadFile;
 //   let selectMenuValues = req.body.selectMenu;
 //   let startingTime = req.body.StartingTime;
 //   let endingTime = req.body.EndingTime;
@@ -160,7 +160,7 @@
 // });
 
 // app.post('/convert', (req, res) => {
-//   let inputFile = req.files.videoFile;
+//   let inputFile = req.files.uploadFile;
 //   let selectMenuValues = req.body.selectMenu;
 //   let startingTime = req.body.StartingTime;
 //   let endingTime = req.body.EndingTime;
@@ -408,7 +408,7 @@
 // });
 
 // app.post('/convert', (req, res) => {
-//   let inputFile = req.files.videoFile;
+//   let inputFile = req.files.uploadFile;
 //   let selectMenuValues = req.body.selectMenu;
 //   let startingTime = req.body.StartingTime;
 //   let endingTime = req.body.EndingTime;

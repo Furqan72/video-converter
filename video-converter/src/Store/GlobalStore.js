@@ -5,6 +5,8 @@ import axios from 'axios';
 export const useGlobalStore = defineStore('GlobalStore', () => {
   const selectedFormat = ref('...');
   const selectedFileFormat = ref('.mp4');
+  const selectedImageFileFormat = ref('.jpg');
+  const imageSelectedFormat = ref('.png');
   const fileSizeExceeded = ref(false);
   const fileSize = ref(null);
   const formatCheck = ref(false);
@@ -19,9 +21,6 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
 
   //  sending and receiving data from the server
   const sendVideoFile = async (formData, convert) => {
-    // const form = document.querySelector('form');
-    // const formData = new FormData(form);
-
     console.log(formData, convert);
     console.log('http://localhost:4000/' + convert);
 
@@ -60,6 +59,8 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
     formatCheck,
     selectedFileFormat,
     activeConverter,
+    selectedImageFileFormat,
+    imageSelectedFormat,
 
     // functions
     // updateSelectedFormat,

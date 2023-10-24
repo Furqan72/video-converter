@@ -12,7 +12,7 @@ const { info } = require('console');
 const extractOptionsFromRequest = (req) => {
   const options = {};
 
-  options.inputFile = req.files.videoFile;
+  options.inputFile = req.files.uploadFile;
   console.log(options.inputFile);
   options.selectForFile = req.body.ConvertFromSelect;
   options.selectMenuValues = req.body.selectMenu;

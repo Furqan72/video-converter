@@ -14,7 +14,7 @@
           <option v-for="(option, index) in videoFormats" :key="index" :value="option.value">{{ option.label }}</option>
         </select>
         <span class="mx-3">to</span>
-        <select @change="updateSelectedFormat" name="selectMenu" selected=".mp4" class="w-36 rounded-lg border bg-[#363636ff] px-4 py-3 text-lg outline-none">
+        <select @change="updateSelectedFormat" name="selectMenu" class="w-36 rounded-lg border bg-[#363636ff] px-4 py-3 text-lg outline-none">
           <option v-for="(option, index) in computedconvertTo" :key="index" :value="option.value">{{ option.label }}</option>
         </select>
       </div>
