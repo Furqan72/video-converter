@@ -299,6 +299,8 @@ const videoConversionFunction = async (req, res, io) => {
     const lastDotIndex = editingoptions.inputFile.name.lastIndexOf('.');
     const fileNameWithoutExtension = editingoptions.inputFile.name.substring(0, lastDotIndex);
     const outputPath = `./temp-output/converted-${fileNameWithoutExtension + editingoptions.selectMenuValues}`;
+    globalFunctions.fileName = fileNameWithoutExtension + editingoptions.selectMenuValues;
+    console.log(globalFunctions.fileName);
     functions.processedFiles.push(outputPath);
     // let errorMessage = '';
     let hasEmbeddedSubtitles = '';

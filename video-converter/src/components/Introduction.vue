@@ -47,10 +47,10 @@ const formatIntroduction = ref([
   { label: 'wtv', description: 'WTV is a format used for Windows Media Center recordings. It allows users to schedule and manage TV recordings on Windows-based systems.' },
   // Images
   { label: '3fr', description: '3FR is a digital camera raw image format used by Hasselblad. It provides high-quality image data.' },
-  { label: 'arw', description: 'ARW is a digital camera raw image format used by Sony. It offers flexibility for post-processing.' },
+  { label: 'ARW', description: 'ARW is a digital camera raw image format used by Sony. It offers flexibility for post-processing.' },
   { label: 'avif', description: 'AVIF is an image format designed for superior compression efficiency. It is great for web use.' },
   { label: 'bmp', description: `BMP is a standard Windows bitmap image format. It's widely supported for simple graphics.` },
-  { label: 'cr2', description: 'CR2 is a digital camera raw image format used by Canon. It retains high-quality image data.' },
+  { label: 'CR2', description: 'CR2 is a digital camera raw image format used by Canon. It retains high-quality image data.' },
   { label: 'cr3', description: 'CR3 is a digital camera raw image format used by Canon. It supports advanced features.' },
   { label: 'crw', description: 'CRW is a digital camera raw image format used by Canon. It captures image details.' },
   { label: 'dcr', description: 'DCR is a digital camera raw image format used by Kodak. It preserves image information.' },
@@ -92,7 +92,7 @@ const formatDescription = ref(['', '']);
 watch(
   () => GlobalData.selectedFileFormat,
   (newSelectedFormat) => {
-    const formatInfo = formatIntroduction.value.find((format) => format.label === newSelectedFormat.substring(1));
+    const formatInfo = formatIntroduction.value.find((format) => format.label == newSelectedFormat.substring(1));
     formatDescription.value = [formatInfo.label, formatInfo.description];
     // console.log('Updated description:', formatDescription.value);
   }

@@ -1,9 +1,12 @@
+const sharp = require('sharp');
 const ffmpeg = require('fluent-ffmpeg');
 const socketIo = require('socket.io');
+const fs = require('fs');
 
 // functions
 const globalFunctions = require('../global/globalFunctions');
 const functions = require('../functions/functions');
+const { info } = require('console');
 
 // Extracting Options From Request
 const extractOptionsFromRequest = (req) => {
@@ -11,86 +14,74 @@ const extractOptionsFromRequest = (req) => {
 
   options.inputFile = req.files.videoFile;
   console.log(options.inputFile);
-
   options.selectForFile = req.body.ConvertFromSelect;
   options.selectMenuValues = req.body.selectMenu;
-  options.selectForFile = req.body.width;
-  options.selectForFile = req.body.height;
-  options.selectForFile = req.body.fit;
-  options.selectForFile = req.body.strip;
+  options.fileWidth = req.body.width;
+  options.fileHeight = req.body.height;
+  options.fitValue = req.body.fit;
+  options.stripValue = req.body.strip;
 
   return options;
 };
 
-// Video Conversion FFmepg events
-const configureFFmpegEvents = (command, io, res) => {
-  command
-    .on('start', () => {
-      console.log('message', 'Conversion Started.');
-    })
-    .on('progress', (progress) => {
-      if (progress.percent !== undefined) {
-        const progressPercent = progress.percent.toFixed(2);
+// configure Sharp Events
+const configureSharpEvents = async (sharpStream, options, io, res) => {
+  // sharp.cache(false);
+
+  let processedBytes = 0;
+  // const completeData = await sharp(path).metadata();
+  // console.log(typeof completeData);
+
+  const total = options.inputFile.size;
+  // console.log(completeData.size);
+  console.log(' total > ' + total);
+  console.log('typeof total > ' + typeof total);
+
+  sharpStream
+    .on('data', (chunk) => {
+      if (chunk !== undefined) {
+        console.log('Received data chunk: ', chunk.length);
+        processedBytes += chunk.length;
+        const progressPercent = ((processedBytes / total) * 100).toFixed(2);
         io.emit('progress', progressPercent);
         console.log(progressPercent);
       }
     })
+
     .on('end', () => {
       const progressPercent = 100;
       io.emit('progress', progressPercent);
-      console.log('message', 'Conversion Finished.');
+      console.log('Conversion Finished.');
     })
-    .on('error', (err, stdout, stderr) => {
-      try {
-        console.error('Error:', err);
-        console.error('FFmpeg stderr:', stderr);
-        console.error('FFmpeg stdout:', stdout);
 
-        const errorLines = stderr.split('\n');
-        const errorPatterns = /(Could not find|width not|compatible)/;
-        const errorMessages = errorLines.filter((line) => errorPatterns.test(line));
-
-        let extractedText = '';
-        errorMessages.forEach((errorMessage) => {
-          const indexOfClosingBracket = errorMessage.indexOf(']');
-          if (indexOfClosingBracket !== -1) {
-            extractedText = errorMessage.substring(indexOfClosingBracket + 1).trim();
-          }
-        });
-        console.log('Error  -----------  ', extractedText);
-
-        io.emit('message', extractedText + ' Conversion failed!!');
-        res.status(500).send('Conversion Error: ' + err.message);
-      } catch (error) {
-        console.error('An error occurred while handling the FFmpeg error:', error);
-      }
+    .on('error', (err, chunk, info) => {
+      console.error('Info data  --->> ', info);
+      console.error('Chunk data  --->> ', chunk);
+      console.error('Error:', err);
+      io.emit('error', err.message);
     });
 };
 
-// Trimming
-const configureTrimming = async (path) => {
-  let [errorMessages, completeData] = ['', ''];
+// sharp metadata function
+const configureMetadataUsingSharp = async (path, options) => {
+  let [errorMessages, completeData] = ['', null];
 
   try {
-    const metadata = await functions.getVideoMetadata(path);
-    completeData = metadata; // all metadata
+    completeData = await sharp(path).metadata();
+    console.log('address in the sharp metadata function ---------------- ' + path);
   } catch (err) {
-    console.log('not working');
-    errorMessages = 'Error retrieving video metadata. Please try again or upload another file.';
+    errorMessages = 'Error getting image metadata';
   }
 
   return { errorMessages, completeData };
 };
 
-// video conversion function
-const imageConversionFunction = async (req, res, io) => {
-  // deleting previous converted files
+// video conversion function with sharp
+const videoConversionFunctionWithSharp = async (req, res, io) => {
   functions.deleteProcessedFiles();
 
-  // values from the from
   const editingoptions = extractOptionsFromRequest(req);
   try {
-    // Upload input file
     const inputPath = await globalFunctions.uploadAndHandleFile(editingoptions.inputFile, 'temp-files/', functions.processedFiles);
 
     const lastDotIndex = editingoptions.inputFile.name.lastIndexOf('.');
@@ -100,28 +91,43 @@ const imageConversionFunction = async (req, res, io) => {
     console.log(globalFunctions.fileName);
     functions.processedFiles.push(outputPath);
 
-    const command = new ffmpeg(inputPath);
+    const command = new sharp(inputPath);
 
-    // FFmpeg --> start,progress,end,error
-    configureFFmpegEvents(command, io, res);
+    configureSharpEvents(command, editingoptions, io, res);
+    // trimming noise and extra spaces.
+    // if (editingoptions.stripValue === 'yes') {
+    //   command.trim();
+    // }
+    // width x height
+    // if (editingoptions.fileWidth && editingoptions.fileHeight) {
+    //   command.resize(Number(editingoptions.fileWidth), Number(editingoptions.fileHeight));
+    // }
 
-    // Trimming Configuration
-    const { errorMessages, completeData } = await configureTrimming(inputPath);
+    const { errorMessages, completeData } = await configureMetadataUsingSharp(inputPath, editingoptions);
     res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData });
+    // conversion
+
+    // Metadata Configuration with sharp
+
     // error
     if (errorMessages !== '') {
-      console.log('Error while trimming the video..........' + errorMessages);
       io.emit('error', errorMessages);
       return;
     }
 
-    command.save(outputPath);
-
-    // Handle any unexpected errors
+    // saving file to the outputPath directory
+    command.toFile(outputPath, (err, info) => {
+      if (err) {
+        console.log('PNG converted to JPEG:', info);
+        console.error('Error converting PNG to JPEG:', err);
+      } else {
+        console.log('PNG converted to JPEG: >>>>>> ', outputPath);
+      }
+    });
   } catch (error) {
     console.error('An error occurred in the last try catch:', error);
     res.status(500).send('An error occurred during video conversion.');
   }
 };
 
-module.exports = { imageConversionFunction };
+module.exports = { videoConversionFunctionWithSharp };

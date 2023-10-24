@@ -5,13 +5,14 @@
       <pre v-if="show2">{{ metaData }}</pre>
     </div>
 
-    <form @submit.prevent="sendFile">
+    <form @submit.prevent="sendVideoFile">
       <!-- Video Conversion -->
       <VideoConverter v-if="GlobalData.activeConverter === '/'" />
 
       <!-- Image Conversion -->
       <ImageConverter v-if="GlobalData.activeConverter === '/image-converter'" />
 
+      <!-- <pre>{{ GlobalData.metaData }}</pre> -->
       <!-- Convert And Download -->
       <ConvertDownloadComponent />
 
@@ -36,31 +37,43 @@ const GlobalData = useGlobalStore();
 const show2 = ref(false);
 const metaData = ref();
 const formSubmitted = ref(false);
-const sendFile = async () => {
+
+const sendVideoFile = async () => {
   const form = document.querySelector('form');
   const formData = new FormData(form);
 
-  axios
-    .post('http://localhost:4000/convert', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      onUploadProgress: (progressEvent) => {
-        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        GlobalData.uploadLoading = percentCompleted;
-      },
-    })
-    .then((response) => {
-      GlobalData.downloadUrlFromNode = 'http://localhost:4000/' + response.data.downloadUrl;
-      GlobalData.downloadName = response.data.fileName;
-      GlobalData.errMessage = response.data.message;
-      // full metaData
-      metaData.value = response.data.fullVideoData;
-    })
-    .catch((error) => {
-      console.error('An error occurred:', error);
-    });
+  // const newdata = await GlobalData.sendVideoFile(formData, 'convert');
+  // console.log('newData: ' + newdata);
 
-  formSubmitted.value = true;
+  await GlobalData.sendVideoFile(formData, 'image-convert');
+  console.log('newData: ', GlobalData.metaData);
 };
+
+// const sendFile = async () => {
+//   const form = document.querySelector('form');
+//   const formData = new FormData(form);
+
+//   axios
+//     .post('http://localhost:4000/convert', formData, {
+//       headers: {
+//         'Content-Type': 'multipart/form-data',
+//       },
+//       onUploadProgress: (progressEvent) => {
+//         const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+//         GlobalData.uploadLoading = percentCompleted;
+//       },
+//     })
+//     .then((response) => {
+//       GlobalData.downloadUrlFromNode = 'http://localhost:4000/' + response.data.downloadUrl;
+//       GlobalData.downloadName = response.data.fileName;
+//       GlobalData.errMessage = response.data.message;
+//       // full metaData
+//       metaData.value = response.data.fullVideoData;
+//     })
+//     .catch((error) => {
+//       console.error('An error occurred:', error);
+//     });
+
+//   formSubmitted.value = true;
+// };
 </script>

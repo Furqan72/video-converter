@@ -31,10 +31,10 @@ const GlobalData = useGlobalStore();
 // formats to convert from
 const videoFormats = ref([
   { label: '3FR', value: '.3fr' },
-  { label: 'ARW', value: '.arw' },
+  { label: 'ARW', value: '.ARW' },
   { label: 'AVIF', value: '.avif' },
   { label: 'BMP', value: '.bmp' },
-  { label: 'CR2', value: '.cr2' },
+  { label: 'CR2', value: '.CR2' },
   { label: 'CR3', value: '.cr3' },
   { label: 'CRW', value: '.crw' },
   { label: 'DCR', value: '.dcr' },
@@ -56,7 +56,7 @@ const videoFormats = ref([
   { label: 'ODG', value: '.odg' },
   { label: 'ORF', value: '.orf' },
   { label: 'PEF', value: '.pef' },
-  { label: 'PNG', value: '.png', selected: 'png' },
+  { label: 'PNG', value: '.png' },
   { label: 'PPM', value: '.ppm' },
   { label: 'PS', value: '.ps' },
   { label: 'PSD', value: '.psd' },
@@ -75,14 +75,14 @@ const videoFormats = ref([
 const covnertTo = ref([
   { label: '...', value: '...', selected: '...' },
   { label: 'BMP', value: '.bmp' },
-  { label: 'EPS', value: '.eps' },
+  // { label: 'EPS', value: '.eps' }, // => x
   { label: 'GIF', value: '.gif' },
   { label: 'ICO', value: '.ico' },
   { label: 'JPG', value: '.jpg' },
-  { label: 'ODD', value: '.oddm' },
+  // { label: 'ODD', value: '.odd' },// => x
   { label: 'PNG', value: '.png' },
-  { label: 'PS', value: '.ps' },
-  { label: 'PSD', value: '.psd' },
+  { label: 'PS', value: '.ps' }, // => x
+  { label: 'PSD', value: '.psd' }, // => x
   { label: 'TIFF', value: '.tiff' },
   { label: 'WEBP', value: '.webp' },
 ]);
@@ -92,7 +92,7 @@ const convertingName = ref({ label: '', value: '' });
 watch(
   () => GlobalData.selectedFileFormat,
   (newSelectedFormat) => {
-    const matchingFormat = videoFormats.value.find((format) => format.value === newSelectedFormat);
+    const matchingFormat = videoFormats.value.find((format) => format.value == newSelectedFormat);
     if (matchingFormat) {
       convertingName.value = matchingFormat;
     }
