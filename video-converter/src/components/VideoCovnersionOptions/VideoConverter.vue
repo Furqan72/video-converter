@@ -11,7 +11,8 @@
       <SelectMenu />
 
       <!-- Upload -->
-      <FileUploadComponent />
+      <!-- <FileUploadComponent /> -->
+      <ReuseableFileUpload :loading-bar="GlobalData.uploadLoading" :file-size="GlobalData.fileSize" :selected-format="GlobalData.selectedFileFormat" :size-limit="GlobalData.fileSizeExceeded" :check-format="GlobalData.formatCheck" />
 
       <!-- Options -->
       <div class="mx-auto h-full bg-[#f9f9f9ff] px-28">
@@ -46,7 +47,8 @@
 import { ref, watch, computed } from 'vue';
 // components
 import SelectMenu from '../../../src/components/VideoCovnersionOptions/SelectMenu.vue';
-import FileUploadComponent from '../../components/FileUploadComponent.vue';
+// import FileUploadComponent from '../../components/FileUploadComponent.vue';
+import ReuseableFileUpload from '../../components/reuseableComponents/ReuseableFileUpload.vue';
 import VideoOptionComponent from '../../../src/components/VideoCovnersionOptions/VideoOptionComponent.vue';
 import AudioOptionComponent from '../../../src/components/VideoCovnersionOptions/AudioOptionComponent.vue';
 import SubtitlesComponent from '../../../src/components/VideoCovnersionOptions/SubtitlesComponent.vue';
