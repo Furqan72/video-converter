@@ -2,10 +2,12 @@
   <!-- Convert -->
   <div class="mx-28 flex flex-col items-center justify-center bg-white pb-14 pt-14">
     <p class="my-5 text-center text-xl font-semibold text-red-600" v-if="GlobalData.errMessage">{{ GlobalData.errMessage === ' Conversion failed!!' ? 'Conversion failed!! Try some other editing options or change the video.' : getErrorDescription(GlobalData.errMessage) + ' Conversion failed!!' }}</p>
-    <button type="submit" class="flex w-44 items-center justify-center rounded-lg border-0 bg-[#b53836ff] bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:shadow-xl focus:outline-none">
+    {{ GlobalData.activeConverter }}
+    <button type="submit" class="flex w-44 items-center justify-center rounded-lg border-0 bg-[#b53836ff] bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:shadow-xl focus:outline-none" :disabled="GlobalData.fileSizeExceeded === true || GlobalData.markWrongFormat === true || GlobalData.formatCheck === true || (GlobalData.activeConverter === '/' && GlobalData.selectedFormat === '...') || GlobalData.selectedFileFormat === '...' || (progressElement !== 0 && progressElement !== 100)">
       <ConvertIcon :class="progressElement !== 0 && progressElement !== 100 ? 'rectangle' : ''" />
       <span>Convert</span>
     </button>
+
     <!-- loading -->
     <div class="flex w-full flex-col items-center justify-center py-5" v-if="progressElement !== 0">
       <div class="mt-5 flex h-8 w-96 items-center rounded-full bg-gray-200 px-3 shadow-lg">
@@ -21,7 +23,7 @@
         </div>
       </div>
     </div>
-    <!-- Download -->{{ GlobalData.selectedFormat }}
+    <!-- Download -->
     <a @click="downloadClick()" :href="GlobalData.downloadUrlFromNode" id="downloadBtn" :download="GlobalData.downloadName" class="mt-3 flex w-44 rounded-lg border-0 bg-green-500 bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:text-white hover:shadow-xl focus:outline-none" :class="[progressElement === 100 ? 'flex' : 'hidden', progressElement !== 100 ? 'pointer-events-none' : 'cursor-pointer']">
       <DownloadIcon />
       Download</a
@@ -45,9 +47,6 @@ const downloadClick = () => {
     showConvertButton.value = !showConvertButton.value;
   }
 };
-
-// // which formats to show in the next window
-// const blankShow = ['.3gp', '.mp4', '.webm', '.png', '.jpg'];
 
 // response from the socket.io (provides duration of converting the file, errors and other messages from the server)
 const allErrors = ref('');

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center justify-center gap-y-5 px-28 py-14">
+  <div class="flex flex-col items-center justify-center gap-y-5 bg-gray-800 px-28 py-14">
     <!-- Upload -->
     <p v-if="GlobalData.fileSizeExceeded || GlobalData.formatCheck" class="text-center text-red-600">{{ GlobalData.fileSizeExceeded === true ? 'File size exceeded the limit of 25 MB' : '' || GlobalData.formatCheck === true ? 'Wrong format file. Please upload only mp4 files.' : '' }}</p>
     <div class="relative mx-auto flex w-48 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-[#b53836ff] py-4 text-xl text-white duration-300 hover:font-semibold hover:shadow-2xl">

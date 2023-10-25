@@ -14,13 +14,15 @@
       </svg>
       <span>Upload</span>
     </div>
-    <div v-if="fileSize !== null" class="shadow-xl">
-      <video v-if="previewUrl" width="350" height="200" class="mt-5 rounded-md">
-        <source :src="previewUrl" type="video/mp4" />
+    <!-- preview -->
+    <div v-if="fileSize !== null" class="shadow-2xl">
+      <img v-if="isImage" :src="previewUrl" width="250" height="80" class="mt-2 rounded-md" alt="" />
+      <video v-else v-if="previewUrl" width="350" height="200" class="mt-2 rounded-md">
+        <source :src="previewUrl" :type="mimeType" />
       </video>
     </div>
     <!-- loading -->
-    <div v-if="props.loadingBar !== '' && filecheck" class="mt-1 text-center">
+    <div v-if="props.loadingBar !== '' && fileSize" class="mt-1 text-center">
       <div class="flex h-7 w-80 items-center rounded-full border bg-gray-200 px-3 shadow-lg duration-300">
         <p class="h-[14px] w-0 rounded-full text-center duration-500" :class="props.loadingBar !== 100 ? 'bg-[#b53836ff]' : 'bg-green-500'" :style="{ width: props.loadingBar + '%' }"></p>
       </div>
@@ -30,7 +32,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, computed, defineEmits } from 'vue';
+import { ref, computed, watch, defineProps } from 'vue';
 // global store
 import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
@@ -42,31 +44,47 @@ const checkFormat = ref(props.checkFormat);
 const sizeLimit = ref(props.sizeLimit);
 const fileSize = ref(props.fileSize);
 
+const previewUrl = ref('');
+const mimeType = ref('');
+const isImage = ref(false);
+
 // file size & type check
-const filecheck = ref(false);
-const previewUrl = ref(null);
-const checkFileSize = (event) => {
-  if (event.target.files && event.target.files.length > 0) {
-    const file = event.target.files[0];
-    filecheck.value = true;
-    // extension
-    selectedFormat.value = file.name.slice(file.name.lastIndexOf('.'));
-    console.log(selectedFormat);
+const checkFileSize = computed(() => {
+  return (event) => {
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
+      console.log(file);
+      // extension
+      selectedFormat.value = file.name.slice(file.name.lastIndexOf('.'));
 
-    if (file.size > 50000000) {
-      sizeLimit.value = true;
-      fileSize.value = null;
+      if (file.size > 50000000) {
+        sizeLimit.value = true;
+        fileSize.value = null;
+      } else {
+        checkFormat.value = false;
+        sizeLimit.value = false;
+        fileSize.value = file.size;
+
+        if (file) {
+          const url = URL.createObjectURL(file);
+          previewUrl.value = url;
+          mimeType.value = file.type;
+          isImage.value = file.type.startsWith('image');
+        }
+      }
     } else {
-      checkFormat.value = false;
-      sizeLimit.value = false;
-      fileSize.value = file.size;
-
-      const objectURL = URL.createObjectURL(file);
-      previewUrl.value = objectURL;
+      fileSize.value = null;
     }
-  } else {
-    fileSize.value = null;
-    filecheck.value = false;
+  };
+});
+
+watch(
+  () => props.selectedFormat,
+  (newOptions) => {
+    selectedFormat.value = newOptions;
+    console.log('watch selected-format ' + selectedFormat.value);
+    GlobalData.selectedImageFileFormat = newOptions;
+    // console.log('GlobalData.selectedImageFileFormat ' + GlobalData.selectedImageFileFormat);
   }
-};
+);
 </script>

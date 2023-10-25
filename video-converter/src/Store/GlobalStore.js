@@ -3,20 +3,34 @@ import { defineStore } from 'pinia';
 import axios from 'axios';
 
 export const useGlobalStore = defineStore('GlobalStore', () => {
+  // video
   const selectedFormat = ref('...');
   const selectedFileFormat = ref('.mp4');
+
+  // images
   const selectedImageFileFormat = ref('.jpg');
   const imageSelectedFormat = ref('.png');
+
+  // for file-upload components
   const fileSizeExceeded = ref(false);
   const fileSize = ref(null);
   const formatCheck = ref(false);
-  const downloadUrlFromNode = ref('');
-  const errMessage = ref('');
-  const metaData = ref('');
-  const downloadName = ref('');
-  const markWrongFormat = ref(false);
   const uploadLoading = ref('');
-  // active covnerter
+
+  // download link
+  const downloadUrlFromNode = ref('');
+  const downloadName = ref('');
+
+  // error messages from server
+  const errMessage = ref('');
+
+  // for temporary metadata
+  const metaData = ref('');
+
+  // watermark component
+  const markWrongFormat = ref(false);
+
+  // active covnerter > navbar
   const activeConverter = ref('/');
 
   //  sending and receiving data from the server

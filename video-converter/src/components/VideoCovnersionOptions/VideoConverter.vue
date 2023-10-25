@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="bg-[#f9f9f9ff]">
     <div class="fixed bottom-0 right-0 z-50 max-h-[550px] max-w-[550px] overflow-scroll bg-white">
       <button class="m-3 h-9 w-9 rounded-full bg-red-700" @click="show2 = !show2"></button>
       <pre v-if="show2">{{ meta }}</pre>
@@ -11,7 +11,6 @@
       <SelectMenu />
 
       <!-- Upload -->
-      <!-- <FileUploadComponent /> -->
       <ReuseableFileUpload :loading-bar="GlobalData.uploadLoading" :file-size="GlobalData.fileSize" :selected-format="GlobalData.selectedFileFormat" :size-limit="GlobalData.fileSizeExceeded" :check-format="GlobalData.formatCheck" />
 
       <!-- Options -->

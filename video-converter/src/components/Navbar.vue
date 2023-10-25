@@ -1,7 +1,7 @@
 <template>
   <nav class="relative z-50 flex items-center justify-between bg-[#303030ff] px-28 py-5 text-white shadow-sm">
     <div class="flex items-center gap-x-24">
-      <router-link to="/" class="flex cursor-pointer items-center text-xl">
+      <router-link to="/" @click="closeTransition('/')" class="flex cursor-pointer items-center text-xl">
         <img src="../assets/images/nav_icon.png" alt="" class="mr-2 w-12" />
         <p class="font-bold">Video Converter</p>
       </router-link>
@@ -62,7 +62,6 @@ const show = ref(false);
 const closeTransition = (listitem) => {
   GlobalData.activeConverter = listitem;
   console.log(GlobalData.activeConverter);
-
   show.value = false;
 };
 
@@ -70,7 +69,7 @@ const navbarMenu = ref([
   {
     columns1: '4',
     columns2: '2',
-    heading1: ' CONVERT FILES',
+    heading1: 'CONVERT FILES',
     heading2: '',
     icon: 'covnerter',
     listitems1: [

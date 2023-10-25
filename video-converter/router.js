@@ -11,7 +11,7 @@ const router = createRouter({
       children: [
         { path: '/', name: 'VideoConverter', component: () => import('./src/components/VideoCovnersionOptions/VideoConverter.vue') },
         { path: '/image-converter', name: 'ImageConverter', component: () => import('./src/components/ImageCovnersionOptions/ImageConverter.vue') },
-        // { path: '/video-converter', name: 'ImageConverter', component: () => import('./src/components/VideoCovnersionOptions/VideoConverter.vue') },
+        { path: '/test', name: 'Test', component: () => import('./src/test.vue') },
       ],
     },
   ],

@@ -26,16 +26,8 @@ const extractOptionsFromRequest = (req) => {
 
 // configure Sharp Events
 const configureSharpEvents = async (sharpStream, options, io, res) => {
-  // sharp.cache(false);
-
   let processedBytes = 0;
-  // const completeData = await sharp(path).metadata();
-  // console.log(typeof completeData);
-
   const total = options.inputFile.size;
-  // console.log(completeData.size);
-  console.log(' total > ' + total);
-  console.log('typeof total > ' + typeof total);
 
   sharpStream
     .on('data', (chunk) => {
@@ -47,13 +39,11 @@ const configureSharpEvents = async (sharpStream, options, io, res) => {
         console.log(progressPercent);
       }
     })
-
     .on('end', () => {
       const progressPercent = 100;
       io.emit('progress', progressPercent);
       console.log('Conversion Finished.');
     })
-
     .on('error', (err, chunk, info) => {
       console.error('Info data  --->> ', info);
       console.error('Chunk data  --->> ', chunk);
@@ -63,9 +53,8 @@ const configureSharpEvents = async (sharpStream, options, io, res) => {
 };
 
 // sharp metadata function
-const configureMetadataUsingSharp = async (path, options) => {
+const configureMetadataUsingSharp = async (path) => {
   let [errorMessages, completeData] = ['', null];
-
   try {
     completeData = await sharp(path).metadata();
     console.log('address in the sharp metadata function ---------------- ' + path);
@@ -95,19 +84,16 @@ const videoConversionFunctionWithSharp = async (req, res, io) => {
 
     configureSharpEvents(command, editingoptions, io, res);
     // trimming noise and extra spaces.
-    // if (editingoptions.stripValue === 'yes') {
-    //   command.trim();
-    // }
+    if (editingoptions.stripValue === 'yes') {
+      command.trim();
+    }
     // width x height
-    // if (editingoptions.fileWidth && editingoptions.fileHeight) {
-    //   command.resize(Number(editingoptions.fileWidth), Number(editingoptions.fileHeight));
-    // }
+    if (editingoptions.fileWidth && editingoptions.fileHeight) {
+      command.resize(Number(editingoptions.fileWidth), Number(editingoptions.fileHeight));
+    }
 
-    const { errorMessages, completeData } = await configureMetadataUsingSharp(inputPath, editingoptions);
+    const { errorMessages, completeData } = await configureMetadataUsingSharp(inputPath);
     res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData });
-    // conversion
-
-    // Metadata Configuration with sharp
 
     // error
     if (errorMessages !== '') {

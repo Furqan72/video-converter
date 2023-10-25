@@ -8,10 +8,8 @@
       <!-- select format -->
       <SelectImageFormat />
 
-      <!-- const props = defineProps(['sizeLimit', 'checkFormat', 'selectedFormat', 'fileSize', 'loadingBar']); -->
-
       <!-- Upload -->
-      <ReuseableFileUpload :loading-bar="GlobalData.uploadLoading" :file-size="GlobalData.fileSize" :selected-format="GlobalData.imageSelectedFormat" :size-limit="GlobalData.fileSizeExceeded" :check-format="GlobalData.formatCheck" />
+      <ReuseableFileUpload :loading-bar="GlobalData.uploadLoading" :file-size="GlobalData.fileSize" :selected-format="GlobalData.selectedImageFileFormat" :size-limit="GlobalData.fileSizeExceeded" :check-format="GlobalData.formatCheck" />
 
       <!-- Options -->
       <div class="mx-auto h-full bg-[#f9f9f9ff] px-28">
