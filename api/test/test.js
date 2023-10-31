@@ -657,3 +657,13 @@ const OptionsOnRequest = (req) => {
 //
 // +-----------------------------------------------------------------------------------------------------------------------------------------+
 //
+
+// const extractOptionsFromRequest = (req, propertyNames) => {
+//   const options = {};
+
+//   for (const propName of propertyNames) {
+//     options[propName] = req[propName];
+//   }
+
+//   return options;
+// };

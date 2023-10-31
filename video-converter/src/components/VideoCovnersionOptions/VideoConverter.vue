@@ -44,6 +44,8 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue';
+import io from 'socket.io-client';
+
 // components
 import SelectMenu from '../../../src/components/VideoCovnersionOptions/SelectMenu.vue';
 // import FileUploadComponent from '../../components/FileUploadComponent.vue';
@@ -62,14 +64,34 @@ const GlobalData = useGlobalStore();
 
 const meta = ref();
 const show2 = ref(false);
+let videoSocket = null;
 
 const sendVideoFile = async () => {
+  videoSocket = io('http://localhost:4000');
+
+  videoSocket.emit('startConversion');
+
+  // Prepare and send the form data via Axios
   const form = document.querySelector('form');
   const formData = new FormData(form);
 
-  await GlobalData.sendVideoFile(formData, 'convert');
-  console.log('newData: ', GlobalData.metaData);
-  meta.value = GlobalData.metaData;
+  // messages from server
+  videoSocket.on('message', (message) => {
+    GlobalData.errMessage = message;
+  });
+  // errors from server
+  videoSocket.on('errMessage', (errorMessage) => {
+    GlobalData.errMessage = errorMessage;
+  });
+  // progess
+  videoSocket.on('progress', (progressPercent) => {
+    GlobalData.progressElement = progressPercent;
+  });
+
+  await GlobalData.sendVideoFile(formData, 'convert').then(() => {
+    console.log('newData: ', GlobalData.metaData);
+  });
+  videoSocket.emit('endConversion');
 };
 
 const subtitlesNotIncluded = ['.avi', '.flv', '.wmv', '.webm', '.3g2', '.3gp', '.cavs', '.dv', '.m2ts', '.mpg', '.mpeg', '.mts', '.mxf', '.ogg', '.rm', '.rmvb', '.swf', '.MOD', '.ts', '.wtv'];

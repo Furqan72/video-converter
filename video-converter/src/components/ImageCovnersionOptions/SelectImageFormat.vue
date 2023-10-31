@@ -75,12 +75,12 @@ const imageFormats = ref([
 const imageToCovnertTo = ref([
   { label: '...', value: '...', selected: '...' },
   { label: 'BMP', value: '.bmp' },
-  // { label: 'EPS', value: '.eps' }, // => x
+  { label: 'EPS', value: '.eps' }, // => x
   { label: 'GIF', value: '.gif' },
   { label: 'ICO', value: '.ico' },
   { label: 'JPG', value: '.jpg' },
-  // { label: 'ODD', value: '.odd' },// => x
-  { label: 'PNG', value: '.png' },
+  { label: 'ODD', value: '.odd' }, // => x
+  { label: 'PNG', value: '.png', selected: '.png' },
   { label: 'PS', value: '.ps' }, // => x
   { label: 'PSD', value: '.psd' }, // => x
   { label: 'TIFF', value: '.tiff' },

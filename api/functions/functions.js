@@ -1,7 +1,7 @@
 const ffmpeg = require('fluent-ffmpeg');
 const fs = require('fs');
 
-// file upload function
+// // file upload function
 // function uploadFile(file, directory) {
 //   return new Promise((resolve, reject) => {
 //     let fileDirectory = directory + file.name;
@@ -20,22 +20,17 @@ const fs = require('fs');
 // delete function
 const processedFiles = [];
 const deleteProcessedFiles = () => {
-  if (processedFiles.length > 0) {
-    processedFiles.forEach((file) => {
-      fs.unlink(file, (err) => {
-        if (err) {
-          console.error('Error');
-        } else {
-          console.log(`Deleted file: ${file}`);
-        }
-      });
-    });
-  } else {
-    console.log('array is empty -> ' + processedFiles);
+  console.log('processedFiles -> ' + processedFiles);
+  try {
+    fs.unlinkSync(file);
+    console.log(`Deleted file: ${file}`);
+  } catch (err) {
+    console.error('Error', err);
   }
+  console.log('Remaining Files in the Arr => ' + processedFiles + ' .');
 };
 
-// getting video metadata
+// getting video metadata >> ffprobe with ffmpeg
 function getVideoMetadata(inputPath) {
   return new Promise((resolve, reject) => {
     ffmpeg.ffprobe(inputPath, (err, metadata) => {

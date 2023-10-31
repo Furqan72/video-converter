@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const { videoConversionFunction } = require('./functions/converter');
-const { videoConversionFunctionWithSharp } = require('./functions/imageConverter');
+const { imageConversionFunctionWithSharp } = require('./functions/imageConverter');
 
 function handleConversionRoute(req, res, conversionFunction) {
   if (typeof conversionFunction === 'function') {
@@ -15,14 +15,14 @@ function handleConversionRoute(req, res, conversionFunction) {
 
 // video route
 router.post('/convert', (req, res) => {
-  console.log('1');
+  console.log('1  -->  video-convert');
   handleConversionRoute(req, res, videoConversionFunction);
 });
 
 // image route
 router.post('/image-convert', (req, res) => {
-  console.log('2');
-  handleConversionRoute(req, res, videoConversionFunctionWithSharp);
+  console.log('2  -->  image-convert');
+  handleConversionRoute(req, res, imageConversionFunctionWithSharp);
 });
 
 module.exports = router;

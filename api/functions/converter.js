@@ -64,6 +64,9 @@ const configureFFmpegEvents = (command, io, res) => {
     .on('end', () => {
       const progressPercent = 100;
       io.emit('progress', progressPercent);
+      io.on('endConversion', () => {
+        console.log('A Conversion has ended.');
+      });
       console.log('message', 'Conversion Finished.');
     })
     .on('error', (err, stdout, stderr) => {
@@ -302,6 +305,7 @@ const videoConversionFunction = async (req, res, io) => {
     globalFunctions.fileName = fileNameWithoutExtension + editingoptions.selectMenuValues;
     console.log(globalFunctions.fileName);
     functions.processedFiles.push(outputPath);
+    console.log(functions.processedFiles);
     // let errorMessage = '';
     let hasEmbeddedSubtitles = '';
 

@@ -16,14 +16,14 @@
       <div class="grid grid-cols-4 justify-center text-gray-color">
         <label for="" class="mr-2 mt-2 text-15px">Width</label>
         <div class="col-span-3 flex flex-col">
-          <input type="number" name="width" class="w-full rounded-lg border px-4 py-2 outline-none" value="1024" />
+          <input type="number" name="width" class="w-full rounded-lg border px-4 py-2 outline-none" value="500" />
           <span class="mt-2 text-xs text-light-gray">Output width in pixels.</span>
         </div>
       </div>
       <div class="grid grid-cols-4 justify-center text-gray-color">
         <label for="" class="mr-2 mt-2 text-15px">Height</label>
         <div class="col-span-3 flex flex-col">
-          <input type="number" name="height" class="w-full rounded-lg border px-4 py-2 outline-none" value="1024" />
+          <input type="number" name="height" class="w-full rounded-lg border px-4 py-2 outline-none" value="500" />
           <span class="mt-2 text-xs text-light-gray">Output height in pixels.</span>
         </div>
       </div>

@@ -33,11 +33,13 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
   // active covnerter > navbar
   const activeConverter = ref('/');
 
+  // socket.io progress and messges
+  const allErrors = ref('');
+  const progressElement = ref(0);
+  // const progressElement = ref(0);
+
   //  sending and receiving data from the server
   const sendVideoFile = async (formData, convert) => {
-    console.log(formData, convert);
-    console.log('http://localhost:4000/' + convert);
-
     axios
       .post('http://localhost:4000/' + convert, formData, {
         headers: {
@@ -53,7 +55,8 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
         downloadName.value = response.data.fileName;
         errMessage.value = response.data.message;
         metaData.value = response.data.fullVideoData;
-        console.log(downloadName.value, errMessage.value, metaData.value);
+        console.log('1 => ' + downloadName.value);
+        console.log('2 => ' + errMessage.value);
       })
       .catch((error) => {
         console.error('An error occurred:', error);
@@ -75,6 +78,8 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
     activeConverter,
     selectedImageFileFormat,
     imageSelectedFormat,
+    allErrors,
+    progressElement,
 
     // functions
     // updateSelectedFormat,

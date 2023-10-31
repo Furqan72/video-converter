@@ -2,7 +2,7 @@
   <main class="bg-[#f9f9f9ff]">
     <div class="fixed bottom-0 right-0 z-50 max-h-[550px] max-w-[550px] overflow-scroll bg-white">
       <button class="m-3 h-9 w-9 rounded-full bg-red-700" @click="show2 = !show2"></button>
-      <pre v-if="show2">{{ GlobalData.metaData }}</pre>
+      <pre v-if="show2">{{ metaData }}</pre>
     </div>
     <form @submit.prevent="sendImageFile">
       <!-- select format -->
@@ -24,7 +24,10 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref } from 'vue';
+import axios from 'axios';
+import io from 'socket.io-client';
+
 // components
 // import FileUploadComponent from '../../components/FileUploadComponent.vue';
 import ReuseableFileUpload from '../../components/reuseableComponents/ReuseableFileUpload.vue';
@@ -37,17 +40,34 @@ import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 
 const show2 = ref(false);
+const metaData = ref('');
+let imageSocket = null;
+
 const sendImageFile = async () => {
+  imageSocket = io('http://localhost:4000');
+
+  imageSocket.emit('startConversion');
+
+  // Prepare and send the form data via Axios
   const form = document.querySelector('form');
   const formData = new FormData(form);
 
-  await GlobalData.sendVideoFile(formData, 'image-convert');
-  console.log('newData: ', GlobalData.metaData);
-};
+  // messages from server
+  imageSocket.on('message', (message) => {
+    GlobalData.errMessage = message;
+  });
+  // errors from server
+  imageSocket.on('errMessage', (errorMessage) => {
+    GlobalData.errMessage = errorMessage;
+  });
+  // progess
+  imageSocket.on('progress', (progressPercent) => {
+    GlobalData.progressElement = progressPercent;
+  });
 
-console.log('GlobalData.uploadLoading ---> ' + GlobalData.uploadLoading);
-console.log('GlobalData.fileSize ---> ' + GlobalData.fileSize);
-console.log('GlobalData.imageSelectedFormat ---> ' + GlobalData.selectedImageFileFormat);
-console.log('GlobalData.fileSizeExceeded ---> ' + GlobalData.fileSizeExceeded);
-console.log('GlobalData.formatCheck" ---> ' + GlobalData.formatCheck);
+  await GlobalData.sendVideoFile(formData, 'image-convert').then(() => {
+    console.log('newData: ', GlobalData.metaData);
+  });
+  imageSocket.emit('endConversion');
+};
 </script>

@@ -61,7 +61,7 @@ const videoFormats = ref([
 
 // formats to convert to
 const covnertTo = ref([
-  { label: '...', value: '...' },
+  // { label: '...', value: '...' },
   { label: 'AVI', value: '.avi' },
   { label: 'FLV', value: '.flv' },
   { label: 'MKV', value: '.mkv' },
