@@ -9,7 +9,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
   const selectedFileFormat = ref('.mp4');
 
   // images
-  const selectedImageFileFormat = ref('.gif');
+  const selectedImageFileFormat = ref('.jpg');
   const imageSelectedFormat = ref('.png');
 
   // for file-upload components
