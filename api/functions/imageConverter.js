@@ -188,7 +188,11 @@ const imageConversionFunctionWithSharp = async (req, res, io) => {
     if (editingoptions.inputFile.name.endsWith('.gif') && editingoptions.selectMenuValues === '.gif') {
       sharpCommand = sharp(inputPath, { animated: true });
     } else {
-      sharpCommand = sharp(inputPath, { animated: true });
+      sharpCommand = sharp(inputPath);
+    }
+
+    if (editingoptions.inputFile.name.endsWith('.gif') && !(editingoptions.selectMenuValues === '.gif')) {
+      sharpCommand.extract({ width: 100, height: 100, left: 0, top: 0 });
     }
 
     configureSharpEvents(sharpCommand, editingoptions, io);

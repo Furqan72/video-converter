@@ -61,7 +61,7 @@ const GlobalData = useGlobalStore();
 // formats to convert from
 const imageFormats = ref([
   { label: 'GIF', value: '.gif' },
-  { label: 'HEIC', value: '.heic' },
+  // { label: 'HEIC', value: '.heic' },
   { label: 'ICO', value: '.ico' },
   { label: 'JPEG', value: '.jpeg' },
   { label: 'JPG', value: '.jpg', selected: '.png' },
