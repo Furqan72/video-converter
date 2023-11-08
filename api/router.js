@@ -10,7 +10,7 @@ function handleConversionRoute(req, res, conversionFunction) {
     conversionFunction(req, res);
   } else {
     console.log('Error getting conversion function');
-    res.status(500).send('Internal Server Error: No conversion processed.');
+    res.status(500).send('Error getting conversion function: no route found to process the file.');
   }
 }
 
