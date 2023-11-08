@@ -58,7 +58,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
   };
 
   const axiosInstance = axios.create({
-    baseURL: moduleUrl, // Replace with your server's URL
+    baseURL: moduleUrl,
     headers: {
       'Content-Type': 'multipart/form-data',
     },
