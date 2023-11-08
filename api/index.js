@@ -12,20 +12,29 @@ const globalFunctions = require('./global/globalFunctions');
 
 const app = express();
 const server = http.createServer(app);
+// const io = socketIo(server, {
+//   cors: {
+//     origin: ['http://localhost:5173', 'https://video-converter2.vercel.app'],
+//     methods: ['*'],
+//   },
+// });
+
 const io = socketIo(server, {
   cors: {
     origin: ['http://localhost:5173', 'https://video-converter2.vercel.app'],
-    methods: ['*'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 200,
   },
 });
 
-const corsOptions = {
-  origin: ['http://localhost:5173', 'https://video-converter2.vercel.app'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type'],
-};
-
-app.use(cors(corsOptions));
+// const corsOptions = {
+//   origin: ['http://localhost:5173', 'https://video-converter2.vercel.app'],
+//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//   allowedHeaders: ['Content-Type', 'Authorization'],
+//   optionsSuccessStatus: 200,
+// };
+// // app.use(cors(corsOptions));
 
 // const AllowedDomains = {
 //   origin: ['http://localhost:5173', 'https://video-converter2.vercel.app'],
@@ -33,6 +42,7 @@ app.use(cors(corsOptions));
 // };
 
 // app.use(cors(AllowedDomains));
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
