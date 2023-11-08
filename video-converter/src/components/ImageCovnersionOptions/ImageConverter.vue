@@ -44,7 +44,7 @@ const show2 = ref(false);
 const imageSocket = ref(null);
 
 const sendImageFile = async () => {
-  imageSocket.value = io('https://video-converter-api.vercel.app/');
+  imageSocket.value = io('https://video-converter-api.vercel.app');
 
   imageSocket.value.emit('startConversion');
 
