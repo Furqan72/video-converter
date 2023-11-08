@@ -79,7 +79,7 @@ const sendVideoFile = async () => {
 
   GlobalData.socketCheck(videoSocket);
 
-  await GlobalData.sendVideoFile(formData, 'convert').then(() => {
+  await GlobalData.sendVideoFile(formData, 'video-convert').then(() => {
     console.log('newData: ', GlobalData.metaData);
 
     // videoSocket.on('endConversion', () => {

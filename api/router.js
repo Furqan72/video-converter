@@ -14,7 +14,7 @@ function handleConversionRoute(req, res, conversionFunction) {
 }
 
 // video route
-router.post('/convert', (req, res) => {
+router.post('/video-convert', (req, res) => {
   console.log('1  -->  video-convert');
   handleConversionRoute(req, res, videoConversionFunction);
 });
