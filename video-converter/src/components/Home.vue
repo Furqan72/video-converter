@@ -35,7 +35,7 @@ import ConvertDownloadComponent from '../../src/components/ConvertDownloadCompon
 import { useGlobalStore } from '../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 
-const moduleUrl = import.meta.env.VITE_ROOT_URL;
+// const moduleUrl = import.meta.env.VITE_ROOT_URL;
 
 const meta = ref();
 const show2 = ref(false);

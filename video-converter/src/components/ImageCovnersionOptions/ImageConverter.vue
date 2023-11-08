@@ -39,11 +39,12 @@ import ConvertDownloadComponent from '../ConvertDownloadComponent.vue';
 import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 
+const moduleUrl = import.meta.env.VITE_ROOT_URL;
 const show2 = ref(false);
 const imageSocket = ref(null);
 
 const sendImageFile = async () => {
-  imageSocket.value = io('http://localhost:4000');
+  imageSocket.value = io(moduleUrl);
 
   imageSocket.value.emit('startConversion');
 
@@ -57,10 +58,10 @@ const sendImageFile = async () => {
     await GlobalData.sendVideoFile(formData, 'image-convert');
     console.log('newData: ', GlobalData.metaData);
 
-    imageSocket.value.on('endConversion', () => {
-      imageSocket.value.disconnect();
-      console.log('Conversion is completed. Disconnecting socket...');
-    });
+    // imageSocket.value.on('endConversion', () => {
+    //   imageSocket.value.disconnect();
+    //   console.log('Conversion is completed. Disconnecting socket...');
+    // });
   } catch (error) {
     console.error('An error occurred:', error);
   }

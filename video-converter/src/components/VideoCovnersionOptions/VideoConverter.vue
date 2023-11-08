@@ -62,12 +62,14 @@ import ConvertDownloadComponent from '../../components/ConvertDownloadComponent.
 import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 
+const moduleUrl = import.meta.env.VITE_ROOT_URL;
+
 const meta = ref();
 const show2 = ref(false);
 let videoSocket = null;
 
 const sendVideoFile = async () => {
-  videoSocket = io('http://localhost:4000');
+  videoSocket = io(moduleUrl);
 
   videoSocket.emit('startConversion');
 
@@ -80,10 +82,10 @@ const sendVideoFile = async () => {
   await GlobalData.sendVideoFile(formData, 'convert').then(() => {
     console.log('newData: ', GlobalData.metaData);
 
-    videoSocket.on('endConversion', () => {
-      videoSocket.disconnect();
-      console.log('Conversion is completed. Disconnecting socket...');
-    });
+    // videoSocket.on('endConversion', () => {
+    //   videoSocket.disconnect();
+    //   console.log('Conversion is completed. Disconnecting socket...');
+    // });
   });
 };
 

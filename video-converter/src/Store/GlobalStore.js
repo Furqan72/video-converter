@@ -34,6 +34,9 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
   // active covnerter > navbar
   const activeConverter = ref('/');
 
+  // env variable
+  const moduleUrl = import.meta.env.VITE_ROOT_URL;
+
   // socket.io progress and messges
   const allErrors = ref('');
   const progressElement = ref(0);
@@ -56,8 +59,9 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
 
   //  sending and receiving data from the server
   const sendVideoFile = async (formData, convert) => {
+    console.log('axios => ' + moduleUrl + '/' + convert);
     axios
-      .post('http://localhost:4000/' + convert, formData, {
+      .post(moduleUrl + '/' + convert, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -67,11 +71,12 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
         },
       })
       .then((response) => {
-        downloadUrlFromNode.value = 'http://localhost:4000/' + response.data.downloadUrl;
+        downloadUrlFromNode.value = moduleUrl + '/' + response.data.downloadUrl;
         downloadName.value = response.data.fileName;
         errMessage.value = response.data.message;
         metaData.value = response.data.fullVideoData;
         console.log('1 => ' + downloadName.value);
+        console.log('1 => ' + downloadUrlFromNode.value);
         console.log('2 => ' + errMessage.value);
       })
       .catch((error) => {
@@ -96,6 +101,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
     imageSelectedFormat,
     allErrors,
     progressElement,
+    // moduleUrl,
     // imageSocket,
 
     // functions
