@@ -5,12 +5,14 @@ const { videoConversionFunction } = require('./functions/converter');
 const { imageConversionFunctionWithSharp } = require('./functions/imageConverter');
 
 function handleConversionRoute(req, res, conversionFunction) {
-  if (typeof conversionFunction === 'function') {
-    // conversionFunction(req, res, req.io);
-    conversionFunction(req, res);
-  } else {
+  try {
+    if (typeof conversionFunction === 'function') {
+      // conversionFunction(req, res, req.io);
+      conversionFunction(req, res);
+    }
+  } catch (error) {
     console.log('Error getting conversion function');
-    res.status(500).send('Error getting conversion function: no route found to process the file.');
+    res.status(500).send('Error getting conversion function: no route found to process the file: ' + error);
   }
 }
 
