@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "src/App.vue",
+      "src": "./index.html",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "src/App.vue"
+      "dest": "/"
     }
   ]
 }
