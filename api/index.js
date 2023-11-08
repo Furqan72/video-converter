@@ -22,7 +22,7 @@ const server = http.createServer(app);
 // });
 
 const AllowedDomains = {
-  origin: ['http://localhost:5173', 'https://video-converter2.vercel.app'],
+  origin: ['http://localhost:5173', 'https://video-converter2.vercel.app/'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type'],
   optionsSuccessStatus: 200,
@@ -82,6 +82,6 @@ app.use('/', router);
 //   });
 // });
 
-server.listen(4000, () => {
+server.listen('https://video-converter-api.vercel.app/', () => {
   console.log('server running on 4000 port');
 });
