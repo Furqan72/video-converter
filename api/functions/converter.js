@@ -364,7 +364,7 @@ const videoConversionFunction = async (req, res) => {
     // Handle any unexpected errors
   } catch (error) {
     console.error('An error occurred in the last try catch:', error);
-    res.status(500).send('An error occurred during video conversion.');
+    res.status(500).send('An error occurred during video conversion: ' + error);
   }
 };
 
