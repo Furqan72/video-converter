@@ -1,28 +1,24 @@
-
 // const progressElement = ref('');
 // const io = socketIo('http://localhost:4000/convert');
-// io.on('connect', () => {
+// // io.on('connect', () => {
 //   console.log('Connected to server');
 // });
 
-// io.on('progress', function (progressPercent) {
+// // io.on('progress', function (progressPercent) {
 //   console.log('Received progress:', progressPercent);
 //   progressElement.value = 'Conversion Progress: ' + progressPercent + '%';
 // });
 
-// io.on('disconnect', () => {
+// // io.on('disconnect', () => {
 //   console.log('Disconnected from server');
 // });
 
 // console.log(progressElement.value);
 
-
-
-      // applying water marks
-      // if (imageWatermark) {
-      //   command.input(watermarkPath).complexFilter(`[0:v][1:v]overlay=(W-w)/2:(H-h)/2`);
-      // }
-
+// applying water marks
+// if (imageWatermark) {
+//   command.input(watermarkPath).complexFilter(`[0:v][1:v]overlay=(W-w)/2:(H-h)/2`);
+// }
 
 //       FFmpeg command: ffmpeg -i ./temp-files/mov_bbb.mp4 -y -acodec aac -b:a 128k -vcodec libaom-av1 -crf 23 -preset medium ./temp-output/converted-mov_bbb.webm
 // Error: Error: ffmpeg exited with code 1: Conversion failed!

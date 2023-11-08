@@ -6,7 +6,8 @@ const { imageConversionFunctionWithSharp } = require('./functions/imageConverter
 
 function handleConversionRoute(req, res, conversionFunction) {
   if (typeof conversionFunction === 'function') {
-    conversionFunction(req, res, req.io);
+    // conversionFunction(req, res, req.io);
+    conversionFunction(req, res);
   } else {
     console.log('Error getting conversion function');
     res.status(500).send('Internal Server Error: No conversion processed.');

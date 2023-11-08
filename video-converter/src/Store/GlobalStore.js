@@ -57,18 +57,10 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
     });
   };
 
-  const axiosInstance = axios.create({
-    baseURL: 'https://video-converter-api.vercel.app',
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-
   //  sending and receiving data from the server
   const sendVideoFile = async (formData, convert) => {
-    console.log('axios => ' + 'https://video-converter-api.vercel.app/' + convert);
-    axiosInstance
-      .post(`/${convert}`, formData, {
+    axios
+      .post('http://localhost:4000/' + convert, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -78,12 +70,11 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
         },
       })
       .then((response) => {
-        downloadUrlFromNode.value = 'https://video-converter-api.vercel.app/' + response.data.downloadUrl;
+        downloadUrlFromNode.value = 'http://localhost:4000/' + response.data.downloadUrl;
         downloadName.value = response.data.fileName;
         errMessage.value = response.data.message;
         metaData.value = response.data.fullVideoData;
         console.log('1 => ' + downloadName.value);
-        console.log('1 => ' + downloadUrlFromNode.value);
         console.log('2 => ' + errMessage.value);
       })
       .catch((error) => {
@@ -108,7 +99,6 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
     imageSelectedFormat,
     allErrors,
     progressElement,
-    // moduleUrl,
     // imageSocket,
 
     // functions

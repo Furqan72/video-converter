@@ -4,13 +4,13 @@
 //   let startingTime = req.body.StartingTime;
 //   let endingTime = req.body.EndingTime;
 
-//   io.emit('message', 'File Upload Started');
+//   // io.emit('message', 'File Upload Started');
 //   inputFile.mv('temp-files/' + inputFile.name, function (err) {
 //     if (err) {
-//       io.emit('message', 'File Upload Error: ' + err.message);
+//       // io.emit('message', 'File Upload Error: ' + err.message);
 //       return res.status(500).send(err);
 //     } else {
-//       io.emit('message', 'File Uploaded Successfully.');
+//       // io.emit('message', 'File Uploaded Successfully.');
 //     }
 //   });
 
@@ -26,15 +26,15 @@
 //     .on('progress', (progress) => {
 //       if (progress.percent !== undefined) {
 //         console.log('Conversion progress:', progress.percent.toFixed(2) + '%');
-//         io.emit('message', 'Conversion Progress: ' + progress.percent.toFixed(2) + '%');
+//         // io.emit('message', 'Conversion Progress: ' + progress.percent.toFixed(2) + '%');
 //       }
 //     })
 //     .on('end', () => {
-//       io.emit('message', 'Conversion Finished.');
+//       // io.emit('message', 'Conversion Finished.');
 //       console.log('Conversion finished.');
 //       res.download(outputPath, (err) => {
 //         if (err) {
-//           io.emit('message', 'Download Error: ' + err.message);
+//           // io.emit('message', 'Download Error: ' + err.message);
 //           console.error('Download Error:', err);
 //         } else {
 //           console.log('Download Complete');
@@ -60,7 +60,7 @@
 //       });
 //     })
 //     .on('error', (err) => {
-//       io.emit('message', 'Conversion Error: ' + err.message);
+//       // io.emit('message', 'Conversion Error: ' + err.message);
 //       console.error('Error:', err);
 //     });
 
@@ -177,13 +177,13 @@
 //   // let fps
 //   let imageWatermark = req.files.waterMarkImage;
 
-//   io.emit('message', 'File Upload Started');
+//   // io.emit('message', 'File Upload Started');
 //   inputFile.mv('temp-files/' + inputFile.name, async function (err) {
 //     if (err) {
-//       io.emit('message', 'File Upload Error: ' + err.message);
+//       // io.emit('message', 'File Upload Error: ' + err.message);
 //       return res.status(500).send(err);
 //     } else {
-//       io.emit('message', 'File Uploaded Successfully.');
+//       // io.emit('message', 'File Uploaded Successfully.');
 
 //       const inputPath = `./temp-files/${inputFile.name}`;
 //       const lastDotIndex = inputFile.name.lastIndexOf('.');
@@ -193,14 +193,14 @@
 //       let watermarkPath = '';
 
 //       if (imageWatermark) {
-//         io.emit('message', 'Saving WaterMark');
+//         // io.emit('message', 'Saving WaterMark');
 //         imageWatermark.mv('temp-files/' + imageWatermark.name, function (err) {
 //           console.log('imageWatermark saved');
 //           if (err) {
-//             io.emit('message', 'WaterMark Saved Error: ' + err.message);
+//             // io.emit('message', 'WaterMark Saved Error: ' + err.message);
 //             return res.status(500).send(err);
 //           } else {
-//             io.emit('message', 'WaterMark Saved Successfully.');
+//             // io.emit('message', 'WaterMark Saved Successfully.');
 //           }
 //         });
 //         watermarkPath = `./temp-files/${imageWatermark.name}`;
@@ -290,24 +290,24 @@
 //       }
 //       // covnersion start
 //       command.on('start', () => {
-//         io.emit('message', 'Conversion Started.');
+//         // io.emit('message', 'Conversion Started.');
 //       });
 //       // covnersion in progress
 //       command.on('progress', (progress) => {
 //         if (progress.percent !== undefined) {
 //           const progressPercent = progress.percent.toFixed(2);
-//           io.emit('progress', progressPercent);
+//           // io.emit('progress', progressPercent);
 //         }
 //       });
 //       // covnersion end
 //       command.on('end', () => {
 //         progressPercent = 100;
-//         io.emit('progress', progressPercent);
-//         io.emit('message', 'Conversion Finished.');
+//         // io.emit('progress', progressPercent);
+//         // io.emit('message', 'Conversion Finished.');
 //       });
 //       // covnersion error
 //       command.on('error', (err) => {
-//         io.emit('message', 'Conversion Error: ' + err.message);
+//         // io.emit('message', 'Conversion Error: ' + err.message);
 //         res.status(500).send('Conversion Error: ' + err.message);
 //       });
 
@@ -354,7 +354,7 @@
 //   return `${hours}:${minutes}:${remainingSeconds}`;
 // }
 
-// io.on('connection', (socket) => {
+// // io.on('connection', (socket) => {
 //   console.log('A client connected');
 //   socket.on('disconnect', () => {
 //     console.log('A client disconnected');
@@ -425,13 +425,13 @@
 //   // let fps
 //   let imageWatermark = req.files.waterMarkImage;
 
-//   io.emit('message', 'File Upload Started');
+//   // io.emit('message', 'File Upload Started');
 //   inputFile.mv('temp-files/' + inputFile.name, async function (err) {
 //     if (err) {
-//       io.emit('message', 'File Upload Error: ' + err.message);
+//       // io.emit('message', 'File Upload Error: ' + err.message);
 //       return res.status(500).send(err);
 //     } else {
-//       io.emit('message', 'File Uploaded Successfully.');
+//       // io.emit('message', 'File Uploaded Successfully.');
 
 //       const inputPath = `./temp-files/${inputFile.name}`;
 //       const lastDotIndex = inputFile.name.lastIndexOf('.');
@@ -500,24 +500,24 @@
 //       }
 //       // covnersion start
 //       command.on('start', () => {
-//         io.emit('message', 'Conversion Started.');
+//         // io.emit('message', 'Conversion Started.');
 //       });
 //       // covnersion in progress
 //       command.on('progress', (progress) => {
 //         if (progress.percent !== undefined) {
 //           const progressPercent = progress.percent.toFixed(2);
-//           io.emit('progress', progressPercent);
+//           // io.emit('progress', progressPercent);
 //         }
 //       });
 //       // covnersion end
 //       command.on('end', () => {
 //         progressPercent = 100;
-//         io.emit('progress', progressPercent);
-//         io.emit('message', 'Conversion Finished.');
+//         // io.emit('progress', progressPercent);
+//         // io.emit('message', 'Conversion Finished.');
 //       });
 //       // covnersion error
 //       command.on('error', (err) => {
-//         io.emit('message', 'Conversion Error: ' + err.message);
+//         // io.emit('message', 'Conversion Error: ' + err.message);
 //         res.status(500).send('Conversion Error: ' + err.message);
 //       });
 
@@ -564,7 +564,7 @@
 //   return `${hours}:${minutes}:${remainingSeconds}`;
 // }
 
-// io.on('connection', (socket) => {
+// // io.on('connection', (socket) => {
 //   console.log('A client connected');
 //   socket.on('disconnect', () => {
 //     console.log('A client disconnected');
@@ -580,13 +580,13 @@
 command
   .on('start', (commandLine) => {
     console.log('FFmpeg command: ' + commandLine);
-    io.emit('message', 'Conversion Started.');
+    // io.emit('message', 'Conversion Started.');
   })
   .on('stderr', (stderrLine) => {
     commandError += stderrLine + '\n';
   })
   .on('end', () => {
-    io.emit('message', 'Conversion Finished.');
+    // io.emit('message', 'Conversion Finished.');
     console.log('FFmpeg command finished.');
     console.log('FFmpeg output:', commandOutput);
     console.log('FFmpeg error:', commandError);
@@ -594,13 +594,13 @@ command
   .on('error', (err, stdout, stderr) => {
     console.error('Error:', err);
     console.error('FFmpeg stderr:', stderr);
-    io.emit('message', 'Conversion Error: ' + err.message);
+    // io.emit('message', 'Conversion Error: ' + err.message);
     res.status(500).send('Conversion Error: ' + err.message);
   })
   .on('progress', (progress) => {
     if (progress.percent !== undefined) {
       const progressPercent = progress.percent.toFixed(2);
-      io.emit('progress', progressPercent);
+      // io.emit('progress', progressPercent);
     }
   })
   .on('codecData', (data) => {

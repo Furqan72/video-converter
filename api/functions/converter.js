@@ -57,16 +57,16 @@ const configureFFmpegEvents = (command, io, res) => {
     .on('progress', (progress) => {
       if (progress.percent !== undefined) {
         const progressPercent = progress.percent.toFixed(2);
-        io.emit('progress', progressPercent);
+        // io.emit('progress', progressPercent);
         console.log(progressPercent);
       }
     })
     .on('end', () => {
       const progressPercent = 100;
-      io.emit('progress', progressPercent);
-      io.on('endConversion', () => {
-        console.log('A Conversion has ended.');
-      });
+      // io.emit('progress', progressPercent);
+      // io.on('endConversion', () => {
+      //   console.log('A Conversion has ended.');
+      // });
       console.log('message', 'Conversion Finished.');
     })
     .on('error', (err, stdout, stderr) => {
@@ -88,7 +88,7 @@ const configureFFmpegEvents = (command, io, res) => {
         });
         console.log('Error  -----------  ', extractedText);
 
-        io.emit('message', extractedText + ' Conversion failed!!');
+        // io.emit('message', extractedText + ' Conversion failed!!');
         res.status(500).send('Conversion Error: ' + err.message);
       } catch (error) {
         console.error('An error occurred while handling the FFmpeg error:', error);
@@ -286,7 +286,7 @@ const configureSubtitles = (command, options, path, checkSubtitles) => {
 };
 
 // video conversion function
-const videoConversionFunction = async (req, res, io) => {
+const videoConversionFunction = async (req, res) => {
   // deleting previous converted files
   functions.deleteProcessedFiles();
 
@@ -312,7 +312,7 @@ const videoConversionFunction = async (req, res, io) => {
     const command = new ffmpeg(inputPath);
 
     // FFmpeg --> start,progress,end,error
-    configureFFmpegEvents(command, io, res);
+    configureFFmpegEvents(command, res);
 
     // Trimming Configuration
     const { errorMessages, checkSubtitles, videoStream, completeData } = await configureTrimming(command, editingoptions, inputPath);
@@ -330,7 +330,7 @@ const videoConversionFunction = async (req, res, io) => {
     // error
     if (errorMessages !== '') {
       console.log('Error while trimming the video..........' + errorMessages);
-      io.emit('error', errorMessages);
+      // io.emit('error', errorMessages);
       return;
     }
     hasEmbeddedSubtitles = checkSubtitles;

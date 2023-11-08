@@ -31,25 +31,25 @@ const configureSharpEvents = async (sharpStream, options, io) => {
     .on('data', (chunk) => {
       if (chunk !== undefined) {
         const newpercent = 0;
-        io.emit('progress', newpercent);
+        // io.emit('progress', newpercent);
         console.log('Received data chunk:', chunk.length);
         console.log('Received total:', total);
         processedBytes += chunk.length;
         const progressPercent = ((processedBytes / total) * 100).toFixed(2);
         console.log(progressPercent);
-        io.emit('progress', progressPercent);
+        // io.emit('progress', progressPercent);
       }
     })
     .on('end', () => {
       if (extractedText === '') {
         const progressPercent = 100;
-        io.emit('progress', progressPercent);
+        // io.emit('progress', progressPercent);
         sharpStream.end();
 
         console.log(progressPercent);
         console.log('Conversion Finished.');
-        io.emit('disconnectUser');
-        io.emit('endConversion');
+        // io.emit('disconnectUser');
+        // io.emit('endConversion');
       } else {
         console.log('Conversion Failed!!!!!');
       }
@@ -64,14 +64,14 @@ const configureSharpEvents = async (sharpStream, options, io) => {
         console.error('Info data --->>', info);
         console.error('Chunk data --->>', chunk);
         console.error('Error:', err);
-        io.emit('error', err.message);
+        // io.emit('error', err.message);
 
         const errorPatterns = /(Unsupported codec|unsupported image format|unable to)/;
         const match = err.message.match(errorPatterns);
         if (match) {
           extractedText = match[0];
           console.log('Extracted-Text -----------', extractedText);
-          io.emit('message', extractedText + ' Conversion failed!!');
+          // io.emit('message', extractedText + ' Conversion failed!!');
           console.log('Conversion Error: ' + err.message);
         }
       } catch (error) {
@@ -160,7 +160,7 @@ const configureEditingOptions = async (command, options, metadata) => {
 };
 
 const imageConversionFunctionWithSharp = async (req, res, io) => {
-  io.emit('startConversion');
+  // io.emit('startConversion');
   deleteProcessedFiles();
 
   const editingoptions = extractOptionsFromRequest(req);
@@ -201,8 +201,8 @@ const imageConversionFunctionWithSharp = async (req, res, io) => {
     res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData });
 
     if (errorMessages !== '') {
-      io.emit('error', errorMessages);
-      io.emit('endConversion');
+      // io.emit('error', errorMessages);
+      // io.emit('endConversion');
       return;
     }
 
@@ -230,14 +230,14 @@ const imageConversionFunctionWithSharp = async (req, res, io) => {
           console.log('File converted: >>>>>>', outputPath);
         }
       });
-    io.emit('endConversion');
-    io.emit('disconnectUser');
+    // io.emit('endConversion');
+    // io.emit('disconnectUser');
     console.log('and still running...........22');
 
     //
   } catch (error) {
     console.error('An error occurred in the last try catch:', error);
-    io.emit('error', error.message);
+    // io.emit('error', error.message);
   }
 };
 

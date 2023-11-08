@@ -69,15 +69,15 @@ const show2 = ref(false);
 let videoSocket = null;
 
 const sendVideoFile = async () => {
-  videoSocket = io('https://video-converter-api.vercel.app/');
+  // videoSocket = io('https://video-converter-api.vercel.app/');
 
-  videoSocket.emit('startConversion');
+  // videoSocket.emit('startConversion');
 
   // Prepare and send the form data via Axios
   const form = document.querySelector('form');
   const formData = new FormData(form);
 
-  GlobalData.socketCheck(videoSocket);
+  // GlobalData.socketCheck(videoSocket);
 
   await GlobalData.sendVideoFile(formData, 'video-convert').then(() => {
     console.log('newData: ', GlobalData.metaData);

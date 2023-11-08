@@ -28,14 +28,14 @@ const configureFFmpegEvents = (command, io, res) => {
     .on('progress', (progress) => {
       if (progress.percent !== undefined) {
         const progressPercent = progress.percent.toFixed(2);
-        io.emit('progress', progressPercent);
+        // io.emit('progress', progressPercent);
         console.log(progressPercent);
       }
     })
     .on('end', () => {
       const progressPercent = 100;
-      io.emit('progress', progressPercent);
-      io.on('endConversion', () => {
+      // io.emit('progress', progressPercent);
+      // io.on('endConversion', () => {
         console.log('A Conversion has ended.');
       });
       console.log('message', 'Conversion Finished.');
@@ -61,7 +61,7 @@ const configureFFmpegEvents = (command, io, res) => {
 
         console.log('Error  -----------  ', extractedText);
 
-        io.emit('message', extractedText + ' Conversion failed!!');
+        // io.emit('message', extractedText + ' Conversion failed!!');
         res.status(500).send('Conversion Error: ' + err.message);
       } catch (error) {
         console.error('An error occurred while handling the FFmpeg error:', error);
@@ -182,14 +182,14 @@ const imageConversionFunctionWithFFmpeg = async (req, res, io) => {
 //     .on('progress', (progress) => {
 //       if (progress.percent !== undefined) {
 //         const progressPercent = progress.percent.toFixed(2);
-//         io.emit('progress', progressPercent);
+//         // io.emit('progress', progressPercent);
 //         console.log(progressPercent);
 //       }
 //     })
 //     .on('end', () => {
 //       const progressPercent = 100;
-//       io.emit('progress', progressPercent);
-//       io.on('endConversion', () => {
+//       // io.emit('progress', progressPercent);
+//       // io.on('endConversion', () => {
 //         console.log('A Conversion has ended.');
 //       });
 //       console.log('message', 'Conversion Finished.');
@@ -213,7 +213,7 @@ const imageConversionFunctionWithFFmpeg = async (req, res, io) => {
 //         });
 //         console.log('Error  -----------  ', extractedText);
 
-//         io.emit('message', extractedText + ' Conversion failed!!');
+//         // io.emit('message', extractedText + ' Conversion failed!!');
 //         res.status(500).send('Conversion Error: ' + err.message);
 //       } catch (error) {
 //         console.error('An error occurred while handling the FFmpeg error:', error);
@@ -264,7 +264,7 @@ const imageConversionFunctionWithFFmpeg = async (req, res, io) => {
 //     // error
 //     if (errorMessages !== '') {
 //       console.log('Error while trimming the image..........' + errorMessages);
-//       io.emit('error', errorMessages);
+//       // io.emit('error', errorMessages);
 //       return;
 //     }
 //     hasEmbeddedSubtitles = checkSubtitles;
@@ -288,14 +288,14 @@ const imageConversionFunctionWithFFmpeg = async (req, res, io) => {
 //     .on('progress', (progress) => {
 //       if (progress.percent !== undefined) {
 //         const progressPercent = progress.percent.toFixed(2);
-//         io.emit('progress', progressPercent);
+//         // io.emit('progress', progressPercent);
 //         console.log(progressPercent);
 //       }
 //     })
 //     .on('end', () => {
 //       const progressPercent = 100;
-//       io.emit('progress', progressPercent);
-//       io.on('endConversion', () => {
+//       // io.emit('progress', progressPercent);
+//       // io.on('endConversion', () => {
 //         console.log('A Conversion has ended.');
 //       });
 //       console.log('message', 'Conversion Finished.');
@@ -321,7 +321,7 @@ const imageConversionFunctionWithFFmpeg = async (req, res, io) => {
 
 //         console.log('Error  -----------  ', extractedText);
 
-//         io.emit('message', extractedText + ' Conversion failed!!');
+//         // io.emit('message', extractedText + ' Conversion failed!!');
 //         res.status(500).send('Conversion Error: ' + err.message);
 //       } catch (error) {
 //         console.error('An error occurred while handling the FFmpeg error:', error);
