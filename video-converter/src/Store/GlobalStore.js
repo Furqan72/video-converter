@@ -57,11 +57,18 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
     });
   };
 
+  const axiosInstance = axios.create({
+    baseURL: moduleUrl, // Replace with your server's URL
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
   //  sending and receiving data from the server
   const sendVideoFile = async (formData, convert) => {
     console.log('axios => ' + moduleUrl + '/' + convert);
-    axios
-      .post(moduleUrl + '/' + convert, formData, {
+    axiosInstance
+      .post(`/${convert}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

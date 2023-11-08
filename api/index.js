@@ -19,12 +19,20 @@ const io = socketIo(server, {
   },
 });
 
-const AllowedDomains = {
+const corsOptions = {
   origin: ['http://localhost:5173', 'https://video-converter2.vercel.app'],
-  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type'],
 };
 
-app.use(cors(AllowedDomains));
+app.use(cors(corsOptions));
+
+// const AllowedDomains = {
+//   origin: ['http://localhost:5173', 'https://video-converter2.vercel.app'],
+//   optionsSuccessStatus: 200,
+// };
+
+// app.use(cors(AllowedDomains));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 

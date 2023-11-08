@@ -14,8 +14,7 @@
 
 <template>
   <div class="h-96 px-40 py-14">
-    <!-- <button class="text-white" @click="incrementNumber">Increment Number</button> -->
-    <div id="nbr">{{ number }}</div>
+    <div>{{ number }}</div>
   </div>
 </template>
 
@@ -24,11 +23,6 @@ import { ref, onMounted } from 'vue';
 
 const number = ref(24);
 const speed = 50;
-
-// const incrementNumber = () => {
-//   incrementNumberRecursive(0, number.value);
-// };
-
 const incrementNumberRecursive = (i, endNbr) => {
   if (i <= endNbr) {
     number.value = i;
