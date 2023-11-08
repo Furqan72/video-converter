@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import io from 'socket.io-client';
 
 export const useGlobalStore = defineStore('GlobalStore', () => {
   // video
@@ -8,7 +9,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
   const selectedFileFormat = ref('.mp4');
 
   // images
-  const selectedImageFileFormat = ref('.jpg');
+  const selectedImageFileFormat = ref('.gif');
   const imageSelectedFormat = ref('.png');
 
   // for file-upload components
@@ -36,7 +37,22 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
   // socket.io progress and messges
   const allErrors = ref('');
   const progressElement = ref(0);
-  // const progressElement = ref(0);
+
+  // socket events for client side
+  const socketCheck = (imageSocket) => {
+    // messages from server
+    imageSocket.on('message', (message) => {
+      errMessage.value = message;
+    });
+    // errors from server
+    imageSocket.on('errMessage', (errorMessage) => {
+      errMessage.value = errorMessage;
+    });
+    // progess
+    imageSocket.on('progress', (progressPercent) => {
+      progressElement.value = progressPercent;
+    });
+  };
 
   //  sending and receiving data from the server
   const sendVideoFile = async (formData, convert) => {
@@ -80,9 +96,11 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
     imageSelectedFormat,
     allErrors,
     progressElement,
+    // imageSocket,
 
     // functions
     // updateSelectedFormat,
     sendVideoFile,
+    socketCheck,
   };
 });

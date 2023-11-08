@@ -75,23 +75,16 @@ const sendVideoFile = async () => {
   const form = document.querySelector('form');
   const formData = new FormData(form);
 
-  // messages from server
-  videoSocket.on('message', (message) => {
-    GlobalData.errMessage = message;
-  });
-  // errors from server
-  videoSocket.on('errMessage', (errorMessage) => {
-    GlobalData.errMessage = errorMessage;
-  });
-  // progess
-  videoSocket.on('progress', (progressPercent) => {
-    GlobalData.progressElement = progressPercent;
-  });
+  GlobalData.socketCheck(videoSocket);
 
   await GlobalData.sendVideoFile(formData, 'convert').then(() => {
     console.log('newData: ', GlobalData.metaData);
+
+    videoSocket.on('endConversion', () => {
+      videoSocket.disconnect();
+      console.log('Conversion is completed. Disconnecting socket...');
+    });
   });
-  videoSocket.emit('endConversion');
 };
 
 const subtitlesNotIncluded = ['.avi', '.flv', '.wmv', '.webm', '.3g2', '.3gp', '.cavs', '.dv', '.m2ts', '.mpg', '.mpeg', '.mts', '.mxf', '.ogg', '.rm', '.rmvb', '.swf', '.MOD', '.ts', '.wtv'];

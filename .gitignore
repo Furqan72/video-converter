@@ -134,3 +134,6 @@ temp-files/
 
 # output files
 temp-output/
+
+# # test files
+# test.vue

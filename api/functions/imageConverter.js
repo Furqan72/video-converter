@@ -1,33 +1,28 @@
 const sharp = require('sharp');
-const ffmpeg = require('fluent-ffmpeg');
-const socketIo = require('socket.io');
 const fs = require('fs');
-// const { info } = require('console');
+const { promisify } = require('util');
+const unlinkAsync = promisify(fs.unlink);
 
-// functions
 const globalFunctions = require('../global/globalFunctions');
 const functions = require('../functions/functions');
 
-// Extracting Options From Request
+let processedImages = [];
 const extractOptionsFromRequest = (req) => {
-  const options = {};
-
-  options.inputFile = req.files.uploadFile;
-  console.log(options.inputFile);
-
-  // options.selectForFile = req.body.ConvertFromSelect;
-  options.selectMenuValues = req.body.selectMenu;
-  options.fileWidth = req.body.width;
-  options.fileHeight = req.body.height;
-  options.fitValue = req.body.fit;
-  options.stripValue = req.body.strip;
+  const options = {
+    inputFile: req.files.uploadFile,
+    selectMenuValues: req.body.selectMenu,
+    fileWidth: req.body.width,
+    fileHeight: req.body.height,
+    fitValue: req.body.fit,
+    stripValue: req.body.strip,
+    orientValue: req.body.orient,
+    qualityValue: req.body.quality,
+  };
   console.log(options);
-
   return options;
 };
 
-// configure Sharp Events => progress
-const configureSharpEvents = async (sharpStream, options, io, res) => {
+const configureSharpEvents = async (sharpStream, options, io) => {
   let processedBytes = 0;
   let extractedText = '';
   const total = options.inputFile.size;
@@ -35,8 +30,10 @@ const configureSharpEvents = async (sharpStream, options, io, res) => {
   sharpStream
     .on('data', (chunk) => {
       if (chunk !== undefined) {
-        console.log('Received data chunk: ', chunk.length);
-        console.log('Received total: ', total);
+        const newpercent = 0;
+        io.emit('progress', newpercent);
+        console.log('Received data chunk:', chunk.length);
+        console.log('Received total:', total);
         processedBytes += chunk.length;
         const progressPercent = ((processedBytes / total) * 100).toFixed(2);
         console.log(progressPercent);
@@ -47,20 +44,25 @@ const configureSharpEvents = async (sharpStream, options, io, res) => {
       if (extractedText === '') {
         const progressPercent = 100;
         io.emit('progress', progressPercent);
+        sharpStream.end();
+
         console.log(progressPercent);
         console.log('Conversion Finished.');
-        io.on('endConversion', () => {
-          console.log('A Conversion has ended.');
-        });
+        io.emit('disconnectUser');
+        io.emit('endConversion');
       } else {
-        console.log('conversion failed!');
-        return;
+        console.log('Conversion Failed!!!!!');
       }
+    })
+    // sharpStream
+    .on('close', () => {
+      // The Sharp image operation has been canceled.
+      console.log('The Sharp image operation has been canceled.');
     })
     .on('error', (err, chunk, info) => {
       try {
-        console.error('Info data  --->> ', info);
-        console.error('Chunk data  --->> ', chunk);
+        console.error('Info data --->>', info);
+        console.error('Chunk data --->>', chunk);
         console.error('Error:', err);
         io.emit('error', err.message);
 
@@ -68,22 +70,26 @@ const configureSharpEvents = async (sharpStream, options, io, res) => {
         const match = err.message.match(errorPatterns);
         if (match) {
           extractedText = match[0];
-          console.log('Extracted-Text  -----------  ', extractedText);
+          console.log('Extracted-Text -----------', extractedText);
           io.emit('message', extractedText + ' Conversion failed!!');
-          res.status(500).send('Conversion Error: ' + err.message);
+          console.log('Conversion Error: ' + err.message);
         }
       } catch (error) {
         console.error('An error occurred while handling the Sharp conversion error:', error);
       }
     });
+  console.log('and still runninggggggg..................');
 };
 
-// sharp metadata function
 const configureMetadataUsingSharp = async (path) => {
-  let [errorMessages, completeData] = ['', null];
+  let errorMessages = '';
+  let completeData = null;
+
   try {
     completeData = await sharp(path).metadata();
-    console.log('address in the sharp metadata function ---- ' + path);
+    const imageWidth = completeData.width;
+    console.log('Frames ==> ' + completeData.frameCount);
+    console.log('Address in the sharp metadata function ---- ' + path);
   } catch (err) {
     errorMessages = 'Error getting image metadata';
   }
@@ -91,57 +97,143 @@ const configureMetadataUsingSharp = async (path) => {
   return { errorMessages, completeData };
 };
 
-// video conversion function with sharp
+async function uploadAndHandleFile(file, directory) {
+  return new Promise((resolve, reject) => {
+    const fileDirectory = directory + file.name;
+
+    file.mv(fileDirectory, (err) => {
+      if (err) {
+        console.error('File Upload Error:', err);
+        reject(err);
+      } else {
+        resolve(fileDirectory);
+      }
+    });
+  });
+}
+
+const deleteProcessedFiles = async () => {
+  console.log('Processed Files ->', processedImages);
+  const filesToDelete = [];
+
+  const deleteFilePromises = processedImages.map(async (file) => {
+    try {
+      await unlinkAsync(file);
+      console.log(`Deleted file: ${file}`);
+    } catch (err) {
+      console.error('Error:', err);
+      filesToDelete.push(file);
+    }
+  });
+
+  processedImages = [];
+
+  try {
+    await Promise.all(deleteFilePromises);
+    console.log('Remaining Files in the Array =>', filesToDelete.join(', ') + '.');
+  } catch (err) {
+    console.error('Error deleting files:', err);
+  }
+};
+
+const configureEditingOptions = async (command, options, metadata) => {
+  // width x height    // fit= max, scale or crop
+  if (options.fileWidth && options.fileHeight) {
+    command.resize(Number(options.fileWidth), Number(options.fileHeight), { fit: options.fitValue });
+  }
+  // removing EXIF data
+  if (options.stripValue === 'yes') {
+    command.withMetadata(false);
+  }
+  // automatically rotate the image correctly, based on EXIF information
+  if (options.orientValue === 'yes') {
+    command.rotate();
+  }
+  // animation for gif image
+  if (options.inputFile.name.endsWith('.gif') && options.selectMenuValues === '.gif') {
+    command.toFormat('gif');
+  }
+  // transparent background
+  if (metadata.hasAlpha && !(options.inputFile.name.endsWith('.gif') && options.selectMenuValues === '.gif')) {
+    command.toFormat('png');
+  }
+};
+
 const imageConversionFunctionWithSharp = async (req, res, io) => {
-  functions.deleteProcessedFiles();
+  io.emit('startConversion');
+  deleteProcessedFiles();
 
   const editingoptions = extractOptionsFromRequest(req);
+
   try {
-    const inputPath = await globalFunctions.uploadAndHandleFile(editingoptions.inputFile, 'temp-files/');
+    if (!editingoptions.inputFile) {
+      throw new Error('No file uploaded.');
+    }
+
+    const inputPath = await uploadAndHandleFile(editingoptions.inputFile, 'temp-files/');
+    console.log(inputPath);
+    if (!fs.existsSync(inputPath)) {
+      console.log(`Input file not found: ${inputPath}`);
+      return;
+    }
+    processedImages.push(inputPath);
 
     const lastDotIndex = editingoptions.inputFile.name.lastIndexOf('.');
     const fileNameWithoutExtension = editingoptions.inputFile.name.substring(0, lastDotIndex);
     const outputPath = `./temp-output/converted-${fileNameWithoutExtension + editingoptions.selectMenuValues}`;
     globalFunctions.fileName = fileNameWithoutExtension + editingoptions.selectMenuValues;
-    console.log(inputPath + ' ----------------------------------- ' + outputPath);
-    functions.processedFiles.push(outputPath);
+    processedImages.push(outputPath);
 
-    const command = sharp(inputPath);
-
-    configureSharpEvents(command, editingoptions, io, res);
-
-    // width x height
-    if (editingoptions.fileWidth && editingoptions.fileHeight) {
-      command.resize(Number(editingoptions.fileWidth), Number(editingoptions.fileHeight));
+    let sharpCommand;
+    if (editingoptions.inputFile.name.endsWith('.gif') && editingoptions.selectMenuValues === '.gif') {
+      sharpCommand = sharp(inputPath, { animated: true });
+    } else {
+      sharpCommand = sharp(inputPath, { animated: true });
     }
+
+    configureSharpEvents(sharpCommand, editingoptions, io);
 
     const { errorMessages, completeData } = await configureMetadataUsingSharp(inputPath);
     res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData });
 
-    // error
     if (errorMessages !== '') {
       io.emit('error', errorMessages);
+      io.emit('endConversion');
       return;
     }
 
-    // transparent background
-    if (completeData.hasAlpha) {
-      command.toFormat('png');
-    }
+    // editing options for the image
+    configureEditingOptions(sharpCommand, editingoptions, completeData);
 
-    // saving file to the outputPath directory
-    command.toFile(outputPath, (err, info) => {
-      if (err) {
-        console.log('PNG converted to JPEG:', info);
-        console.error('Error converting PNG to JPEG:', err);
-        return;
-      } else {
-        console.log('PNG converted to JPEG: >>>>>> ', outputPath);
-      }
-    });
+    // saving file
+    if (editingoptions.inputFile.name.endsWith('.gif') && editingoptions.selectMenuValues === '.gif') {
+      sharpCommand.toBuffer((err, outputBuffer, info) => {
+        if (err) {
+          console.log('File conversion error:', info);
+          console.error('Error converting file:', err);
+        } else {
+          console.log('File converted: >>+++++++>>', outputPath);
+          fs.writeFileSync(outputPath, outputBuffer);
+          // sharpCommand.toFile
+        }
+      });
+    } else
+      sharpCommand.toFile(outputPath, (err, info) => {
+        if (err) {
+          console.log('File conversion error:', info);
+          console.error('Error converting file:', err);
+        } else {
+          console.log('File converted: >>>>>>', outputPath);
+        }
+      });
+    io.emit('endConversion');
+    io.emit('disconnectUser');
+    console.log('and still running...........22');
+
+    //
   } catch (error) {
     console.error('An error occurred in the last try catch:', error);
-    // res.status(500).send('An error occurred during image conversion.');
+    io.emit('error', error.message);
   }
 };
 

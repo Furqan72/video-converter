@@ -35,19 +35,19 @@ app.use(
   })
 );
 
-app.use('/temp-output', express.static('temp-output'));
+// app.use('/temp-output', express.static('temp-output'));
 
-// app.use(
-//   '/temp-output',
-//   (req, res, next) => {
-//     const fileName = `${globalFunctions.fileName}`;
-//     const disposition = `attachment; filename="${fileName}"`;
-//     res.setHeader('Content-Disposition', disposition);
+app.use(
+  '/temp-output',
+  (req, res, next) => {
+    const fileName = `${globalFunctions.fileName}`;
+    const disposition = `attachment; filename="${fileName}"`;
+    res.setHeader('Content-Disposition', disposition);
 
-//     next();
-//   },
-//   express.static('temp-output')
-// );
+    next();
+  },
+  express.static('temp-output')
+);
 
 app.use((req, res, next) => {
   req.io = io;
@@ -58,14 +58,19 @@ app.use((req, res, next) => {
 app.use('/', router);
 
 io.on('connection', (socket) => {
-  // console.log('A client connected');
+  // console.log('User connected');
 
   socket.on('startConversion', () => {
-    console.log('A client has started Conversion.');
+    console.log('User has started Conversion.');
   });
 
-  socket.on('disconnect', () => {
-    console.log('A client disconnected');
+  socket.on('endConversion', () => {
+    console.log('User has completed the conversion...1');
+  });
+
+  socket.on('disconnectUser', () => {
+    socket.disconnect();
+    console.log('User has  disconnected.');
   });
 });
 

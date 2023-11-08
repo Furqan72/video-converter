@@ -2,7 +2,7 @@
   <main class="bg-[#f9f9f9ff]">
     <div class="fixed bottom-0 right-0 z-50 max-h-[550px] max-w-[550px] overflow-scroll bg-white">
       <button class="m-3 h-9 w-9 rounded-full bg-red-700" @click="show2 = !show2"></button>
-      <pre v-if="show2">{{ metaData }}</pre>
+      <pre v-if="show2">{{ GlobalData.metaData }}</pre>
     </div>
     <form @submit.prevent="sendImageFile">
       <!-- select format -->
@@ -40,34 +40,29 @@ import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 
 const show2 = ref(false);
-const metaData = ref('');
-let imageSocket = null;
+const imageSocket = ref(null);
 
 const sendImageFile = async () => {
-  imageSocket = io('http://localhost:4000');
+  imageSocket.value = io('http://localhost:4000');
 
-  imageSocket.emit('startConversion');
+  imageSocket.value.emit('startConversion');
 
-  // Prepare and send the form data via Axios
+  // sending form data via Axios
   const form = document.querySelector('form');
   const formData = new FormData(form);
 
-  // messages from server
-  imageSocket.on('message', (message) => {
-    GlobalData.errMessage = message;
-  });
-  // errors from server
-  imageSocket.on('errMessage', (errorMessage) => {
-    GlobalData.errMessage = errorMessage;
-  });
-  // progess
-  imageSocket.on('progress', (progressPercent) => {
-    GlobalData.progressElement = progressPercent;
-  });
+  GlobalData.socketCheck(imageSocket.value);
 
-  await GlobalData.sendVideoFile(formData, 'image-convert').then(() => {
+  try {
+    await GlobalData.sendVideoFile(formData, 'image-convert');
     console.log('newData: ', GlobalData.metaData);
-  });
-  imageSocket.emit('endConversion');
+
+    imageSocket.value.on('endConversion', () => {
+      imageSocket.value.disconnect();
+      console.log('Conversion is completed. Disconnecting socket...');
+    });
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
 };
 </script>

@@ -1,4 +1,10 @@
 <template>
+  <pre>
+    {{ GlobalData.downloadUrlFromNode }}
+    {{ GlobalData.downloadName }}
+    {{ GlobalData.errMessage }}
+    {{ GlobalData.progressElement }}
+  </pre>
   <!-- Convert -->
   <div class="mx-28 flex flex-col items-center justify-center bg-white pb-14 pt-14">
     <p class="my-5 text-center text-xl font-semibold text-red-600" v-if="GlobalData.errMessage">{{ GlobalData.errMessage === ' Conversion failed!!' ? 'Conversion failed!! Try some other editing options or change the video.' : getErrorDescription(GlobalData.errMessage) + ' Conversion failed!!' }}</p>
@@ -23,7 +29,7 @@
       </div>
     </div>
     <!-- Download -->
-    <a :href="GlobalData.downloadUrlFromNode" id="downloadBtn" :download="GlobalData.downloadName" class="relative mt-3 flex w-44 rounded-lg border-0 bg-green-500 bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:text-white hover:shadow-xl focus:outline-none" :class="[GlobalData.progressElement === 100 ? 'flex' : 'hidden', GlobalData.progressElement !== 100 ? 'pointer-events-none' : 'cursor-pointer']">
+    <a :href="GlobalData.downloadUrlFromNode" id="downloadBtn" :download="GlobalData.downloadName" class="relative mt-3 flex w-44 rounded-lg border-0 bg-green-500 bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:text-white hover:shadow-xl focus:outline-none" :class="[GlobalData.progressElement === 100 ? 'flex' : 'hidden', GlobalData.progressElement !== 100 || GlobalData.errMessage !== '' ? 'pointer-events-none' : 'cursor-pointer']">
       <DownloadIcon />
       <!-- <span v-if="isDisabledWithTimer" class="pointer-events-none absolute bottom-0 left-0 right-0 top-0 z-10 flex items-center justify-center bg-gray-300 bg-opacity-70 text-lg font-semibold text-black shadow-xl">{{ countdown }}</span> -->
       Download</a

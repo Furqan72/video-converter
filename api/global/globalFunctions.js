@@ -6,16 +6,18 @@ const functions = require('../functions/functions');
 
 const fileName = '';
 async function uploadAndHandleFile(file, directory) {
-  const fileDirectory = directory + file.name;
+  return new Promise((resolve, reject) => {
+    const fileDirectory = directory + file;
 
-  try {
-    await file.mv(fileDirectory);
-    functions.processedFiles.push(fileDirectory);
-    return fileDirectory;
-  } catch (error) {
-    console.error('Error uploading file:', error);
-    throw error;
-  }
+    file.mv(fileDirectory, (err) => {
+      if (err) {
+        console.error('File Upload Error:', err);
+        reject(err);
+      } else {
+        resolve(fileDirectory);
+      }
+    });
+  });
 }
 
 const extractOptionsFromRequest = (req, fieldNames) => {

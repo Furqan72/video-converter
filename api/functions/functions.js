@@ -1,5 +1,6 @@
 const ffmpeg = require('fluent-ffmpeg');
 const fs = require('fs');
+const fsPromises = require('fs').promises;
 
 // // file upload function
 // function uploadFile(file, directory) {
@@ -18,15 +19,23 @@ const fs = require('fs');
 // }
 
 // delete function
-const processedFiles = [];
-const deleteProcessedFiles = () => {
+let processedFiles = [];
+const deleteProcessedFiles = async () => {
   console.log('processedFiles -> ' + processedFiles);
-  try {
-    fs.unlinkSync(file);
-    console.log(`Deleted file: ${file}`);
-  } catch (err) {
-    console.error('Error', err);
-  }
+  processedFiles = processedFiles.filter((file) => {
+    try {
+      fs.unlinkSync(file);
+      console.log(`Deleted file: ${file}`);
+      // const indexToDelete = processedFiles.indexOf(file);
+      // if (indexToDelete !== -1) {
+      //   processedFiles.splice(indexToDelete, 1);
+      // }
+      // return false;
+    } catch (err) {
+      console.error('Error', err);
+      // return true;
+    }
+  });
   console.log('Remaining Files in the Arr => ' + processedFiles + ' .');
 };
 
