@@ -14,7 +14,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: ['http://localhost:5173', 'https://video-converter2.vercel.app '],
+    origin: ['http://localhost:5173', 'https://video-converter2.vercel.app', 'https://video-converter2.vercel.app/image-converter'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type'],
     optionsSuccessStatus: 200,
@@ -22,7 +22,7 @@ const io = socketIo(server, {
 });
 
 const AllowedDomains = {
-  origin: ['http://localhost:5173', 'https://video-converter2.vercel.app'],
+  origin: ['http://localhost:5173', 'https://video-converter2.vercel.app', 'https://video-converter2.vercel.app/image-converter'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   optionsSuccessStatus: 200,

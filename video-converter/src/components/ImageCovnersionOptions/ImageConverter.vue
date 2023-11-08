@@ -39,12 +39,12 @@ import ConvertDownloadComponent from '../ConvertDownloadComponent.vue';
 import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 
-const moduleUrl = import.meta.env.VITE_ROOT_URL;
+// const moduleUrl = import.meta.env.VITE_ROOT_URL;
 const show2 = ref(false);
 const imageSocket = ref(null);
 
 const sendImageFile = async () => {
-  imageSocket.value = io(moduleUrl);
+  imageSocket.value = io('https://video-converter-api.vercel.app/');
 
   imageSocket.value.emit('startConversion');
 
