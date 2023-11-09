@@ -60,7 +60,7 @@ async function sendImageConversionResponse(req, res) {
     const reqiredData = await imageConverter.imageConversionFunctionWithSharp(req, res);
     res.send({ options: reqiredData });
   } catch (error) {
-    res.send({ options: error });
+    res.send({ options: err });
   }
 }
 
