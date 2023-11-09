@@ -182,7 +182,7 @@ const imageConversionFunctionWithSharp = async (req, res) => {
 
     const lastDotIndex = editingoptions.inputFile.name.lastIndexOf('.');
     const fileNameWithoutExtension = editingoptions.inputFile.name.substring(0, lastDotIndex);
-    const outputPath = `./temp-output/converted-${fileNameWithoutExtension + editingoptions.selectMenuValues}`;
+    const outputPath = `./temp-output/converted-sampelimg1${editingoptions.selectMenuValues}`;
     globalFunctions.fileName = fileNameWithoutExtension + editingoptions.selectMenuValues;
     processedImages.push(outputPath);
 
