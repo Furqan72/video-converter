@@ -52,7 +52,8 @@ app.use(
 
 app.post('/convert', async (req, res) => {
   console.log('NEW ROUTE WORKING');
-  await imageConverter.imageConversionFunctionWithSharp(req, res);
+  console.log('Req data' + req);
+  // await imageConverter.imageConversionFunctionWithSharp(req, res);
 });
 
 server.listen(4000, () => {
