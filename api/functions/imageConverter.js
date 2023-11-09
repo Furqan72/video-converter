@@ -10,7 +10,7 @@ const functions = require('../functions/functions');
 let processedImages = [];
 const extractOptionsFromRequest = (req) => {
   const options = {
-    inputFile: req.files.uploadFile,
+    // inputFile: req.files.uploadFile,
     selectMenuValues: req.body.selectMenu,
     fileWidth: req.body.width,
     fileHeight: req.body.height,
@@ -171,7 +171,8 @@ const imageConversionFunctionWithSharp = async (req, res) => {
       throw new Error('No file uploaded.');
     }
 
-    const inputPath = await uploadAndHandleFile(editingoptions.inputFile, 'temp-files/');
+    // const inputPath = await uploadAndHandleFile(editingoptions.inputFile, 'temp-files/');
+    const inputPath = 'temp-files/sampelimg1.jpg';
     console.log(inputPath);
     if (!fs.existsSync(inputPath)) {
       console.log(`Input file not found: ${inputPath}`);
