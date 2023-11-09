@@ -3,14 +3,14 @@ const http = require('http');
 // const socketIo = require('socket.io');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const fileUpload = require('express-fileupload');
+// const fileUpload = require('express-fileupload');
 
 // routes
 const router = require('./router');
 // Global Functions
-const globalFunctions = require('./global/globalFunctions');
+// const globalFunctions = require('./global/globalFunctions');
 // functions
-const imageConverter = require('./functions/imageConverter');
+// const imageConverter = require('./functions/imageConverter');
 
 const app = express();
 const server = http.createServer(app);
@@ -29,36 +29,36 @@ app.use(cors(AllowedDomains));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.use(
-  fileUpload({
-    useTempFiles: true,
-    tempFileDir: './temp-files/',
-  })
-);
+// app.use(
+//   fileUpload({
+//     useTempFiles: true,
+//     tempFileDir: './temp-files/',
+//   })
+// );
 
 // app.use('/temp-output', express.static('temp-output'));
 
-app.use(
-  '/temp-output',
-  (req, res, next) => {
-    const fileName = `${globalFunctions.fileName}`;
-    const disposition = `attachment; filename="${fileName}"`;
-    res.setHeader('Content-Disposition', disposition);
+// app.use(
+//   '/temp-output',
+//   (req, res, next) => {
+//     const fileName = `${globalFunctions.fileName}`;
+//     const disposition = `attachment; filename="${fileName}"`;
+//     res.setHeader('Content-Disposition', disposition);
 
-    next();
-  },
-  express.static('temp-output')
-);
+//     next();
+//   },
+//   express.static('temp-output')
+// );
 
 app.get('/', (req, res) => {
   console.log('Success.....');
 });
 
-app.post('/convert', async (req, res) => {
-  console.log('NEW ROUTE WORKING');
-  console.log('Req data' + req);
-  // await imageConverter.imageConversionFunctionWithSharp(req, res);
-});
+// app.post('/convert', async (req, res) => {
+//   console.log('NEW ROUTE WORKING');
+//   console.log('Req data' + req);
+//   // await imageConverter.imageConversionFunctionWithSharp(req, res);
+// });
 
 server.listen(4000, () => {
   console.log('server running on 4000 port');
