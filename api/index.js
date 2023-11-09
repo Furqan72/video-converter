@@ -50,6 +50,10 @@ app.use(
   express.static('temp-output')
 );
 
+app.get('/', async (req, res) => {
+  console.log('Success.....');
+});
+
 app.post('/convert', async (req, res) => {
   console.log('NEW ROUTE WORKING');
   console.log('Req data' + req);
