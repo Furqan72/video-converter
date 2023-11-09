@@ -10,7 +10,7 @@ const functions = require('../functions/functions');
 let processedImages = [];
 const extractOptionsFromRequest = (req) => {
   const options = {
-    inputFile: req.files.uploadFile,
+    // inputFile: req.files.uploadFile,
     selectMenuValues: req.body.selectMenu,
     fileWidth: req.body.width,
     fileHeight: req.body.height,
@@ -167,76 +167,76 @@ const imageConversionFunctionWithSharp = async (req, res) => {
 
     const editingoptions = extractOptionsFromRequest(req);
 
-    if (!editingoptions.inputFile) {
-      throw new Error('No file uploaded.');
-    }
+    // if (!editingoptions.inputFile) {
+    //   throw new Error('No file uploaded.');
+    // }
 
-    const inputPath = await uploadAndHandleFile(editingoptions.inputFile, 'temp-files/');
-    console.log(inputPath);
-    if (!fs.existsSync(inputPath)) {
-      console.log(`Input file not found: ${inputPath}`);
-      return;
-    }
-    processedImages.push(inputPath);
+    // const inputPath = await uploadAndHandleFile(editingoptions.inputFile, 'temp-files/');
+    // console.log(inputPath);
+    // if (!fs.existsSync(inputPath)) {
+    //   console.log(`Input file not found: ${inputPath}`);
+    //   return;
+    // }
+    // processedImages.push(inputPath);
 
-    const lastDotIndex = editingoptions.inputFile.name.lastIndexOf('.');
-    const fileNameWithoutExtension = editingoptions.inputFile.name.substring(0, lastDotIndex);
-    const outputPath = `./temp-output/converted-${fileNameWithoutExtension + editingoptions.selectMenuValues}`;
-    globalFunctions.fileName = fileNameWithoutExtension + editingoptions.selectMenuValues;
-    processedImages.push(outputPath);
+    // const lastDotIndex = editingoptions.inputFile.name.lastIndexOf('.');
+    // const fileNameWithoutExtension = editingoptions.inputFile.name.substring(0, lastDotIndex);
+    // const outputPath = `./temp-output/converted-${fileNameWithoutExtension + editingoptions.selectMenuValues}`;
+    // globalFunctions.fileName = fileNameWithoutExtension + editingoptions.selectMenuValues;
+    // processedImages.push(outputPath);
 
-    let sharpCommand;
-    if (editingoptions.inputFile.name.endsWith('.gif') && editingoptions.selectMenuValues === '.gif') {
-      sharpCommand = sharp(inputPath, { animated: true });
-    } else {
-      sharpCommand = sharp(inputPath);
-    }
+    // let sharpCommand;
+    // if (editingoptions.inputFile.name.endsWith('.gif') && editingoptions.selectMenuValues === '.gif') {
+    //   sharpCommand = sharp(inputPath, { animated: true });
+    // } else {
+    //   sharpCommand = sharp(inputPath);
+    // }
 
-    if (editingoptions.inputFile.name.endsWith('.gif') && !(editingoptions.selectMenuValues === '.gif')) {
-      sharpCommand.extract({ width: 100, height: 100, left: 0, top: 0 });
-    }
+    // if (editingoptions.inputFile.name.endsWith('.gif') && !(editingoptions.selectMenuValues === '.gif')) {
+    //   sharpCommand.extract({ width: 100, height: 100, left: 0, top: 0 });
+    // }
 
-    configureSharpEvents(sharpCommand, editingoptions);
+    // configureSharpEvents(sharpCommand, editingoptions);
 
-    const { errorMessages, completeData } = await configureMetadataUsingSharp(inputPath);
-    // res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData });
+    // const { errorMessages, completeData } = await configureMetadataUsingSharp(inputPath);
+    // // res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData });
 
-    if (errorMessages !== '') {
-      // io.emit('error', errorMessages);
-      // io.emit('endConversion');
-      return;
-    }
+    // if (errorMessages !== '') {
+    //   // io.emit('error', errorMessages);
+    //   // io.emit('endConversion');
+    //   return;
+    // }
 
     // editing options for the image
-    configureEditingOptions(sharpCommand, editingoptions, completeData);
+    // configureEditingOptions(sharpCommand, editingoptions, completeData);
 
-    // saving file
-    if (editingoptions.inputFile.name.endsWith('.gif') && editingoptions.selectMenuValues === '.gif') {
-      sharpCommand.toBuffer((err, outputBuffer, info) => {
-        if (err) {
-          console.log('File conversion error:', info);
-          console.error('Error converting file:', err);
-        } else {
-          console.log('File converted: >>+++++++>>', outputPath);
-          fs.writeFileSync(outputPath, outputBuffer);
-          // sharpCommand.toFile
-        }
-      });
-    } else
-      sharpCommand.toFile(outputPath, (err, info) => {
-        if (err) {
-          console.log('File conversion error:', info);
-          console.error('Error converting file:', err);
-        } else {
-          console.log('File converted: >>>>>>', outputPath);
-        }
-      });
-    // io.emit('endConversion');
-    // io.emit('disconnectUser');
-    console.log('and still running...........22');
-    sharpCommand.end();
+    // // saving file
+    // if (editingoptions.inputFile.name.endsWith('.gif') && editingoptions.selectMenuValues === '.gif') {
+    //   sharpCommand.toBuffer((err, outputBuffer, info) => {
+    //     if (err) {
+    //       console.log('File conversion error:', info);
+    //       console.error('Error converting file:', err);
+    //     } else {
+    //       console.log('File converted: >>+++++++>>', outputPath);
+    //       fs.writeFileSync(outputPath, outputBuffer);
+    //       // sharpCommand.toFile
+    //     }
+    //   });
+    // } else
+    //   sharpCommand.toFile(outputPath, (err, info) => {
+    //     if (err) {
+    //       console.log('File conversion error:', info);
+    //       console.error('Error converting file:', err);
+    //     } else {
+    //       console.log('File converted: >>>>>>', outputPath);
+    //     }
+    //   });
+    // // io.emit('endConversion');
+    // // io.emit('disconnectUser');
+    // console.log('and still running...........22');
+    // sharpCommand.end();
 
-    return { downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData };
+    return { downloadUrl: '1', fileName: '2' + editingoptions.selectMenuValues, message: '3', fullVideoData: '4' };
   } catch (error) {
     console.error('An error occurred in the last try catch:', error);
     // io.emit('error', error.message);
