@@ -8,9 +8,9 @@ const fileUpload = require('express-fileupload');
 // routes
 const router = require('./router');
 // Global Functions
-// const globalFunctions = require('./global/globalFunctions');
+const globalFunctions = require('./global/globalFunctions');
 // functions
-// const imageConverter = require('./functions/imageConverter');
+const imageConverter = require('./functions/imageConverter');
 
 const app = express();
 const server = http.createServer(app);
@@ -18,14 +18,14 @@ const server = http.createServer(app);
 const AllowedDomains = {
   origin: ['http://localhost:5173', 'https://video-converter2.vercel.app/'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  // allowedHeaders: ['Content-Type'],
+  allowedHeaders: ['Content-Type'],
   optionsSuccessStatus: 200,
 };
 
 console.log('Working!!');
 
 app.use(cors(AllowedDomains));
-// app.use(cors());
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -38,118 +38,30 @@ app.use(
 
 // app.use('/temp-output', express.static('temp-output'));
 
-// app.use(
-//   '/temp-output',
-//   (req, res, next) => {
-//     const fileName = `${globalFunctions.fileName}`;
-//     const disposition = `attachment; filename="${fileName}"`;
-//     res.setHeader('Content-Disposition', disposition);
+app.use(
+  '/temp-output',
+  (req, res, next) => {
+    const fileName = `${globalFunctions.fileName}`;
+    const disposition = `attachment; filename="${fileName}"`;
+    res.setHeader('Content-Disposition', disposition);
 
-//     next();
-//   },
-//   express.static('temp-output')
-// );
-
-app.get('/', (req, res) => {
-  console.log('Success.....');
-  res.end();
-});
-
-app.post('/test', (req, res) => {
-  const userData = {
-    name: req.body.user,
-    email: req.body.mail,
-  };
-  console.log(userData);
-  res.json({ options: userData });
-  // res.send({ options });
-});
-
-// app.post('/convert', async (req, res) => {
-//   console.log('NEW ROUTE WORKING');
-//   console.log('Req data' + req);
-//   // await imageConverter.imageConversionFunctionWithSharp(req, res);
-// });
-
-server.listen(4000, () => {
-  console.log('server running on 4000 port');
-});
-
-// ------------------------------------
-// const express = require('express');
-// const http = require('http');
-// // const socketIo = require('socket.io');
-// const cors = require('cors');
-// const bodyParser = require('body-parser');
-// const fileUpload = require('express-fileupload');
-
-// // routes
-// const router = require('./router');
-// // Global Functions
-// const globalFunctions = require('./global/globalFunctions');
-// // functions
-// const imageConverter = require('./functions/imageConverter');
-
-// const app = express();
-// const server = http.createServer(app);
-
-// const AllowedDomains = {
-//   origin: ['http://localhost:5173', 'https://video-converter2.vercel.app/'],
-//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//   // allowedHeaders: ['Content-Type'],
-//   optionsSuccessStatus: 200,
-// };
-
-// console.log('Working!!');
-
-// app.use(cors(AllowedDomains));
-// // app.use(cors());
-// app.use(bodyParser.urlencoded({ extended: false }));
-// app.use(bodyParser.json());
-
-// app.use(
-//   fileUpload({
-//     useTempFiles: true,
-//     tempFileDir: './temp-files/',
-//   })
-// );
-
-// app.use('/temp-output', express.static('temp-output'));
-
-// app.use(
-//   '/temp-output',
-//   (req, res, next) => {
-//     const fileName = `${globalFunctions.fileName}`;
-//     const disposition = `attachment; filename="${fileName}"`;
-//     res.setHeader('Content-Disposition', disposition);
-
-//     next();
-//   },
-//   express.static('temp-output')
-// );
+    next();
+  },
+  express.static('temp-output')
+);
 
 // app.get('/', (req, res) => {
 //   console.log('Success.....');
 //   res.end();
 // });
 
-// app.post('/test', async (req, res) => {
-//   // const userData = {
-//   //   name: req.body.user,
-//   //   email: req.body.mail,
-//   // };
-//   const reqiredData = await imageConverter.imageConversionFunctionWithSharp(req, res);
-//   console.log(reqiredData);
-//   res.json({ options: reqiredData });
-//   // res.send({ options });
-// });
+app.post('/test', async (req, res) => {
+  const reqiredData = await imageConverter.imageConversionFunctionWithSharp(req, res);
+  console.log(reqiredData);
+  // res.json({ options: reqiredData });
+  res.send({ options: reqiredData });
+});
 
-// // app.post('/convert', async (req, res) => {
-// //   console.log('NEW ROUTE WORKING');
-// //   console.log('Req data' + req);
-// //   // await imageConverter.imageConversionFunctionWithSharp(req, res);
-// // });
-
-// server.listen(4000, () => {
-//   console.log('server running on 4000 port');
-// });
+server.listen(4000, () => {
+  console.log('server running on 4000 port');
+});

@@ -234,8 +234,8 @@ const imageConversionFunctionWithSharp = async (req, res) => {
     // io.emit('endConversion');
     // io.emit('disconnectUser');
     console.log('and still running...........22');
+    sharpCommand.end();
 
-    //
     return { downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData };
   } catch (error) {
     console.error('An error occurred in the last try catch:', error);

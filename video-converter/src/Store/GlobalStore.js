@@ -63,28 +63,27 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
   //  sending and receiving data from the server
   const sendVideoFile = async (formData, convert) => {
     axios
-      .post('https://video-converter-api.vercel.app/test', formData, {
-        // headers: {
-        //   'Content-Type': 'multipart/form-data',
-        // },
-        // onUploadProgress: (progressEvent) => {
-        //   const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        //   uploadLoading.value = percentCompleted;
-        // },
+      .post('http://localhost:4000/test', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          uploadLoading.value = percentCompleted;
+        },
       })
       .then((response) => {
-        // downloadUrlFromNode.value = 'http://localhost:4000/' + response.data.downloadUrl;
-        // downloadName.value = response.data.fileName;
-        // errMessage.value = response.data.message;
-        // metaData.value = response.data.fullVideoData;
-        // console.log('1 => ' + downloadName.value);
-        // console.log('2 => ' + errMessage.value);
+        console.log(response.data.options);
+
+        downloadUrlFromNode.value = 'http://localhost:4000/' + response.data.options.downloadUrl;
+        downloadName.value = response.data.options.fileName;
+        errMessage.value = response.data.options.message;
+        metaData.value = response.data.options.fullVideoData;
+        console.log('1 => ' + downloadName.value);
+        console.log('2 => ' + errMessage.value);
         //
-        username.value = response.data.options;
-        // username.value = response.data.personName;
-        // useremail.value = response.data.personEmail;
-        console.log(username.value);
-        // console.log(useremail.value);
+        // username.value = response.data.options;
+        // console.log(username.value);
       })
       .catch((error) => {
         console.error('An error occurred:', error);
