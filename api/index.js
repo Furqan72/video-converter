@@ -55,17 +55,11 @@ app.use(
 //   res.end();
 // });
 
-async function sendImageConversionResponse(req, res) {
-  try {
-    const reqiredData = await imageConverter.imageConversionFunctionWithSharp(req, res);
-    res.send({ options: reqiredData });
-  } catch (error) {
-    res.send({ options: err });
-  }
-}
-
 app.post('/test', async (req, res) => {
-  sendImageConversionResponse(req, res);
+  const reqiredData = await imageConverter.imageConversionFunctionWithSharp(req, res);
+  console.log(reqiredData);
+  // res.json({ options: reqiredData });
+  res.send({ options: reqiredData });
 });
 
 server.listen(4000, () => {
