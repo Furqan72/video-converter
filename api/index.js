@@ -50,7 +50,7 @@ app.use(
   express.static('temp-output')
 );
 
-app.get('/', async (req, res) => {
+app.get('/', (req, res) => {
   console.log('Success.....');
 });
 
