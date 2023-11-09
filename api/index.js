@@ -52,6 +52,7 @@ app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
   console.log('Success.....');
+  res.end();
 });
 
 // app.post('/convert', async (req, res) => {
