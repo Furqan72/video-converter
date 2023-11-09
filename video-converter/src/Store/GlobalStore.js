@@ -60,7 +60,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
   //  sending and receiving data from the server
   const sendVideoFile = async (formData, convert) => {
     axios
-      .post('https://video-converter-api.vercel.app/' + convert, formData, {
+      .post('http://localhost:4000/convert', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -70,7 +70,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
         },
       })
       .then((response) => {
-        downloadUrlFromNode.value = 'https://video-converter-api.vercel.app/' + response.data.downloadUrl;
+        downloadUrlFromNode.value = 'http://localhost:4000/' + response.data.downloadUrl;
         downloadName.value = response.data.fileName;
         errMessage.value = response.data.message;
         metaData.value = response.data.fullVideoData;

@@ -23,7 +23,7 @@ const extractOptionsFromRequest = (req) => {
   return options;
 };
 
-const configureSharpEvents = async (sharpStream, options, io) => {
+const configureSharpEvents = async (sharpStream, options) => {
   let processedBytes = 0;
   let extractedText = '';
   const total = options.inputFile.size;
@@ -160,7 +160,7 @@ const configureEditingOptions = async (command, options, metadata) => {
   }
 };
 
-const imageConversionFunctionWithSharp = async (req, res, io) => {
+const imageConversionFunctionWithSharp = async (req, res) => {
   // io.emit('startConversion');
   try {
     await deleteProcessedFiles();
@@ -196,7 +196,7 @@ const imageConversionFunctionWithSharp = async (req, res, io) => {
       sharpCommand.extract({ width: 100, height: 100, left: 0, top: 0 });
     }
 
-    configureSharpEvents(sharpCommand, editingoptions, io);
+    configureSharpEvents(sharpCommand, editingoptions);
 
     const { errorMessages, completeData } = await configureMetadataUsingSharp(inputPath);
     res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData });

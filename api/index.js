@@ -9,17 +9,11 @@ const fileUpload = require('express-fileupload');
 const router = require('./router');
 // Global Functions
 const globalFunctions = require('./global/globalFunctions');
+// functions
+const imageConverter = require('./functions/imageConverter');
 
 const app = express();
 const server = http.createServer(app);
-// const io = socketIo(server, {
-//   cors: {
-//     origin: ['http://localhost:5173', 'https://video-converter2.vercel.app', 'https://video-converter2.vercel.app/image-converter'],
-//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//     allowedHeaders: ['Content-Type'],
-//     optionsSuccessStatus: 200,
-//   },
-// });
 
 const AllowedDomains = {
   origin: ['http://localhost:5173', 'https://video-converter2.vercel.app/'],
@@ -42,6 +36,8 @@ app.use(
   })
 );
 
+// app.use('/temp-output', express.static('temp-output'));
+
 app.use(
   '/temp-output',
   (req, res, next) => {
@@ -54,13 +50,10 @@ app.use(
   express.static('temp-output')
 );
 
-app.use((req, res, next) => {
-  // req.io = io;
-  next();
+app.post('/convert', async (req, res) => {
+  console.log('NEW ROUTE WORKING');
+  await imageConverter.imageConversionFunctionWithSharp(req, res);
 });
-
-// router
-app.use('/', router);
 
 server.listen(4000, () => {
   console.log('server running on 4000 port');
