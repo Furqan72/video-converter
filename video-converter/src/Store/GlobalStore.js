@@ -77,9 +77,9 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
 
         // downloadUrlFromNode.value = 'https://video-converter-api.vercel.app/' + response.data.options.downloadUrl;
         downloadUrlFromNode.value = 'https://video-converter-api.vercel.app/./temp-output/sampelimg1.png';
-        downloadName.value = response.data.options.fileName;
+        // downloadName.value = response.data.options.fileName;
         errMessage.value = response.data.options.message;
-        metaData.value = response.data.options.fullVideoData;
+        // metaData.value = response.data.options.fullVideoData;
         console.log('1 => ' + downloadName.value);
         console.log('2 => ' + errMessage.value);
 
