@@ -3,7 +3,7 @@ const http = require('http');
 // const socketIo = require('socket.io');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-// const fileUpload = require('express-fileupload');
+const fileUpload = require('express-fileupload');
 
 // routes
 const router = require('./router');
@@ -18,7 +18,7 @@ const server = http.createServer(app);
 const AllowedDomains = {
   origin: ['http://localhost:5173', 'https://video-converter2.vercel.app/'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type'],
+  // allowedHeaders: ['Content-Type'],
   optionsSuccessStatus: 200,
 };
 
@@ -29,12 +29,12 @@ app.use(cors(AllowedDomains));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// app.use(
-//   fileUpload({
-//     useTempFiles: true,
-//     tempFileDir: './temp-files/',
-//   })
-// );
+app.use(
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: './temp-files/',
+  })
+);
 
 // app.use('/temp-output', express.static('temp-output'));
 
@@ -53,6 +53,16 @@ app.use(bodyParser.json());
 app.get('/', (req, res) => {
   console.log('Success.....');
   res.end();
+});
+
+app.post('/test', (req, res) => {
+  const userData = {
+    name: req.body.user,
+    email: req.body.mail,
+  };
+  console.log(userData);
+  res.json({ options: userData });
+  // res.send({ options });
 });
 
 // app.post('/convert', async (req, res) => {

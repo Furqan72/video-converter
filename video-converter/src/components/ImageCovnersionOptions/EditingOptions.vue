@@ -14,22 +14,36 @@
     <!-- width -->
     <div class="grid gap-x-8 gap-y-6 px-10 py-7 coxl:grid-cols-2">
       <div class="grid grid-cols-4 justify-center text-gray-color">
+        <label class="mr-2 mt-2 text-15px">name</label>
+        <div class="col-span-3 flex flex-col">
+          <input name="user" class="w-full rounded-lg border px-4 py-2 outline-none" value="ali" />
+          <span class="mt-2 text-xs text-light-gray">Output width in pixels.</span>
+        </div>
+      </div>
+      <div class="grid grid-cols-4 justify-center text-gray-color">
+        <label class="mr-2 mt-2 text-15px">email</label>
+        <div class="col-span-3 flex flex-col">
+          <input name="mail" class="w-full rounded-lg border px-4 py-2 outline-none" value="ali12@gmail.com" />
+          <span class="mt-2 text-xs text-light-gray">Output width in pixels.</span>
+        </div>
+      </div>
+      <!-- <div class="grid grid-cols-4 justify-center text-gray-color">
         <label class="mr-2 mt-2 text-15px">Width</label>
         <div class="col-span-3 flex flex-col">
           <input type="number" name="width" class="w-full rounded-lg border px-4 py-2 outline-none" value="500" />
           <span class="mt-2 text-xs text-light-gray">Output width in pixels.</span>
         </div>
-      </div>
+      </div> -->
       <!-- height -->
-      <div class="grid grid-cols-4 justify-center text-gray-color">
+      <!-- <div class="grid grid-cols-4 justify-center text-gray-color">
         <label class="mr-2 mt-2 text-15px">Height</label>
         <div class="col-span-3 flex flex-col">
           <input type="number" name="height" class="w-full rounded-lg border px-4 py-2 outline-none" value="500" />
           <span class="mt-2 text-xs text-light-gray">Output height in pixels.</span>
         </div>
-      </div>
+      </div> -->
       <!-- fit  -->
-      <div class="grid grid-cols-4 justify-center text-gray-color">
+      <!-- <div class="grid grid-cols-4 justify-center text-gray-color">
         <label class="mr-2 mt-2 text-15px">Fit</label>
         <div class="col-span-3 flex flex-col">
           <select name="fit" class="w-full rounded-lg border px-4 py-2 outline-none">
@@ -39,9 +53,9 @@
           </select>
           <span class="mt-2 text-xs text-light-gray">Sets the mode of resizing the image. "Max" resizes the image to fit within the width and height, but will not increase the size of the image if it is smaller than width or height. "Crop" resizes the image to fill the width and height dimensions and crops any excess image data. "Scale" enforces the image width and height by scaling.</span>
         </div>
-      </div>
+      </div> -->
       <!-- strip -->
-      <div class="grid grid-cols-4 justify-center text-gray-color">
+      <!-- <div class="grid grid-cols-4 justify-center text-gray-color">
         <label class="mr-2 mt-2 text-15px">Strip</label>
         <div class="col-span-3 flex flex-col">
           <div class="flex items-center">
@@ -54,17 +68,17 @@
           </div>
           <span class="mt-2 text-xs text-light-gray">Remove any metadata such as EXIF data.</span>
         </div>
-      </div>
+      </div> -->
       <!-- quality -->
-      <div v-if="GlobalData.imageSelectedFormat === '.png' || GlobalData.imageSelectedFormat === '.webp' || GlobalData.imageSelectedFormat === '.jpg'" class="grid grid-cols-4 justify-center text-gray-color">
+      <!-- <div v-if="GlobalData.imageSelectedFormat === '.png' || GlobalData.imageSelectedFormat === '.webp' || GlobalData.imageSelectedFormat === '.jpg'" class="grid grid-cols-4 justify-center text-gray-color">
         <label class="mr-2 mt-2 text-15px">Quality</label>
         <div class="col-span-3 flex flex-col">
           <input type="number" name="quality" class="w-full rounded-lg border px-4 py-2 outline-none" :value="GlobalData.imageSelectedFormat === '.png' ? '75' : ''" />
           <span class="mt-2 text-xs text-light-gray">{{ GlobalData.imageSelectedFormat === '.png' ? 'Zlib compression level (quality / 10) and filter-type (quality % 10).' : 'WEBP compression level.' }}</span>
         </div>
-      </div>
+      </div> -->
       <!-- auto orient -->
-      <div v-if="GlobalData.selectedImageFileFormat === '.jpg'" class="grid grid-cols-4 justify-center text-gray-color">
+      <!-- <div v-if="GlobalData.selectedImageFileFormat === '.jpg'" class="grid grid-cols-4 justify-center text-gray-color">
         <label class="mr-2 mt-2 text-15px">Auto Orient</label>
         <div class="col-span-3 flex flex-col">
           <div class="flex items-center">
@@ -77,7 +91,7 @@
           </div>
           <span class="mt-2 text-xs text-light-gray">Automatically rotate the image correctly, based on EXIF information which usually is set using a gravity sensor in digital cameras.</span>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
