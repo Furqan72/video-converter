@@ -130,10 +130,10 @@ dist
 .pnp.*
 
 # input files
-temp-files/
+# temp-files/
 
 # output files
-temp-output/
+# temp-output/
 
 # # test files
 # test.vue
