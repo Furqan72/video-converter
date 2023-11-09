@@ -1,6 +1,6 @@
 const express = require('express');
 const http = require('http');
-const socketIo = require('socket.io');
+// const socketIo = require('socket.io');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
@@ -55,7 +55,7 @@ app.use(
 );
 
 app.use((req, res, next) => {
-  req.io = io;
+  // req.io = io;
   next();
 });
 
