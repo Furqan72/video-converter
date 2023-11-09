@@ -4,11 +4,10 @@ const router = express.Router();
 const { videoConversionFunction } = require('./functions/converter');
 const { imageConversionFunctionWithSharp } = require('./functions/imageConverter');
 
-function handleConversionRoute(req, res, conversionFunction) {
+async function handleConversionRoute(req, res, conversionFunction) {
   try {
     if (typeof conversionFunction === 'function') {
-      // conversionFunction(req, res, req.io);
-      conversionFunction(req, res);
+      await conversionFunction(req, res);
     }
   } catch (error) {
     console.log('Error getting conversion function');
