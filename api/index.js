@@ -62,23 +62,6 @@ app.use((req, res, next) => {
 // router
 app.use('/', router);
 
-// // io.on('connection', (socket) => {
-//   // console.log('User connected');
-
-//   socket.on('startConversion', () => {
-//     console.log('User has started Conversion.');
-//   });
-
-//   socket.on('endConversion', () => {
-//     console.log('User has completed the conversion...1');
-//   });
-
-//   socket.on('disconnectUser', () => {
-//     socket.disconnect();
-//     console.log('User has  disconnected.');
-//   });
-// });
-
 server.listen(4000, () => {
   console.log('server running on 4000 port');
 });

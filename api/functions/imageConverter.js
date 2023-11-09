@@ -162,11 +162,11 @@ const configureEditingOptions = async (command, options, metadata) => {
 
 const imageConversionFunctionWithSharp = async (req, res, io) => {
   // io.emit('startConversion');
-  deleteProcessedFiles();
-
-  const editingoptions = extractOptionsFromRequest(req);
-
   try {
+    await deleteProcessedFiles();
+
+    const editingoptions = extractOptionsFromRequest(req);
+
     if (!editingoptions.inputFile) {
       throw new Error('No file uploaded.');
     }
