@@ -286,7 +286,7 @@ const configureSubtitles = (command, options, path, checkSubtitles) => {
 };
 
 // video conversion function
-const videoConversionFunction = async (req, res) => {
+const videoConversionFunction = async (req, res, io) => {
   // deleting previous converted files
   functions.deleteProcessedFiles();
 
@@ -312,7 +312,7 @@ const videoConversionFunction = async (req, res) => {
     const command = new ffmpeg(inputPath);
 
     // FFmpeg --> start,progress,end,error
-    configureFFmpegEvents(command, res);
+    configureFFmpegEvents(command, io, res);
 
     // Trimming Configuration
     const { errorMessages, checkSubtitles, videoStream, completeData } = await configureTrimming(command, editingoptions, inputPath);

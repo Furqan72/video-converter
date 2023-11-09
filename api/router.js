@@ -7,7 +7,7 @@ const { imageConversionFunctionWithSharp } = require('./functions/imageConverter
 async function handleConversionRoute(req, res, conversionFunction) {
   try {
     if (typeof conversionFunction === 'function') {
-      await conversionFunction(req, res);
+      await conversionFunction(req, res, req.io);
     }
   } catch (error) {
     console.log('Error getting conversion function');
