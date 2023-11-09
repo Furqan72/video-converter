@@ -199,7 +199,7 @@ const imageConversionFunctionWithSharp = async (req, res) => {
     configureSharpEvents(sharpCommand, editingoptions);
 
     const { errorMessages, completeData } = await configureMetadataUsingSharp(inputPath);
-    res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData });
+    // res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData });
 
     if (errorMessages !== '') {
       // io.emit('error', errorMessages);
@@ -236,6 +236,7 @@ const imageConversionFunctionWithSharp = async (req, res) => {
     console.log('and still running...........22');
 
     //
+    return { downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData };
   } catch (error) {
     console.error('An error occurred in the last try catch:', error);
     // io.emit('error', error.message);
