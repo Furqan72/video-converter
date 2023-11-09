@@ -28,6 +28,8 @@ const AllowedDomains = {
   optionsSuccessStatus: 200,
 };
 
+console.log('Working!!');
+
 app.use(cors(AllowedDomains));
 // app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -39,8 +41,6 @@ app.use(
     tempFileDir: './temp-files/',
   })
 );
-
-// app.use('/temp-output', express.static('temp-output'));
 
 app.use(
   '/temp-output',
