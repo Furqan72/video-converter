@@ -5,7 +5,7 @@ const unlinkAsync = promisify(fs.unlink);
 
 // function
 const globalFunctions = require('../global/globalFunctions');
-const functions = require('../functions/functions');
+const functions = require('./functions');
 
 let processedImages = [];
 const extractOptionsFromRequest = (req) => {
@@ -167,22 +167,12 @@ const imageConversionFunctionWithSharp = async (req, res) => {
 
     const editingoptions = extractOptionsFromRequest(req);
 
-    // if (!editingoptions.inputFile) {
-    //   throw new Error('No file uploaded.');
-    // }
-
     // const inputPath = await uploadAndHandleFile(editingoptions.inputFile, 'temp-files/');
-    const inputPath = 'temp-files/sampelimg1.jpg';
+    const inputPath = 'temp-files/image-1kb.jpg';
     // console.log(inputPath);
-    // if (!fs.existsSync(inputPath)) {
-    //   console.log(`Input file not found: ${inputPath}`);
-    //   return;
-    // }
     processedImages.push(inputPath);
 
-    // const lastDotIndex = editingoptions.inputFile.name.lastIndexOf('.');
-    // const fileNameWithoutExtension = editingoptions.inputFile.name.substring(0, lastDotIndex);
-    const outputPath = `./temp-output/converted-sampelimg1${editingoptions.selectMenuValues}`;
+    const outputPath = `./temp-output/converted-image-1kb${editingoptions.selectMenuValues}`;
     globalFunctions.fileName = 'sampelimg1' + editingoptions.selectMenuValues;
     processedImages.push(outputPath);
 

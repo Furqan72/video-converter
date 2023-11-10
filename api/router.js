@@ -1,8 +1,11 @@
 const express = require('express');
 const router = express.Router();
 
-const { videoConversionFunction } = require('./functions/converter');
-const { imageConversionFunctionWithSharp } = require('./functions/imageConverter');
+// const { videoConversionFunction } = require('./functions/converter');
+// const { imageConversionFunctionWithSharp } = require('./functions/imageConverter');
+//
+const { videoConversionFunction } = require('./functions/converterTest');
+const { imageConversionFunctionWithSharp } = require('./functions/imageConverterTest');
 
 async function handleConversionRoute(req, res, conversionFunction) {
   try {
