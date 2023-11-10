@@ -316,7 +316,6 @@ const videoConversionFunction = async (req, res, io) => {
 
     // Trimming Configuration
     const { errorMessages, checkSubtitles, videoStream, completeData } = await configureTrimming(command, editingoptions, inputPath);
-    console.log(outputPath, fileNameWithoutExtension + editingoptions.selectMenuValues, completeData, errorMessages);
     res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData });
 
     // Inside the configureVideoConversion function

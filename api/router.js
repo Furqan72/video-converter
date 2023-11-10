@@ -16,15 +16,15 @@ async function handleConversionRoute(req, res, conversionFunction) {
 }
 
 // video route
-// router.post('/video-convert', (req, res) => {
-//   console.log('1  -->  video-convert');
-//   handleConversionRoute(req, res, videoConversionFunction);
-// });
+router.post('/video-convert', (req, res) => {
+  console.log('1  -->  video-convert');
+  handleConversionRoute(req, res, videoConversionFunction);
+});
 
-// // image route
-// router.post('/image-convert', (req, res) => {
-//   console.log('2  -->  image-convert');
-//   handleConversionRoute(req, res, imageConversionFunctionWithSharp);
-// });
+// image route
+router.post('/image-convert', (req, res) => {
+  console.log('2  -->  image-convert');
+  handleConversionRoute(req, res, imageConversionFunctionWithSharp);
+});
 
 module.exports = router;

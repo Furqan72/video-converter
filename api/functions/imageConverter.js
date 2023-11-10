@@ -3,14 +3,13 @@ const fs = require('fs');
 const { promisify } = require('util');
 const unlinkAsync = promisify(fs.unlink);
 
-// function
 const globalFunctions = require('../global/globalFunctions');
 const functions = require('../functions/functions');
 
 let processedImages = [];
 const extractOptionsFromRequest = (req) => {
   const options = {
-    // inputFile: req.files.uploadFile,
+    inputFile: req.files.uploadFile,
     selectMenuValues: req.body.selectMenu,
     fileWidth: req.body.width,
     fileHeight: req.body.height,
@@ -23,64 +22,65 @@ const extractOptionsFromRequest = (req) => {
   return options;
 };
 
-// const configureSharpEvents = async (sharpStream, options, metadata) => {
-//   let processedBytes = 0;
-//   let extractedText = '';
-//   const total = options.inputFile.size;
+const configureSharpEvents = async (sharpStream, options, io) => {
+  let processedBytes = 0;
+  let extractedText = '';
+  const total = options.inputFile.size;
 
-//   sharpStream
-//     .on('data', (chunk) => {
-//       if (chunk !== undefined) {
-//         const newpercent = 0;
-//         // io.emit('progress', newpercent);
-//         console.log('Received data chunk:', chunk.length);
-//         console.log('Received total:', total);
-//         processedBytes += chunk.length;
-//         const progressPercent = ((processedBytes / total) * 100).toFixed(2);
-//         console.log(progressPercent);
-//         // io.emit('progress', progressPercent);
-//       }
-//     })
-//     .on('end', () => {
-//       if (extractedText === '') {
-//         const progressPercent = 100;
-//         // io.emit('progress', progressPercent);
-//         sharpStream.end();
+  sharpStream
+    .on('data', (chunk) => {
+      if (chunk !== undefined) {
+        const newpercent = 0;
+        io.emit('progress', newpercent);
+        console.log('Received data chunk:', chunk.length);
+        console.log('Received total:', total);
+        processedBytes += chunk.length;
+        const progressPercent = ((processedBytes / total) * 100).toFixed(2);
+        console.log(newpercent);
+        console.log(progressPercent);
+        io.emit('progress', progressPercent);
+      }
+    })
+    .on('end', () => {
+      if (extractedText === '') {
+        const progressPercent = 100;
+        io.emit('progress', progressPercent);
+        sharpStream.end();
 
-//         console.log(progressPercent);
-//         console.log('Conversion Finished.');
-//         // io.emit('disconnectUser');
-//         // io.emit('endConversion');
-//       } else {
-//         console.log('Conversion Failed!!!!!');
-//       }
-//     })
-//     // sharpStream
-//     .on('close', () => {
-//       // The Sharp image operation has been canceled.
-//       console.log('The Sharp image operation has been canceled.');
-//     })
-//     .on('error', (err, chunk, info) => {
-//       try {
-//         console.error('Info data --->>', info);
-//         console.error('Chunk data --->>', chunk);
-//         console.error('Error:', err);
-//         // io.emit('error', err.message);
+        console.log(progressPercent);
+        console.log('Conversion Finished.');
+        // io.emit('disconnectUser');
+        // io.emit('endConversion');
+      } else {
+        console.log('Conversion Failed!!!!!');
+      }
+    })
+    // sharpStream
+    // .on('close', () => {
+    //   // The Sharp image operation has been canceled.
+    //   console.log('The Sharp image operation has been canceled.');
+    // })
+    .on('error', (err, chunk, info) => {
+      try {
+        console.error('Info data --->>', info);
+        console.error('Chunk data --->>', chunk);
+        console.error('Error:', err);
+        io.emit('error', err.message);
 
-//         const errorPatterns = /(Unsupported codec|unsupported image format|unable to)/;
-//         const match = err.message.match(errorPatterns);
-//         if (match) {
-//           extractedText = match[0];
-//           console.log('Extracted-Text -----------', extractedText);
-//           // io.emit('message', extractedText + ' Conversion failed!!');
-//           console.log('Conversion Error: ' + err.message);
-//         }
-//       } catch (error) {
-//         console.error('An error occurred while handling the Sharp conversion error:', error);
-//       }
-//     });
-//   console.log('and still runninggggggg..................');
-// };
+        const errorPatterns = /(Unsupported codec|unsupported image format|unable to)/;
+        const match = err.message.match(errorPatterns);
+        if (match) {
+          extractedText = match[0];
+          console.log('Extracted-Text -----------', extractedText);
+          io.emit('message', extractedText + ' Conversion failed!!');
+          console.log('Conversion Error: ' + err.message);
+        }
+      } catch (error) {
+        console.error('An error occurred while handling the Sharp conversion error:', error);
+      }
+    });
+  console.log('and still runninggggggg..................');
+};
 
 const configureMetadataUsingSharp = async (path) => {
   let errorMessages = '';
@@ -151,60 +151,62 @@ const configureEditingOptions = async (command, options, metadata) => {
     command.rotate();
   }
   // animation for gif image
-  // if (options.inputFile.name.endsWith('.gif') && options.selectMenuValues === '.gif') {
-  //   command.toFormat('gif');
-  // }
+  if (options.inputFile.name.endsWith('.gif') && options.selectMenuValues === '.gif') {
+    command.toFormat('gif');
+  }
   // // transparent background
   // if (metadata.hasAlpha && !(options.inputFile.name.endsWith('.gif') && options.selectMenuValues === '.gif')) {
   //   command.toFormat('png');
   // }
+  if (metadata.hasAlpha) {
+    command.toFormat('png');
+  }
 };
 
-const imageConversionFunctionWithSharp = async (req, res) => {
-  // io.emit('startConversion');
+const imageConversionFunctionWithSharp = async (req, res, io) => {
+  io.emit('startConversion');
+  deleteProcessedFiles();
+
+  const editingoptions = extractOptionsFromRequest(req);
+
   try {
-    await deleteProcessedFiles();
+    if (!editingoptions.inputFile) {
+      throw new Error('No file uploaded.');
+    }
 
-    const editingoptions = extractOptionsFromRequest(req);
-
-    // if (!editingoptions.inputFile) {
-    //   throw new Error('No file uploaded.');
-    // }
-
-    // const inputPath = await uploadAndHandleFile(editingoptions.inputFile, 'temp-files/');
-    const inputPath = 'temp-files/sampelimg1.jpg';
-    // console.log(inputPath);
-    // if (!fs.existsSync(inputPath)) {
-    //   console.log(`Input file not found: ${inputPath}`);
-    //   return;
-    // }
+    const inputPath = await uploadAndHandleFile(editingoptions.inputFile, 'temp-files/');
+    console.log(inputPath);
+    if (!fs.existsSync(inputPath)) {
+      console.log(`Input file not found: ${inputPath}`);
+      return;
+    }
     processedImages.push(inputPath);
 
-    // const lastDotIndex = editingoptions.inputFile.name.lastIndexOf('.');
-    // const fileNameWithoutExtension = editingoptions.inputFile.name.substring(0, lastDotIndex);
-    const outputPath = `./temp-output/converted-sampelimg1${editingoptions.selectMenuValues}`;
-    globalFunctions.fileName = 'sampelimg1' + editingoptions.selectMenuValues;
+    const lastDotIndex = editingoptions.inputFile.name.lastIndexOf('.');
+    const fileNameWithoutExtension = editingoptions.inputFile.name.substring(0, lastDotIndex);
+    const outputPath = `./temp-output/converted-${fileNameWithoutExtension + editingoptions.selectMenuValues}`;
+    globalFunctions.fileName = fileNameWithoutExtension + editingoptions.selectMenuValues;
     processedImages.push(outputPath);
 
     let sharpCommand;
-    // if (editingoptions.inputFile.name.endsWith('.gif') && editingoptions.selectMenuValues === '.gif') {
-    //   sharpCommand = sharp(inputPath, { animated: true });
-    // } else {
-    sharpCommand = sharp(inputPath);
+    if (editingoptions.inputFile.name.endsWith('.gif')) {
+      sharpCommand = sharp(inputPath, { animated: true });
+    } else {
+      sharpCommand = sharp(inputPath);
+    }
+
+    // if (editingoptions.inputFile.name.endsWith('.gif')) {
+    // sharpCommand.extract({ left: 0, top: 0, width: 100, height: 100 });
     // }
 
-    // if (editingoptions.inputFile.name.endsWith('.gif') && !(editingoptions.selectMenuValues === '.gif')) {
-    //   sharpCommand.extract({ width: 100, height: 100, left: 0, top: 0 });
-    // }
-
-    // configureSharpEvents(sharpCommand, editingoptions);
+    configureSharpEvents(sharpCommand, editingoptions, io);
 
     const { errorMessages, completeData } = await configureMetadataUsingSharp(inputPath);
-    // res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData });
+    res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData });
 
     if (errorMessages !== '') {
-      // io.emit('error', errorMessages);
-      // io.emit('endConversion');
+      io.emit('error', errorMessages);
+      io.emit('endConversion');
       return;
     }
 
@@ -212,37 +214,32 @@ const imageConversionFunctionWithSharp = async (req, res) => {
     configureEditingOptions(sharpCommand, editingoptions, completeData);
 
     // saving file
-    // if (editingoptions.inputFile.name.endsWith('.gif') && editingoptions.selectMenuValues === '.gif') {
-    //   sharpCommand.toBuffer((err, outputBuffer, info) => {
-    //     if (err) {
-    //       console.log('File conversion error:', info);
-    //       console.error('Error converting file:', err);
-    //     } else {
-    //       console.log('File converted: >>+++++++>>', outputPath);
-    //       fs.writeFileSync(outputPath, outputBuffer);
-    //       // sharpCommand.toFile
-    //     }
-    //   });
-    // } else{
-
-    // }
-    sharpCommand.toFile(outputPath, (err, info) => {
-      if (err) {
-        console.log('File conversion error:', info);
-        console.error('Error converting file:', err);
-      } else {
-        console.log('File converted: >>>>>>', outputPath);
-      }
-    });
+    if (editingoptions.inputFile.name.endsWith('.gif')) {
+      sharpCommand.toBuffer(async (err, outputBuffer, info) => {
+        if (err) {
+          console.log('File conversion error:', info);
+          console.error('Error converting file:', err);
+        } else {
+          console.log('File converted: >>+++++++>>', outputPath);
+          fs.writeFileSync(outputPath, outputBuffer);
+        }
+      });
+    } else {
+      sharpCommand.toFile(outputPath, async (err, info) => {
+        if (err) {
+          console.log('File conversion error:', info);
+          console.error('Error converting file:', err);
+        } else {
+          console.log('File converted: >>>>>>', outputPath);
+        }
+      });
+    }
     // io.emit('endConversion');
     // io.emit('disconnectUser');
-    console.log('and still running...........22');
-    sharpCommand.end();
-
-    return { downloadUrl: outputPath, fileName: 'sampelimg1' + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData };
+    console.log('and still running...........2');
   } catch (error) {
     console.error('An error occurred in the last try catch:', error);
-    // io.emit('error', error.message);
+    io.emit('error', error.message);
   }
 };
 
