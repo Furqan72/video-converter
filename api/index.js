@@ -58,18 +58,8 @@ app.post('/test', async (req, res) => {
   console.log('Requesstionediej ');
   console.log(req.body);
 
-  // sharp('./temp-files/converted-image-1kb.jpg')
-  //   .toFormat('png')
-  //   .toFile('./temp-output/converted-image-1kb.png', (err, info) => {
-  //     if (err) {
-  //       console.error('Error converting file:', err);
-  //     } else {
-  //       console.log('File converted:', info);
-  //     }
-  //   });
-
-  let metadata;
-  sharp('temp-files/converted-image-1kb.jpg')
+  let metadata, options;
+  sharp('./temp-files/image-1kb.jpg')
     .toFormat('png')
     .toFile('./temp-output/converted-image-1kb.png', async (err, info) => {
       if (err) {
@@ -85,12 +75,14 @@ app.post('/test', async (req, res) => {
         }
       }
     });
-  // const options = 'file converted.................';
-  // const reqiredData = await imageConverterTest.imageConversionFunctionWithSharp(req, res);
-  // console.log(reqiredData);
-  // res.json({ options: reqiredData });
-  res.send(metadata);
-  // next();
+
+  if (metadata && Object.keys(metadata).length > 0) {
+    options = 'Metadata is not empty:';
+  } else {
+    options = 'Metadata is empty or undefined.';
+  }
+
+  res.send(options);
 });
 
 // app.post('/test', async (req, res, next) => {
