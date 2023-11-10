@@ -67,12 +67,12 @@ app.post('/test', async (req, res) => {
       } else {
         console.log('File converted:', info);
 
-        try {
-          metadata = await sharp('./temp-output/converted-SampleJPGImage_50kbmb_-_Copy_2_1.png').metadata();
-          console.log('Metadata of the converted image:', metadata);
-        } catch (metadataError) {
-          console.error('Error getting metadata:', metadataError);
-        }
+        // try {
+        //   metadata = await sharp('./temp-output/converted-SampleJPGImage_50kbmb_-_Copy_2_1.png').metadata();
+        //   console.log('Metadata of the converted image:', metadata);
+        // } catch (metadataError) {
+        //   console.error('Error getting metadata:', metadataError);
+        // }
       }
     });
 
