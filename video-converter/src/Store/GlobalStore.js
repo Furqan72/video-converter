@@ -57,11 +57,11 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
     });
   };
 
-  const username = ref();
-  const useremail = ref();
-
   //  sending and receiving data from the server
   const sendVideoFile = async (formData, convert) => {
+    // console.log('Form Data +-?> ' + formData);
+    console.log(formData);
+
     axios
       .post('https://video-converter-api.vercel.app/test', formData, {
         headers: {
@@ -79,7 +79,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
         console.log(response.data.options.message);
 
         //
-        // downloadUrlFromNode.value = 'https://video-converter-api.vercel.app/./temp-output/converted-image-1kb.png';
+        // downloadUrlFromNode.value = 'http://localhost:4000/./temp-output/converted-image-1kb.png';
         // downloadName.value = 'converted-image-1kb.png';
         // errMessage.value = response.data.options.message;
         // metaData.value = response.data.options.fullVideoData;

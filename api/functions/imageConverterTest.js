@@ -11,6 +11,7 @@ let processedImages = [];
 const extractOptionsFromRequest = (req) => {
   const options = {
     // inputFile: req.files.uploadFile,
+    // manu: req.,
     selectMenuValues: req.body.selectMenu,
     fileWidth: req.body.width,
     fileHeight: req.body.height,
@@ -19,6 +20,7 @@ const extractOptionsFromRequest = (req) => {
     orientValue: req.body.orient,
     qualityValue: req.body.quality,
   };
+  console.log('OPTIONS = ');
   console.log(options);
   return options;
 };
@@ -153,14 +155,15 @@ const configureEditingOptions = async (command, options, metadata) => {
 };
 
 const imageConversionFunctionWithSharp = async (req, res) => {
+  await deleteProcessedFiles();
+
+  const editingoptions = extractOptionsFromRequest(req);
   try {
-    await deleteProcessedFiles();
-
-    const editingoptions = extractOptionsFromRequest(req);
-
     const inputPath = 'temp-files/image-1kb.jpg';
     processedImages.push(inputPath);
 
+    const imageName = `converted-image-1kb${editingoptions.selectMenuValues}`;
+    console.log(imageName);
     const outputPath = `./temp-output/converted-image-1kb${editingoptions.selectMenuValues}`;
     globalFunctions.fileName = 'sampelimg1' + editingoptions.selectMenuValues;
     processedImages.push(outputPath);
@@ -190,7 +193,7 @@ const imageConversionFunctionWithSharp = async (req, res) => {
     console.log('and still running...........22');
     sharpCommand.end();
 
-    return { downloadUrl: outputPath, fileName: 'converted-image-1kb' + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData };
+    return { downloadUrl: outputPath, fileName: imageName, message: errorMessages, fullVideoData: completeData };
   } catch (error) {
     console.error('An error occurred in the last try catch:', error);
   }

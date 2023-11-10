@@ -10,6 +10,7 @@
 
       <!-- Upload -->
       <!-- <ReuseableFileUpload :loading-bar="GlobalData.uploadLoading" :file-size="GlobalData.fileSize" :selected-format="GlobalData.selectedImageFileFormat" :size-limit="GlobalData.fileSizeExceeded" :check-format="GlobalData.formatCheck" /> -->
+      {{ 'what is this' }}
 
       <!-- Options -->
       <div class="mx-auto h-full bg-[#f9f9f9ff] px-28">
@@ -25,11 +26,8 @@
 
 <script setup>
 import { ref } from 'vue';
-import axios from 'axios';
-import io from 'socket.io-client';
 
 // components
-// import FileUploadComponent from '../../components/FileUploadComponent.vue';
 import ReuseableFileUpload from '../../components/reuseableComponents/ReuseableFileUpload.vue';
 import SelectImageFormat from '../../../src/components/ImageCovnersionOptions/SelectImageFormat.vue';
 import EditingOptions from '../../../src/components/ImageCovnersionOptions/EditingOptions.vue';
@@ -39,31 +37,26 @@ import ConvertDownloadComponent from '../ConvertDownloadComponent.vue';
 import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 
-// const moduleUrl = import.meta.env.VITE_ROOT_URL;
 const show2 = ref(false);
-const imageSocket = ref(null);
 
 const sendImageFile = async () => {
-  // imageSocket.value = io('https://video-converter-api.vercel.app');
-
-  // imageSocket.value.emit('startConversion');
-
-  // sending form data via Axios
   const form = document.querySelector('form');
   const formData = new FormData(form);
 
-  // console.log(formData);
+  const requiredFields = ['selectMenu', 'width', 'height', 'fit' /* Add other required fields here */];
+  const missingFields = requiredFields.filter((field) => !formData.has(field));
 
-  // GlobalData.socketCheck(imageSocket.value);
+  if (missingFields.length > 0) {
+    console.error(`Missing required fields: ${missingFields.join(', ')}`);
+    errMessage.value = `Missing required fields: ${missingFields.join(', ')}`;
+    return;
+  } else {
+    console.log('nothing is missing');
+  }
 
   try {
     await GlobalData.sendVideoFile(formData, 'image-convert');
-    // console.log('newData: ', GlobalData.metaData);
-
-    // imageSocket.value.on('endConversion', () => {
-    //   imageSocket.value.disconnect();
-    //   console.log('Conversion is completed. Disconnecting socket...');
-    // });
+    console.log('newData: ', GlobalData.metaData);
   } catch (error) {
     console.error('An error occurred:', error);
   }
