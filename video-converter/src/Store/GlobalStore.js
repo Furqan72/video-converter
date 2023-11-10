@@ -61,6 +61,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
   const sendVideoFile = async (formData, convert) => {
     // console.log('Form Data +-?> ' + formData);
     console.log(formData);
+    console.log(formData.get('width'));
 
     axios
       .post('https://video-converter-api.vercel.app/test', formData, {

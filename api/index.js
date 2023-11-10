@@ -53,7 +53,7 @@ app.use(
 //   res.end();
 // });
 
-app.post('/test', async (req, res) => {
+app.post('/test', async (req, res, next) => {
   console.log('Requesstionediej::::: ');
   console.log(req.body);
 
@@ -61,7 +61,7 @@ app.post('/test', async (req, res) => {
   console.log(reqiredData);
   // res.json({ options: reqiredData });
   res.send({ options });
-  // next();
+  next();
 });
 
 server.listen(4000, () => {
