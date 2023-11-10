@@ -76,16 +76,16 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
         console.log(response.data.options);
 
         // downloadUrlFromNode.value = 'https://video-converter-api.vercel.app/./temp-output/converted-image-1kb.png';
-        downloadUrlFromNode.value = 'https://video-converter-api.vercel.app/' + response.data.options.downloadUrl;
-        downloadName.value = response.data.options.fileName;
+        // downloadUrlFromNode.value = 'https://video-converter-api.vercel.app/' + response.data.options.downloadUrl;
+        // downloadName.value = response.data.options.fileName;
         // downloadName.value = 'converted-image-1kb.png';
         // errMessage.value = response.data.options.message;
         // metaData.value = response.data.options.fullVideoData;
         // console.log('1 => ' + downloadName.value);
         // console.log('2 => ' + errMessage.value);
 
-        // username.value = response.data.options;
-        // console.log(username.value);
+        username.value = response.data.options;
+        console.log(username.value);
       })
       .catch((error) => {
         console.error('An error occurred:', error);
