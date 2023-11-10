@@ -59,16 +59,16 @@ app.post('/test', async (req, res) => {
   console.log(req.body);
 
   let metadata, options;
-  sharp('temp-files/image-1kb.jpg')
+  sharp('temp-files/SampleJPGImage_50kbmb_-_Copy_2_1.jpg')
     .toFormat('png')
-    .toFile('./temp-output/converted-image-1kb.png', async (err, info) => {
+    .toFile('./temp-output/converted-SampleJPGImage_50kbmb_-_Copy_2_1.png', async (err, info) => {
       if (err) {
         console.error('Error converting file:', err);
       } else {
         console.log('File converted:', info);
 
         try {
-          metadata = await sharp('./temp-output/converted-image-1kb.png').metadata();
+          metadata = await sharp('./temp-output/converted-SampleJPGImage_50kbmb_-_Copy_2_1.png').metadata();
           console.log('Metadata of the converted image:', metadata);
         } catch (metadataError) {
           console.error('Error getting metadata:', metadataError);
