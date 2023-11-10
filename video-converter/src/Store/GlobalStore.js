@@ -42,18 +42,18 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
   const progressElement = ref(0);
 
   // socket events for client side
-  const socketCheck = (ioSocket) => {
-    // progess
-    ioSocket.on('progress', (progressPercent) => {
-      progressElement.value = progressPercent;
-    });
+  const socketCheck = (imageSocket) => {
     // messages from server
-    ioSocket.on('message', (message) => {
+    imageSocket.on('message', (message) => {
       errMessage.value = message;
     });
     // errors from server
-    ioSocket.on('errMessage', (errorMessage) => {
+    imageSocket.on('errMessage', (errorMessage) => {
       errMessage.value = errorMessage;
+    });
+    // progess
+    imageSocket.on('progress', (progressPercent) => {
+      progressElement.value = progressPercent;
     });
   };
 
@@ -63,7 +63,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
   //  sending and receiving data from the server
   const sendVideoFile = async (formData, convert) => {
     axios
-      .post('http://localhost:4000/' + convert, formData, {
+      .post('https://video-converter-api.vercel.app/test', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -73,12 +73,19 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
         },
       })
       .then((response) => {
-        downloadUrlFromNode.value = 'http://localhost:4000/' + response.data.downloadUrl;
-        downloadName.value = response.data.fileName;
-        errMessage.value = response.data.message;
-        metaData.value = response.data.fullVideoData;
-        console.log('1 => ' + downloadName.value);
-        console.log('2 => ' + errMessage.value);
+        console.log(response.data.options);
+
+        downloadUrlFromNode.value = 'https://video-converter-api.vercel.app/./temp-output/image-1kb.png';
+        // downloadUrlFromNode.value = 'https://video-converter-api.vercel.app/' + response.data.options.downloadUrl;
+        downloadName.value = response.data.options.fileName;
+        downloadName.value = 'image-1kb.jpg';
+        // errMessage.value = response.data.options.message;
+        // metaData.value = response.data.options.fullVideoData;
+        // console.log('1 => ' + downloadName.value);
+        // console.log('2 => ' + errMessage.value);
+
+        // username.value = response.data.options;
+        // console.log(username.value);
       })
       .catch((error) => {
         console.error('An error occurred:', error);
@@ -102,7 +109,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
     imageSelectedFormat,
     allErrors,
     progressElement,
-    // ioSocket,
+    // imageSocket,
 
     // functions
     // updateSelectedFormat,
