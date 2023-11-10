@@ -4,6 +4,7 @@ const http = require('http');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
+const sharp = require('sharp');
 
 // routes
 const router = require('./router');
@@ -54,15 +55,37 @@ app.use(
 // });
 
 app.post('/test', async (req, res, next) => {
-  console.log('Requesstionediej::::: ');
+  console.log('Requesstionediej ');
   console.log(req.body);
 
-  const reqiredData = await imageConverterTest.imageConversionFunctionWithSharp(req, res);
-  console.log(reqiredData);
+  sharp('./temp-files/converted-image-1kb.jpg')
+    .toFormat('png')
+    .toFile('./temp-output/converted-image-1kb.png', (err, info) => {
+      if (err) {
+        console.error('Error converting file:', err);
+      } else {
+        console.log('File converted:', info);
+      }
+    });
+
+  const options = 'file converted.................';
+  // const reqiredData = await imageConverterTest.imageConversionFunctionWithSharp(req, res);
+  // console.log(reqiredData);
   // res.json({ options: reqiredData });
-  res.send({ options });
+  res.send(options);
   next();
 });
+
+// app.post('/test', async (req, res, next) => {
+//   console.log('Requesstionediej::::: ');
+//   console.log(req.body);
+
+//   const reqiredData = await imageConverterTest.imageConversionFunctionWithSharp(req, res);
+//   console.log(reqiredData);
+//   // res.json({ options: reqiredData });
+//   res.send({ options });
+//   next();
+// });
 
 server.listen(4000, () => {
   console.log('server running on 4000 port');
