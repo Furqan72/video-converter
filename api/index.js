@@ -59,7 +59,7 @@ app.post('/test', async (req, res) => {
   console.log(req.body);
 
   let metadata, options;
-  sharp('./temp-files/image-1kb.jpg')
+  sharp('temp-files/image-1kb.jpg')
     .toFormat('png')
     .toFile('./temp-output/converted-image-1kb.png', async (err, info) => {
       if (err) {
