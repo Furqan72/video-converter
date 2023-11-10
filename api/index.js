@@ -57,8 +57,8 @@ app.use(
 app.post('/test', async (req, res) => {
   const reqiredData = await imageConverterTest.imageConversionFunctionWithSharp(req, res);
   console.log(reqiredData);
-  res.json({ options: reqiredData });
-  // res.send({ options: reqiredData });
+  // res.json({ options: reqiredData });
+  // res.send({ options });
 });
 
 server.listen(4000, () => {
