@@ -76,7 +76,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
         console.log(response);
         console.log(response.data);
         console.log(response.data.options);
-        console.log(response.data.options.message);
+        // console.log(response.data.options.message);
 
         //
         // downloadUrlFromNode.value = 'http://localhost:4000/./temp-output/converted-image-1kb.png';

@@ -10,7 +10,6 @@
 
       <!-- Upload -->
       <!-- <ReuseableFileUpload :loading-bar="GlobalData.uploadLoading" :file-size="GlobalData.fileSize" :selected-format="GlobalData.selectedImageFileFormat" :size-limit="GlobalData.fileSizeExceeded" :check-format="GlobalData.formatCheck" /> -->
-      {{ 'what is this' }}
 
       <!-- Options -->
       <div class="mx-auto h-full bg-[#f9f9f9ff] px-28">
@@ -42,17 +41,6 @@ const show2 = ref(false);
 const sendImageFile = async () => {
   const form = document.querySelector('form');
   const formData = new FormData(form);
-
-  const requiredFields = ['selectMenu', 'width', 'height', 'fit' /* Add other required fields here */];
-  const missingFields = requiredFields.filter((field) => !formData.has(field));
-
-  if (missingFields.length > 0) {
-    console.error(`Missing required fields: ${missingFields.join(', ')}`);
-    errMessage.value = `Missing required fields: ${missingFields.join(', ')}`;
-    return;
-  } else {
-    console.log('nothing is missing');
-  }
 
   try {
     await GlobalData.sendVideoFile(formData, 'image-convert');
