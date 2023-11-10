@@ -54,26 +54,43 @@ app.use(
 //   res.end();
 // });
 
-app.post('/test', async (req, res, next) => {
+app.post('/test', async (req, res) => {
   console.log('Requesstionediej ');
   console.log(req.body);
 
-  sharp('./temp-files/converted-image-1kb.jpg')
+  // sharp('./temp-files/converted-image-1kb.jpg')
+  //   .toFormat('png')
+  //   .toFile('./temp-output/converted-image-1kb.png', (err, info) => {
+  //     if (err) {
+  //       console.error('Error converting file:', err);
+  //     } else {
+  //       console.log('File converted:', info);
+  //     }
+  //   });
+
+  let metadata;
+  sharp('temp-files/converted-image-1kb.jpg')
     .toFormat('png')
-    .toFile('./temp-output/converted-image-1kb.png', (err, info) => {
+    .toFile('./temp-output/converted-image-1kb.png', async (err, info) => {
       if (err) {
         console.error('Error converting file:', err);
       } else {
         console.log('File converted:', info);
+
+        try {
+          metadata = await sharp('./temp-output/converted-image-1kb.png').metadata();
+          console.log('Metadata of the converted image:', metadata);
+        } catch (metadataError) {
+          console.error('Error getting metadata:', metadataError);
+        }
       }
     });
-
-  const options = 'file converted.................';
+  // const options = 'file converted.................';
   // const reqiredData = await imageConverterTest.imageConversionFunctionWithSharp(req, res);
   // console.log(reqiredData);
   // res.json({ options: reqiredData });
-  res.send(options);
-  next();
+  res.send(metadata);
+  // next();
 });
 
 // app.post('/test', async (req, res, next) => {
