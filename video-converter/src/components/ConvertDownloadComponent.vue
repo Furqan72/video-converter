@@ -1,5 +1,5 @@
 <template>
-  <pre v-if="allowed">
+  <pre v-if="(allowed = true)">
     {{ GlobalData.downloadUrlFromNode }}
     {{ GlobalData.downloadName }}
     {{ GlobalData.errMessage }}

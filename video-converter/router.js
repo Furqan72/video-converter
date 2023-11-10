@@ -9,8 +9,11 @@ const router = createRouter({
       name: 'Mainlayout',
       component: Mainlayout,
       children: [
-        { path: '/', name: 'VideoConverter', component: () => import('./src/components/VideoCovnersionOptions/VideoConverter.vue') },
-        { path: '/image-converter', name: 'ImageConverter', component: () => import('./src/components/ImageCovnersionOptions/ImageConverter.vue') },
+        { path: '/', name: 'VideoConverter', component: () => import('./src/components/VideoCovnersionOptions/TestVideoConverter.vue') },
+        { path: '/image-converter', name: 'ImageConverter', component: () => import('./src/components/ImageCovnersionOptions/TestImageConverter.vue') },
+
+        // { path: '/', name: 'VideoConverter', component: () => import('./src/components/VideoCovnersionOptions/VideoConverter.vue') },
+        // { path: '/image-converter', name: 'ImageConverter', component: () => import('./src/components/ImageCovnersionOptions/ImageConverter.vue') },
         { path: '/test', name: 'Test', component: () => import('./src/test.vue') },
       ],
     },
