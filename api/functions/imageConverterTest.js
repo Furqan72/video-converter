@@ -98,20 +98,20 @@ const configureMetadataUsingSharp = async (path) => {
   return { errorMessages, completeData };
 };
 
-async function uploadAndHandleFile(file, directory) {
-  return new Promise((resolve, reject) => {
-    const fileDirectory = directory + file.name;
+// async function uploadAndHandleFile(file, directory) {
+//   return new Promise((resolve, reject) => {
+//     const fileDirectory = directory + file.name;
 
-    file.mv(fileDirectory, (err) => {
-      if (err) {
-        console.error('File Upload Error:', err);
-        reject(err);
-      } else {
-        resolve(fileDirectory);
-      }
-    });
-  });
-}
+//     file.mv(fileDirectory, (err) => {
+//       if (err) {
+//         console.error('File Upload Error:', err);
+//         reject(err);
+//       } else {
+//         resolve(fileDirectory);
+//       }
+//     });
+//   });
+// }
 
 const deleteProcessedFiles = async () => {
   console.log('Processed Files ->', processedImages);
@@ -126,7 +126,6 @@ const deleteProcessedFiles = async () => {
       filesToDelete.push(file);
     }
   });
-
   processedImages = [];
 
   try {
@@ -138,56 +137,35 @@ const deleteProcessedFiles = async () => {
 };
 
 const configureEditingOptions = async (command, options, metadata) => {
-  // width x height    // fit= max, scale or crop
   if (options.fileWidth && options.fileHeight) {
     command.resize(Number(options.fileWidth), Number(options.fileHeight), { fit: options.fitValue });
   }
-  // removing EXIF data
   if (options.stripValue === 'yes') {
     command.withMetadata(false);
   }
-  // automatically rotate the image correctly, based on EXIF information
   if (options.orientValue === 'yes') {
     command.rotate();
   }
-  // animation for gif image
-  // if (options.inputFile.name.endsWith('.gif') && options.selectMenuValues === '.gif') {
-  //   command.toFormat('gif');
-  // }
-  // // transparent background
-  // if (metadata.hasAlpha && !(options.inputFile.name.endsWith('.gif') && options.selectMenuValues === '.gif')) {
-  //   command.toFormat('png');
-  // }
+  // transparent background
+  if (metadata.hasAlpha) {
+    command.toFormat('png');
+  }
 };
 
 const imageConversionFunctionWithSharp = async (req, res) => {
-  // io.emit('startConversion');
   try {
     await deleteProcessedFiles();
 
     const editingoptions = extractOptionsFromRequest(req);
 
-    // const inputPath = await uploadAndHandleFile(editingoptions.inputFile, 'temp-files/');
     const inputPath = 'temp-files/image-1kb.jpg';
-    // console.log(inputPath);
     processedImages.push(inputPath);
 
     const outputPath = `./temp-output/converted-image-1kb${editingoptions.selectMenuValues}`;
     globalFunctions.fileName = 'sampelimg1' + editingoptions.selectMenuValues;
     processedImages.push(outputPath);
 
-    let sharpCommand;
-    // if (editingoptions.inputFile.name.endsWith('.gif') && editingoptions.selectMenuValues === '.gif') {
-    //   sharpCommand = sharp(inputPath, { animated: true });
-    // } else {
-    sharpCommand = sharp(inputPath);
-    // }
-
-    // if (editingoptions.inputFile.name.endsWith('.gif') && !(editingoptions.selectMenuValues === '.gif')) {
-    //   sharpCommand.extract({ width: 100, height: 100, left: 0, top: 0 });
-    // }
-
-    // configureSharpEvents(sharpCommand, editingoptions);
+    let sharpCommand = sharp(inputPath);
 
     const { errorMessages, completeData } = await configureMetadataUsingSharp(inputPath);
     // res.json({ downloadUrl: outputPath, fileName: fileNameWithoutExtension + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData });
@@ -198,24 +176,9 @@ const imageConversionFunctionWithSharp = async (req, res) => {
       return;
     }
 
-    // editing options for the image
     configureEditingOptions(sharpCommand, editingoptions, completeData);
 
     // saving file
-    // if (editingoptions.inputFile.name.endsWith('.gif') && editingoptions.selectMenuValues === '.gif') {
-    //   sharpCommand.toBuffer((err, outputBuffer, info) => {
-    //     if (err) {
-    //       console.log('File conversion error:', info);
-    //       console.error('Error converting file:', err);
-    //     } else {
-    //       console.log('File converted: >>+++++++>>', outputPath);
-    //       fs.writeFileSync(outputPath, outputBuffer);
-    //       // sharpCommand.toFile
-    //     }
-    //   });
-    // } else{
-
-    // }
     sharpCommand.toFile(outputPath, (err, info) => {
       if (err) {
         console.log('File conversion error:', info);
@@ -224,15 +187,12 @@ const imageConversionFunctionWithSharp = async (req, res) => {
         console.log('File converted: >>>>>>', outputPath);
       }
     });
-    // io.emit('endConversion');
-    // io.emit('disconnectUser');
     console.log('and still running...........22');
     sharpCommand.end();
 
-    return { downloadUrl: outputPath, fileName: 'sampelimg1' + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData };
+    return { downloadUrl: outputPath, fileName: 'converted-image-1kb' + editingoptions.selectMenuValues, message: errorMessages, fullVideoData: completeData };
   } catch (error) {
     console.error('An error occurred in the last try catch:', error);
-    // io.emit('error', error.message);
   }
 };
 
