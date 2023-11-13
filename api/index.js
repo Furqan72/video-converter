@@ -33,12 +33,12 @@ app.use(bodyParser.json());
 app.use(
   fileUpload({
     useTempFiles: true,
-    tempFileDir: './temp-files/',
+    tempFileDir: './tmp/',
   })
 );
 
 app.use(
-  '/temp-output',
+  '/tmp',
   (req, res, next) => {
     const fileName = `${globalFunctions.fileName}`;
     const disposition = `attachment; filename="${fileName}"`;
@@ -46,16 +46,13 @@ app.use(
 
     next();
   },
-  express.static('temp-output')
+  express.static('tmp')
 );
 
 app.post('/test', async (req, res) => {
-  console.log('Requesstionediej ');
-  console.log(req.body);
-
-  const reqiredData = sharp('temp-files/SampleJPGImage_50kbmb_-_Copy_2_1.jpg')
+  const reqiredData = sharp('tmp/image-1kb.jpg')
     .toFormat('png')
-    .toFile('./temp-output/converted-SampleJPGImage_50kbmb_-_Copy_2_1.png', async (err, info) => {
+    .toFile('./tmp/converted-image-1kb.png', async (err, info) => {
       if (err) {
         console.error('Error converting file:', err);
       } else {
@@ -63,17 +60,72 @@ app.post('/test', async (req, res) => {
       }
     });
 
+  // const reqiredData = await sharp('temp-files/image-1kb.jpg').toFormat('png').toBuffer();
+
   console.log('newfile => ' + JSON.stringify(reqiredData, null, 2));
   console.log('newfile => ' + reqiredData.options.fileOut);
 
-  const imageName = 'converted-SampleJPGImage_50kbmb_-_Copy_2_1.png';
+  const imageName = 'converted-image-1kb.png';
   const errorMessages = '';
   const completeData = '';
 
+  res.set('Content-Type', 'image/png');
+  res.set('Content-Disposition', 'attachment; filename="converted-image.png"');
   res.json({ downloadUrl: reqiredData.options.fileOut, fileName: imageName, message: errorMessages, fullVideoData: completeData });
   res.end();
 });
 
-server.listen(8080, () => {
-  console.log('server running on 8080 port');
-});
+if (process.env.NODE_ENV !== 'production') {
+  const server = app.listen(8080, () => {
+    console.log('server running on 8080 port');
+  });
+} else {
+  // For Vercel deployment
+  module.exports = app;
+}
+
+// app.use(
+//   fileUpload({
+//     useTempFiles: true,
+//     tempFileDir: '/tmp/',
+//   })
+// );
+
+// app.use(
+//   '/tmp',
+//   (req, res, next) => {
+//     const fileName = `${globalFunctions.fileName}`;
+//     const disposition = `attachment; filename="${fileName}"`;
+//     res.setHeader('Content-Disposition', disposition);
+
+//     next();
+//   },
+//   express.static('tmp')
+// );
+
+// app.post('/test', async (req, res) => {
+//   try {
+//     const convertedImageBuffer = await sharp('tmp/image-1kb.jpg').toFormat('png').toBuffer();
+//     const imageName = 'converted-image.png';
+
+//     // Set headers for the response
+//     res.set('Content-Type', 'image/png');
+//     res.set('Content-Disposition', `attachment; filename="${imageName}"`);
+
+//     // Send the converted image directly in the response
+//     res.send(convertedImageBuffer);
+//   } catch (error) {
+//     console.error('Error:', error);
+//     res.status(500).send('Internal Server Error');
+//   }
+// });
+
+// // Use this for local development
+// if (process.env.NODE_ENV !== 'production') {
+//   const server = app.listen(8080, () => {
+//     console.log('server running on 8080 port');
+//   });
+// } else {
+//   // For Vercel deployment
+//   module.exports = app;
+// }
