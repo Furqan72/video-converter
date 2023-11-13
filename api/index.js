@@ -72,22 +72,19 @@ app.post('/test', async (req, res) => {
   res.set('Content-Type', 'image/png');
   res.set('Content-Disposition', 'attachment; filename="converted-image.png"');
   res.json({ downloadUrl: reqiredData.options.fileOut, fileName: imageName, message: errorMessages, fullVideoData: completeData });
-  res.end();
 });
 
-// if (process.env.NODE_ENV !== 'production') {
-app.listen(8080, () => {
-  console.log('server running on 8080 port');
-});
-// } else {
-//   module.exports = app;
-// }
+if (process.env.NODE_ENV !== 'production') {
+  const server = app.listen(8080, () => {
+    console.log('server running on 8080 port');
+  });
+} else {
+  module.exports = app;
+}
 
 // app.post('/test', async (req, res) => {
 //     const convertedImageBuffer = await sharp('tmp/image-1kb.jpg').toFormat('png').toBuffer();
 //     const imageName = 'converted-image.png';
-
-//     // Set headers for the response
 //     res.set('Content-Type', 'image/png');
 //     res.set('Content-Disposition', `attachment; filename="${imageName}"`);
 //     res.send(convertedImageBuffer);

@@ -11,5 +11,9 @@
       "src": "/(.*)",
       "dest": "/"
     }
-  ]
+  ],
+  "static": {
+    "prefix": "./temp-output",
+    "source": "static"
+  }
 }
