@@ -62,7 +62,7 @@ app.post('/test', async (req, res) => {
         console.log('File converted:', info);
       }
     });
-  console.log('newfile => ' + JSON.stringify(reqiredData, null, 2));
+
   console.log('newfile => ' + reqiredData.options.fileOut);
   const imageName = 'converted-SampleJPGImage_50kbmb.png';
   const errorMessages = '';
@@ -72,6 +72,7 @@ app.post('/test', async (req, res) => {
   res.json({ downloadUrl: reqiredData.options.fileOut, fileName: imageName, message: errorMessages, fullVideoData: completeData });
 });
 
+// checking for file
 app.get('/processed', async (req, res) => {
   const fileNameToCheck = 'converted-SampleJPGImage_50kbmb.png';
   const filePath = `./tmp/${fileNameToCheck}`;
