@@ -60,10 +60,11 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
   //  sending and receiving data from the server
   const sendVideoFile = async (formData, convert) => {
     // console.log('Form Data +-?> ' + formData);
-    console.log(formData);
+    // console.log(formData);
 
     axios
       .post('https://video-converter-api.vercel.app/test', formData, {
+        // .post('http://localhost:8080/test', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -73,16 +74,19 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
         },
       })
       .then((response) => {
-        console.log(response);
         console.log(response.data);
-        console.log(response.data.options);
-        // console.log(response.data.options.message);
+        // downloadUrlFromNode.value = 'https://video-converter-api.vercel.app/./temp-output/converted-image-1kb.png';
 
-        //
-        downloadUrlFromNode.value = 'https://video-converter-api.vercel.app/./temp-output/converted-image-1kb.png';
-        downloadName.value = 'converted-image-1kb.png';
-        // errMessage.value = response.data.options.message;
-        // metaData.value = response.data.options.fullVideoData;
+        downloadUrlFromNode.value = 'https://video-converter-api.vercel.app/' + response.data.downloadUrl;
+        // downloadUrlFromNode.value = 'http://localhost:8080/' + response.data.downloadUrl;
+        downloadName.value = response.data.fileName;
+        errMessage.value = response.data.message;
+        metaData.value = response.data.fullVideoData;
+
+        console.log(downloadUrlFromNode.value);
+        console.log(downloadName.value);
+        console.log(errMessage.value);
+        console.log(metaData.value);
       })
       .catch((error) => {
         console.error('An error occurred:', error);

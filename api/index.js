@@ -49,53 +49,31 @@ app.use(
   express.static('temp-output')
 );
 
-// app.get('/', (req, res) => {
-//   console.log('Success.....');
-//   res.end();
-// });
-
 app.post('/test', async (req, res) => {
   console.log('Requesstionediej ');
   console.log(req.body);
 
-  let metadata, options;
-  sharp('temp-files/SampleJPGImage_50kbmb_-_Copy_2_1.jpg')
+  const reqiredData = sharp('temp-files/SampleJPGImage_50kbmb_-_Copy_2_1.jpg')
     .toFormat('png')
     .toFile('./temp-output/converted-SampleJPGImage_50kbmb_-_Copy_2_1.png', async (err, info) => {
       if (err) {
         console.error('Error converting file:', err);
       } else {
         console.log('File converted:', info);
-
-        // try {
-        //   metadata = await sharp('./temp-output/converted-SampleJPGImage_50kbmb_-_Copy_2_1.png').metadata();
-        //   console.log('Metadata of the converted image:', metadata);
-        // } catch (metadataError) {
-        //   console.error('Error getting metadata:', metadataError);
-        // }
       }
     });
 
-  if (metadata && Object.keys(metadata).length > 0) {
-    options = 'Metadata is not empty:';
-  } else {
-    options = 'Metadata is empty or undefined.';
-  }
+  console.log('newfile => ' + JSON.stringify(reqiredData, null, 2));
+  console.log('newfile => ' + reqiredData.options.fileOut);
 
-  res.send(options);
+  const imageName = 'converted-SampleJPGImage_50kbmb_-_Copy_2_1.png';
+  const errorMessages = '';
+  const completeData = '';
+
+  res.json({ downloadUrl: reqiredData.options.fileOut, fileName: imageName, message: errorMessages, fullVideoData: completeData });
+  res.end();
 });
 
-// app.post('/test', async (req, res, next) => {
-//   console.log('Requesstionediej::::: ');
-//   console.log(req.body);
-
-//   const reqiredData = await imageConverterTest.imageConversionFunctionWithSharp(req, res);
-//   console.log(reqiredData);
-//   // res.json({ options: reqiredData });
-//   res.send({ options });
-//   next();
-// });
-
-server.listen(4000, () => {
-  console.log('server running on 4000 port');
+server.listen(8080, () => {
+  console.log('server running on 8080 port');
 });
