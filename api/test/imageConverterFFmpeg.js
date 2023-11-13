@@ -37,7 +37,7 @@ const configureFFmpegEvents = (command, io, res) => {
       // io.emit('progress', progressPercent);
       // io.on('endConversion', () => {
         console.log('A Conversion has ended.');
-      });
+      // });
       console.log('message', 'Conversion Finished.');
     })
     .on('error', (err, stdout, stderr) => {
@@ -67,7 +67,7 @@ const configureFFmpegEvents = (command, io, res) => {
         console.error('An error occurred while handling the FFmpeg error:', error);
       }
     });
-};
+// };
 
 // Define the upload function
 // const uploadFile = async (file, uploadDirectory) => {
@@ -364,3 +364,44 @@ const imageConversionFunctionWithFFmpeg = async (req, res, io) => {
 // };
 
 module.exports = { imageConversionFunctionWithFFmpeg };
+// --
+
+// -
+// -
+// -
+// -
+// most updated code
+app.post('/test', async (req, res, next) => {
+  const filePathInput = 'temp-files/giffy.gif';
+  const filePathOutput = 'temp-output/converted-giffy.gif';
+  const imageName = 'converted-giffy.png';
+
+  const command = new ffmpeg(filePathInput)
+    .inputFormat('gif')
+    .videoCodec('gif')
+    .on('start', () => {
+      console.log('message', 'Conversion Started.');
+    })
+    .on('progress', (progress) => {
+      if (progress.percent !== undefined) {
+        const progressPercent = progress.percent.toFixed(2);
+        console.log(progressPercent);
+      }
+    })
+    .on('end', () => {
+      console.log('message', 'Conversion Finished.');
+    })
+    .on('error', (err, stdout, stderr) => {
+      try {
+        console.error('An error occurred while handling the FFmpeg error:', err);
+        console.error('FFmpeg error: ', stdout);
+        console.error('FFmpeg error: ', stderr);
+      } catch (error) {
+        res.status(500).send('Conversion Error: ' + error);
+      }
+    });
+
+  res.json({ downloadUrl: filePathOutput, fileName: imageName });
+  command.save(filePathOutput);
+});
+});

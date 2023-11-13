@@ -4,6 +4,7 @@ const http = require('http');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
+// const ffmpeg = require('fluent-ffmpeg');
 const sharp = require('sharp');
 const fs = require('fs');
 
@@ -34,14 +35,14 @@ app.use(bodyParser.json());
 app.use(
   fileUpload({
     useTempFiles: true,
-    tempFileDir: '/tmp/',
+    tempFileDir: '/temp-files/',
   })
 );
 
 app.use('/', router);
 
 app.use(
-  '/tmp',
+  '/temp-output',
   (req, res, next) => {
     const fileName = `${globalFunctions.fileName}`;
     const disposition = `attachment; filename="${fileName}"`;
@@ -49,33 +50,29 @@ app.use(
 
     next();
   },
-  express.static('tmp')
+  express.static('temp-output')
 );
 
 app.post('/test', async (req, res) => {
-  const reqiredData = sharp('tmp/SampleJPGImage_50kbmb.jpg')
-    .toFormat('png')
-    .toFile('tmp/converted-SampleJPGImage_50kbmb.png', async (err, info) => {
-      if (err) {
-        console.error('Error converting file:', err);
-      } else {
-        console.log('File converted:', info);
-      }
-    });
+  const filePathInput = 'temp-files/giffy.gif';
+  const filePathOutput = 'temp-output/converted-giffy.png';
 
-  console.log('newfile => ' + reqiredData.options.fileOut);
-  const imageName = 'converted-SampleJPGImage_50kbmb.png';
-  const errorMessages = '';
-  const completeData = '';
-  res.set('Content-Type', 'image/png');
-  res.set('Content-Disposition', 'attachment; filename="converted-image.png"');
-  res.json({ downloadUrl: reqiredData.options.fileOut, fileName: imageName, message: errorMessages, fullVideoData: completeData });
+  try {
+    await sharp(filePathInput).toFormat('png').toFile(filePathOutput);
+    const imageName = 'converted-giffy.png';
+
+    res.json({ downloadUrl: filePathOutput, fileName: imageName });
+    console.log('Conversion Complete!!');
+  } catch (error) {
+    console.error('Error converting file:', error);
+    res.status(500).send('Error converting file: ', error);
+  }
 });
 
 // checking for file
 app.get('/processed', async (req, res) => {
-  const fileNameToCheck = 'converted-SampleJPGImage_50kbmb.png';
-  const filePath = `./tmp/${fileNameToCheck}`;
+  const fileNameToCheck = 'converted-giffy.png';
+  const filePath = `./temp-output/${fileNameToCheck}`;
 
   fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {
@@ -89,10 +86,7 @@ app.get('/processed', async (req, res) => {
   });
 });
 
-if (process.env.NODE_ENV !== 'production') {
-  const server = app.listen(8080, () => {
-    console.log('server running on 8080 port');
-  });
-} else {
-  module.exports = app;
-}
+// server
+app.listen(8080, () => {
+  console.log('server running on 8080 port');
+});

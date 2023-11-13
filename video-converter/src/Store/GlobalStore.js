@@ -42,29 +42,26 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
   const progressElement = ref(0);
 
   // socket events for client side
-  const socketCheck = (imageSocket) => {
-    // messages from server
-    imageSocket.on('message', (message) => {
-      errMessage.value = message;
-    });
-    // errors from server
-    imageSocket.on('errMessage', (errorMessage) => {
-      errMessage.value = errorMessage;
-    });
-    // progess
-    imageSocket.on('progress', (progressPercent) => {
-      progressElement.value = progressPercent;
-    });
-  };
+  // const socketCheck = (imageSocket) => {
+  //   // messages from server
+  //   imageSocket.on('message', (message) => {
+  //     errMessage.value = message;
+  //   });
+  //   // errors from server
+  //   imageSocket.on('errMessage', (errorMessage) => {
+  //     errMessage.value = errorMessage;
+  //   });
+  //   // progess
+  //   imageSocket.on('progress', (progressPercent) => {
+  //     progressElement.value = progressPercent;
+  //   });
+  // };
 
   //  sending and receiving data from the server
   const sendVideoFile = async (formData, convert) => {
-    // console.log('Form Data +-?> ' + formData);
-    // console.log(formData);
-
     axios
-      .post('https://video-converter-api.vercel.app/test', formData, {
-        // .post('http://localhost:8080/test', formData, {
+      // .post('https://video-converter-api.vercel.app/test', formData, {
+      .post('http://localhost:8080/test', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -74,21 +71,9 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
         },
       })
       .then((response) => {
-        console.log(response.data);
-
         // downloadUrlFromNode.value = 'https://video-converter-api.vercel.app/' + response.data.downloadUrl;
-        // downloadUrlFromNode.value = 'http://localhost:8080/' + response.data.downloadUrl;
-        downloadUrlFromNode.value = 'https://video-converter-api.vercel.app/tmp/SampleJPGImage_50kbmb.jpg';
-
-        // downloadName.value = response.data.fileName;
-        downloadName.value = 'SampleJPGImage_50kbmb.jpg';
-        errMessage.value = response.data.message;
-        metaData.value = response.data.fullVideoData;
-
-        console.log(downloadUrlFromNode.value);
-        console.log(downloadName.value);
-        console.log(errMessage.value);
-        console.log(metaData.value);
+        downloadUrlFromNode.value = 'http://localhost:8080/' + response.data.downloadUrl;
+        downloadName.value = response.data.fileName;
       })
       .catch((error) => {
         console.error('An error occurred:', error);
@@ -117,6 +102,6 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
     // functions
     // updateSelectedFormat,
     sendVideoFile,
-    socketCheck,
+    // socketCheck,
   };
 });

@@ -2,8 +2,8 @@
   <pre v-if="(allowed = true)">
     {{ GlobalData.downloadUrlFromNode }}
     {{ GlobalData.downloadName }}
-    {{ GlobalData.errMessage }}
-    {{ GlobalData.progressElement }}
+    <!-- {{ GlobalData.errMessage }} -->
+    <!-- {{ GlobalData.progressElement }} -->
   </pre>
   <!-- Convert -->
   <div class="mx-28 flex flex-col items-center justify-center bg-white py-12">
