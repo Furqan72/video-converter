@@ -5,6 +5,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
 const sharp = require('sharp');
+const fs = require('fs');
 
 // routes
 const router = require('./router');
@@ -52,26 +53,39 @@ app.use(
 );
 
 app.post('/test', async (req, res) => {
-  const reqiredData = sharp('tmp/image-1kb.jpg')
+  const reqiredData = sharp('tmp/SampleJPGImage_50kbmb.jpg')
     .toFormat('png')
-    .toFile('tmp/converted-image-1kb.png', async (err, info) => {
+    .toFile('tmp/converted-SampleJPGImage_50kbmb.png', async (err, info) => {
       if (err) {
         console.error('Error converting file:', err);
       } else {
         console.log('File converted:', info);
       }
     });
-
   console.log('newfile => ' + JSON.stringify(reqiredData, null, 2));
   console.log('newfile => ' + reqiredData.options.fileOut);
-
-  const imageName = 'converted-image-1kb.png';
+  const imageName = 'converted-SampleJPGImage_50kbmb.png';
   const errorMessages = '';
   const completeData = '';
-
   res.set('Content-Type', 'image/png');
   res.set('Content-Disposition', 'attachment; filename="converted-image.png"');
   res.json({ downloadUrl: reqiredData.options.fileOut, fileName: imageName, message: errorMessages, fullVideoData: completeData });
+});
+
+app.get('/processed', async (req, res) => {
+  const fileNameToCheck = 'converted-SampleJPGImage_50kbmb.png';
+  const filePath = `./tmp/${fileNameToCheck}`;
+
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      console.error(`File ${fileNameToCheck} does not exist`);
+      res.status(404).send(`File ${fileNameToCheck} does not exist`);
+      return;
+    }
+
+    console.log(`File ${fileNameToCheck} exists`);
+    res.status(200).send(`File ${fileNameToCheck} exists`);
+  });
 });
 
 if (process.env.NODE_ENV !== 'production') {
