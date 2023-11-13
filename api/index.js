@@ -54,7 +54,7 @@ app.use(
 app.post('/test', async (req, res) => {
   const reqiredData = sharp('tmp/image-1kb.jpg')
     .toFormat('png')
-    .toFile('/tmp/converted-image-1kb.png', async (err, info) => {
+    .toFile('tmp/converted-image-1kb.png', async (err, info) => {
       if (err) {
         console.error('Error converting file:', err);
       } else {
