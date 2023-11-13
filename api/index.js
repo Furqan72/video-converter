@@ -37,6 +37,8 @@ app.use(
   })
 );
 
+app.use('/', router);
+
 app.use(
   '/tmp',
   (req, res, next) => {
@@ -60,8 +62,6 @@ app.post('/test', async (req, res) => {
       }
     });
 
-  // const reqiredData = await sharp('temp-files/image-1kb.jpg').toFormat('png').toBuffer();
-
   console.log('newfile => ' + JSON.stringify(reqiredData, null, 2));
   console.log('newfile => ' + reqiredData.options.fileOut);
 
@@ -81,11 +81,3 @@ if (process.env.NODE_ENV !== 'production') {
 } else {
   module.exports = app;
 }
-
-// app.post('/test', async (req, res) => {
-//     const convertedImageBuffer = await sharp('tmp/image-1kb.jpg').toFormat('png').toBuffer();
-//     const imageName = 'converted-image.png';
-//     res.set('Content-Type', 'image/png');
-//     res.set('Content-Disposition', `attachment; filename="${imageName}"`);
-//     res.send(convertedImageBuffer);
-// });

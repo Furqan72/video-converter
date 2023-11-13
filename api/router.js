@@ -30,4 +30,9 @@ router.post('/image-convert', (req, res) => {
   handleConversionRoute(req, res, imageConversionFunctionWithSharp);
 });
 
+router.get('/test', (req, res) => {
+  console.log('working');
+  res.status(200).send('API is working!');
+});
+
 module.exports = router;
