@@ -31,6 +31,7 @@ const router = express.Router();
 // });
 
 router.get('/', (req, res) => {
+  console.log(process.env.NODE_ENV);
   console.log('working');
   res.status(200).send('Default');
 });
