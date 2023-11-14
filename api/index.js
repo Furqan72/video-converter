@@ -89,7 +89,7 @@ app.post('/test', async (req, res) => {
   const imageData = fs.readFileSync(imagePath);
   console.log(imageData);
 
-  const originalurl = await put(inputFilePath, imageData, { access: 'public', contentType: `image/${options.selectMenuValues}`, token: blobReadWriteToken });
+  const originalurl = await put('temp-files/' + options.inputFile.name, imageData, { access: 'public', contentType: `image/${options.selectMenuValues}`, token: blobReadWriteToken });
   console.log(originalurl);
 
   // Convert
@@ -100,7 +100,7 @@ app.post('/test', async (req, res) => {
   // console.log(convertedurl);
 
   // res.json({ downloadUrl: convertedurl.url, originalUrl: originalurl.url });
-  res.json({ downloadUrl: originalurl });
+  res.json({ downloadUrl: originalurl.url, fileName: options.inputFile.name });
   // } catch (error) {
   //   console.log('Conversion Failed !!!!!! >> ' + error);
   // }
@@ -130,6 +130,6 @@ app.get('/processed', async (req, res) => {
 });
 
 // server
-server.listen(4000, () => {
-  console.log(`Server is running on 4000 port`);
+server.listen(8080, () => {
+  console.log(`Server is running on 8080 port`);
 });
