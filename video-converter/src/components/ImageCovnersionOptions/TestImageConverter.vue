@@ -9,7 +9,7 @@
       <SelectImageFormat />
 
       <!-- Upload -->
-      <!-- <ReuseableFileUpload :loading-bar="GlobalData.uploadLoading" :file-size="GlobalData.fileSize" :selected-format="GlobalData.selectedImageFileFormat" :size-limit="GlobalData.fileSizeExceeded" :check-format="GlobalData.formatCheck" /> -->
+      <ReuseableFileUpload :loading-bar="GlobalData.uploadLoading" :file-size="GlobalData.fileSize" :selected-format="GlobalData.selectedImageFileFormat" :size-limit="GlobalData.fileSizeExceeded" :check-format="GlobalData.formatCheck" />
 
       <!-- Options -->
       <div class="mx-auto h-full bg-[#f9f9f9ff] px-28">
@@ -41,6 +41,7 @@ const show2 = ref(false);
 const sendImageFile = async () => {
   const form = document.querySelector('form');
   const formData = new FormData(form);
+  // console.log(formData.get('width'));
 
   try {
     await GlobalData.sendVideoFile(formData, 'image-convert');
