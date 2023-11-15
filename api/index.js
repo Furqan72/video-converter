@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const sharp = require('sharp');
 const multer = require('multer');
 const { put } = require('@vercel/blob');
-const { deleteFile } = require('@vercel/blob');
+const { del } = require('@vercel/blob');
 
 const app = express();
 const server = http.createServer(app);
@@ -40,6 +40,8 @@ app.post('/test', async (req, res) => {
     const fileUrl = await uploadToVercelBlob(req);
     const downloadUrl = fileUrl.url;
 
+    console.log('Done Uploading...');
+
     const options = {
       inputFile: req.file,
       selectMenuValues: req.body.selectMenu,
@@ -52,23 +54,68 @@ app.post('/test', async (req, res) => {
     };
     const filename = options.inputFile.originalname;
 
-    // Download the image from the uploaded URL
     const imageResponse = await fetch(downloadUrl);
-    const imageBuffer = await imageResponse.buffer();
+    // console.log(imageResponse);
+    if (!imageResponse.ok) {
+      throw new Error(`Image download failed with status ${imageResponse.status}`);
+    }
+
+    const imageBuffer = await imageResponse.arrayBuffer();
+    const imageMetadata = await sharp(imageBuffer).metadata();
+
+    const formatWithoutLeadingDot = options.selectMenuValues.slice(1);
 
     // Convert using sharp
-    const webpBuffer = await sharp(imageBuffer).toFormat(options.selectMenuValues).quality(options.qualityValue).toBuffer();
+    // const sharpCommand = await sharp(imageBuffer).toFormat(formatWithoutLeadingDot).toBuffer();
+    const sharpCommand = sharp(imageBuffer);
 
-    // Upload the converted WebP image to Vercel Blob
-    const webpUrl = await put(`${downloadUrl.split('.')[0]}.webp`, webpBuffer, { access: 'public', contentType: 'image/webp', token: blobReadWriteToken });
+    // let sharpCommand;
+    // if (options.inputFile.originalname.endsWith('.gif') && options.selectMenuValues === '.gif') {
+    //   sharpCommand = sharp(imageBuffer, { animated: true });
+    // } else {
+    //   sharpCommand = sharp(imageBuffer);
+    // }
 
-    await deleteFile(fileUrl.url, { token: blobReadWriteToken });
+    if (options.fileWidth && options.fileHeight) {
+      sharpCommand.resize(Number(options.fileWidth), Number(options.fileHeight), { fit: options.fitValue });
+    }
+    if (options.stripValue === 'yes') {
+      sharpCommand.withMetadata(false);
+    }
+    if (options.orientValue === 'yes') {
+      sharpCommand.rotate();
+    }
+    if (options.inputFile.originalname.endsWith('.gif') && options.selectMenuValues === '.gif') {
+      sharpCommand.toFormat('gif');
+    }
+    if (imageMetadata.hasAlpha) {
+      sharpCommand.toFormat('png');
+    }
+
+    sharpCommand.toBuffer();
+
+    console.log('Done Editing...');
+
+    // Upload the converted-image to Vercel Blob
+    const webpUrl = await put(`${downloadUrl.split('.')[0]}${options.selectMenuValues}`, sharpCommand, { access: 'public', contentType: `image/${formatWithoutLeadingDot}`, token: blobReadWriteToken });
+
+    console.log('Done Re-Uploading...');
+
+    del(fileUrl.url, { token: blobReadWriteToken })
+      .then(() => {
+        console.log('Blob deleted');
+      })
+      .catch((error) => {
+        console.error('Error deleting blob', error);
+      });
+
     const deletedFile = fileUrl.url;
+    // const deletedFile = '';
 
-    res.json({ downloadUrl: fileUrl.url, fileName: filename, filedeleted: deletedFile });
+    res.json({ downloadUrl: webpUrl.url, filedeleted: deletedFile });
   } catch (error) {
     console.log(error);
-    // res.status(500).send(error.message);
+    res.status(500).send(error.message);
   }
 });
 
