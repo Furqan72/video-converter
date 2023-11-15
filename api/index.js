@@ -32,11 +32,13 @@ const uploadToVercelBlob = async (req) => {
 const upload = multer().single('uploadFile');
 app.use(upload);
 
+// file limiting
 // const upload = multer({
 //   storage: multer.memoryStorage(),
 //   limits: { fileSize: 1024 * 1024 * 5 }, // 5MB limit
 // }).single('uploadFile');
 // app.use(upload);
+//
 
 // default
 app.get('/', (req, res) => {
