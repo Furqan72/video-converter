@@ -3,8 +3,6 @@ const http = require('http');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
 const { put } = require('@vercel/blob');
 
 const app = express();
@@ -21,16 +19,24 @@ app.use(cors(AllowedDomains));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-const storage = multer.diskStorage({
-  destination: './input-files/',
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  },
-});
+const blobReadWriteToken = 'vercel_blob_rw_EFYOeCFX9EdYVGyD_SJr8uIJfOXt7ydLZ7xYtfAcKkm2Vdj';
 
-const upload = multer({ storage });
+const uploadToVercelBlob = async (req) => {
+  const inputFile = await req.file;
+  console.log(inputFile.buffer);
 
-app.use(upload.single('uploadFile'));
+  const uploadUrl = await put(inputFile.originalname, inputFile.buffer, { access: 'public', contentType: `image/${req.body.selectMenu}`, token: blobReadWriteToken });
+  return uploadUrl;
+};
+
+const upload = multer().single('uploadFile');
+app.use(upload);
+
+// const upload = multer({
+//   storage: multer.memoryStorage(),
+//   limits: { fileSize: 1024 * 1024 * 5 }, // 5MB limit
+// }).single('uploadFile');
+// app.use(upload);
 
 // default
 app.get('/', (req, res) => {
@@ -41,11 +47,10 @@ app.options('/test', cors(AllowedDomains), (req, res) => {
   res.sendStatus(200);
 });
 
-const blobReadWriteToken = 'vercel_blob_rw_EFYOeCFX9EdYVGyD_SJr8uIJfOXt7ydLZ7xYtfAcKkm2Vdj';
-let url;
-
 app.post('/test', async (req, res) => {
   try {
+    const fileUrl = await uploadToVercelBlob(req);
+
     const options = {
       inputFile: req.file,
       selectMenuValues: req.body.selectMenu,
@@ -56,24 +61,12 @@ app.post('/test', async (req, res) => {
       orientValue: req.body.orient,
       qualityValue: req.body.quality,
     };
-    console.log(options);
+    const filename = options.inputFile.originalname;
 
-    const filePath = path.join(__dirname, 'input-files', options.inputFile.originalname);
-    const fileStream = fs.createReadStream(filePath);
-
-    const imageData = fs.readFileSync(filePath);
-    console.log('imageData');
-    console.log(imageData);
-
-    const uploadUrl = await put(filePath, fileStream, { access: 'public', contentType: `image/${options.selectMenuValues}`, token: blobReadWriteToken });
-
-    url = uploadUrl.url;
-
-    console.log(url);
-    res.json({ downloadUrl: url, fileName: options.inputFile.name });
+    res.json({ downloadUrl: fileUrl.url, fileName: filename });
   } catch (error) {
     console.log(error);
-    res.status(200).send('Catch is working!');
+    // res.status(500).send(error.message);
   }
 });
 
