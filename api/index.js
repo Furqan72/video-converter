@@ -46,35 +46,35 @@ const blobReadWriteToken = 'vercel_blob_rw_EFYOeCFX9EdYVGyD_SJr8uIJfOXt7ydLZ7xYt
 let url;
 
 app.post('/test', async (req, res) => {
-  try {
-    const options = {
-      inputFile: req.file,
-      selectMenuValues: req.body.selectMenu,
-      fileWidth: req.body.width,
-      fileHeight: req.body.height,
-      fitValue: req.body.fit,
-      stripValue: req.body.strip,
-      orientValue: req.body.orient,
-      qualityValue: req.body.quality,
-    };
-    console.log(options);
+  // try {
+  const options = {
+    inputFile: req.file,
+    selectMenuValues: req.body.selectMenu,
+    fileWidth: req.body.width,
+    fileHeight: req.body.height,
+    fitValue: req.body.fit,
+    stripValue: req.body.strip,
+    orientValue: req.body.orient,
+    qualityValue: req.body.quality,
+  };
+  console.log(options);
 
-    const filePath = path.join(__dirname, 'temp-files', options.inputFile.originalname);
-    const fileStream = fs.createReadStream(filePath);
+  const filePath = path.join(__dirname, 'input-files', options.inputFile.originalname);
+  const fileStream = fs.createReadStream(filePath);
 
-    const imageData = fs.readFileSync(filePath);
-    console.log('imageData');
-    console.log(imageData);
+  const imageData = fs.readFileSync(filePath);
+  console.log('imageData');
+  console.log(imageData);
 
-    const uploadUrl = await put(filePath, fileStream, { access: 'public', contentType: `image/${options.selectMenuValues}`, token: blobReadWriteToken });
+  const uploadUrl = await put(filePath, fileStream, { access: 'public', contentType: `image/${options.selectMenuValues}`, token: blobReadWriteToken });
 
-    url = uploadUrl.url;
+  url = uploadUrl.url;
 
-    console.log(url);
-    res.json({ downloadUrl: url, fileName: options.inputFile.name });
-  } catch (error) {
-    res.status(200).send('Catch is working!');
-  }
+  console.log(url);
+  res.json({ downloadUrl: url, fileName: options.inputFile.name });
+  // } catch (error) {
+  //   res.status(200).send('Catch is working!');
+  // }
 });
 
 // server
