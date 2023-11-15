@@ -57,6 +57,8 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
   //   });
   // };
 
+  const deletedFile = ref();
+
   //  sending and receiving data from the server
   const sendVideoFile = async (formData, convert) => {
     await axios
@@ -73,6 +75,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
       .then((response) => {
         downloadUrlFromNode.value = response.data.downloadUrl;
         downloadName.value = response.data.fileName;
+        deletedFile.value = response.data.filedeleted;
       })
       .catch((error) => {
         console.error('An error occurred:', error);
@@ -96,6 +99,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
     imageSelectedFormat,
     allErrors,
     progressElement,
+    deletedFile,
     // imageSocket,
 
     // functions

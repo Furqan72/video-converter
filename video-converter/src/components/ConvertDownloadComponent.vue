@@ -2,6 +2,7 @@
   <pre v-if="(allowed = true)">
     {{ GlobalData.downloadUrlFromNode }}
     {{ GlobalData.downloadName }}
+    {{ GlobalData.deletedFile }}
     <!-- {{ GlobalData.errMessage }} -->
     <!-- {{ GlobalData.progressElement }} -->
   </pre>
