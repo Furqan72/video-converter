@@ -67,6 +67,30 @@ async function uploadAndHandleFile(file, directory) {
 }
 
 app.post('/test', async (req, res) => {
+  // const options = {
+  //   inputFile: req.files.uploadFile,
+  //   selectMenuValues: req.body.selectMenu,
+  //   fileWidth: req.body.width,
+  //   fileHeight: req.body.height,
+  //   fitValue: req.body.fit,
+  //   stripValue: req.body.strip,
+  //   orientValue: req.body.orient,
+  //   qualityValue: req.body.quality,
+  // };
+  // console.log(options);
+
+  // const inputFilePath = await uploadAndHandleFile(options.inputFile, 'temp-files/');
+  // console.log(inputFilePath);
+
+  // // try {
+  // // Upload
+  // const imagePath = path.join(__dirname, 'temp-files', options.inputFile.name);
+  // const imageData = fs.readFileSync(imagePath);
+  // console.log(imageData);
+
+  // const originalurl = await put('temp-files/' + options.inputFile.name, imageData, { access: 'public', contentType: `image/${options.selectMenuValues}`, token: blobReadWriteToken });
+  // console.log(originalurl);
+
   const options = {
     inputFile: req.files.uploadFile,
     selectMenuValues: req.body.selectMenu,
@@ -78,32 +102,17 @@ app.post('/test', async (req, res) => {
     qualityValue: req.body.quality,
   };
   console.log(options);
-  // console.log(options.inputFile.name);
-  // const fileDirectory = 'temp-files' + options.inputFile.name;
-  const inputFilePath = await uploadAndHandleFile(options.inputFile, 'temp-files/');
-  console.log(inputFilePath);
 
-  // try {
-  // Upload
-  const imagePath = path.join(__dirname, 'temp-files', options.inputFile.name);
-  const imageData = fs.readFileSync(imagePath);
-  console.log(imageData);
+  // Upload using Vercel FileSystem API
+  const { url } = await vercelFs.createFile({
+    file: options.inputFile.buffer,
+    fileName: options.inputFile.name,
+  });
 
-  const originalurl = await put('temp-files/' + options.inputFile.name, imageData, { access: 'public', contentType: `image/${options.selectMenuValues}`, token: blobReadWriteToken });
-  console.log(originalurl);
+  console.log(url);
+  console.log(url);
 
-  // Convert
-  // convertImageToPNG(tempFilePath, outputFilePath);
-
-  // Upload Again
-  // const convertedurl = put(outputFilePath, 'image!', { access: 'public', compression: 'none', token: blobReadWriteToken });
-  // console.log(convertedurl);
-
-  // res.json({ downloadUrl: convertedurl.url, originalUrl: originalurl.url });
-  res.json({ downloadUrl: originalurl.url, fileName: options.inputFile.name });
-  // } catch (error) {
-  //   console.log('Conversion Failed !!!!!! >> ' + error);
-  // }
+  res.json({ downloadUrl: url, fileName: options.inputFile.name });
 });
 
 // Convert
