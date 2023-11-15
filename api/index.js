@@ -2,12 +2,10 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const fileUpload = require('express-fileupload');
-// const multer = require('multer');
+// const fileUpload = require('express-fileupload');
+const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-const sharp = require('sharp');
-// const axios = require('axios');
 const { put } = require('@vercel/blob');
 
 const app = express();
@@ -24,24 +22,23 @@ app.use(cors(AllowedDomains));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.use(
-  fileUpload({
-    useTempFiles: true,
-    tempFileDir: './temp-files/',
-  })
-);
-
 // app.use(
-//   '/temp-output',
-//   (req, res, next) => {
-//     const fileName = `${globalFunctions.fileName}`;
-//     const disposition = `attachment; filename="${fileName}"`;
-//     res.setHeader('Content-Disposition', disposition);
-
-//     next();
-//   },
-//   express.static('temp-output')
+//   fileUpload({
+//     useTempFiles: true,
+//     tempFileDir: './temp-files/',
+//   })
 // );
+
+const storage = multer.diskStorage({
+  destination: './temp-files/',
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
+
+const upload = multer({ storage });
+
+app.use(upload.single('uploadFile'));
 
 // default
 app.get('/', (req, res) => {
@@ -51,48 +48,9 @@ app.get('/', (req, res) => {
 const blobReadWriteToken = 'vercel_blob_rw_EFYOeCFX9EdYVGyD_SJr8uIJfOXt7ydLZ7xYtfAcKkm2Vdj';
 let url;
 
-async function uploadAndHandleFile(file, directory) {
-  return new Promise((resolve, reject) => {
-    const fileDirectory = directory + file.name;
-
-    file.mv(fileDirectory, (err) => {
-      if (err) {
-        console.error('File Upload Error:', err);
-        reject(err);
-      } else {
-        resolve(fileDirectory);
-      }
-    });
-  });
-}
-
 app.post('/test', async (req, res) => {
-  // const options = {
-  //   inputFile: req.files.uploadFile,
-  //   selectMenuValues: req.body.selectMenu,
-  //   fileWidth: req.body.width,
-  //   fileHeight: req.body.height,
-  //   fitValue: req.body.fit,
-  //   stripValue: req.body.strip,
-  //   orientValue: req.body.orient,
-  //   qualityValue: req.body.quality,
-  // };
-  // console.log(options);
-
-  // const inputFilePath = await uploadAndHandleFile(options.inputFile, 'temp-files/');
-  // console.log(inputFilePath);
-
-  // // try {
-  // // Upload
-  // const imagePath = path.join(__dirname, 'temp-files', options.inputFile.name);
-  // const imageData = fs.readFileSync(imagePath);
-  // console.log(imageData);
-
-  // const originalurl = await put('temp-files/' + options.inputFile.name, imageData, { access: 'public', contentType: `image/${options.selectMenuValues}`, token: blobReadWriteToken });
-  // console.log(originalurl);
-
   const options = {
-    inputFile: req.files.uploadFile,
+    inputFile: req.file,
     selectMenuValues: req.body.selectMenu,
     fileWidth: req.body.width,
     fileHeight: req.body.height,
@@ -103,39 +61,19 @@ app.post('/test', async (req, res) => {
   };
   console.log(options);
 
-  // Upload using Vercel FileSystem API
-  const { url } = await vercelFs.createFile({
-    file: options.inputFile.buffer,
-    fileName: options.inputFile.name,
-  });
+  const filePath = path.join(__dirname, 'temp-files', options.inputFile.originalname);
+  const fileStream = fs.createReadStream(filePath);
+
+  const imageData = fs.readFileSync(filePath);
+  console.log('imageData');
+  console.log(imageData);
+
+  const uploadUrl = await put(filePath, fileStream, { access: 'public', contentType: `image/${options.selectMenuValues}`, token: blobReadWriteToken });
+
+  url = uploadUrl.url;
 
   console.log(url);
-  console.log(url);
-
   res.json({ downloadUrl: url, fileName: options.inputFile.name });
-});
-
-// Convert
-const convertImageToPNG = async (inputFilePath, outputFilePath) => {
-  return new Promise((resolve, reject) => {
-    sharp(inputFilePath).toFormat('png').toFile(outputFilePath).then(resolve).catch(reject);
-  });
-};
-
-// checking for file
-app.get('/processed', async (req, res) => {
-  // const fileNameToCheck = 'converted-giffy.png';
-  // const filePath = path.join(__dirname, 'temp-output', fileNameToCheck);
-
-  fs.access(url, fs.constants.F_OK, (err) => {
-    if (err) {
-      console.error(`File ${fileNameToCheck} does not exist`);
-      res.status(404).send(`File ${fileNameToCheck} does not exist`);
-      return;
-    }
-    console.log(`File ${fileNameToCheck} exists`);
-    res.status(200).send(`File ${fileNameToCheck} exists`);
-  });
 });
 
 // server
