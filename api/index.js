@@ -22,15 +22,8 @@ app.use(cors(AllowedDomains));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// app.use(
-//   fileUpload({
-//     useTempFiles: true,
-//     tempFileDir: './temp-files/',
-//   })
-// );
-
 const storage = multer.diskStorage({
-  destination: './temp-files/',
+  destination: './input-files/',
   filename: (req, file, cb) => {
     cb(null, file.originalname);
   },
@@ -43,6 +36,10 @@ app.use(upload.single('uploadFile'));
 // default
 app.get('/', (req, res) => {
   res.status(200).send('Default');
+});
+
+app.options('/test', cors(AllowedDomains), (req, res) => {
+  res.sendStatus(200);
 });
 
 const blobReadWriteToken = 'vercel_blob_rw_EFYOeCFX9EdYVGyD_SJr8uIJfOXt7ydLZ7xYtfAcKkm2Vdj';
