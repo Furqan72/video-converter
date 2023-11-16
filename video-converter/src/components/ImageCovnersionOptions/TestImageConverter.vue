@@ -38,12 +38,11 @@ import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 const show2 = ref(false);
 
-// let socketLink = io('https://video-converter-api.vercel.app', {
-//   autoConnect: false,
-// });
-
 const socketLink = io('https://video-converter-api.vercel.app:8080', {
   transports: ['websocket'],
+  query: {
+    token: 'vercel_blob_rw_EFYOeCFX9EdYVGyD_SJr8uIJfOXt7ydLZ7xYtfAcKkm2Vdj',
+  },
 });
 
 const sendImageFile = async () => {
