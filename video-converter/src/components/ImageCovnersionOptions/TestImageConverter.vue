@@ -36,10 +36,17 @@ import ConvertDownloadComponent from '../ConvertDownloadComponent.vue';
 // global store
 import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
-
 const show2 = ref(false);
-let socketLink = io('https://video-converter-api.vercel.app', {
-  autoConnect: false,
+
+// let socketLink = io('https://video-converter-api.vercel.app', {
+//   autoConnect: false,
+// });
+
+const socket = io('https://video-converter-api.vercel.app:8080', {
+  transports: ['websocket'],
+  query: {
+    token: '[your-vercel-token]',
+  },
 });
 
 const sendImageFile = async () => {
