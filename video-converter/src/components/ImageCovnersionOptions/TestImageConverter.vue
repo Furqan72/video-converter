@@ -39,15 +39,17 @@ const GlobalData = useGlobalStore();
 
 const show2 = ref(false);
 let socketLink;
+socket = io('https://video-converter-api.vercel.app', {
+  autoConnect: false,
+});
 
 const sendImageFile = async () => {
-  socketLink = io('https://video-converter-api.vercel.app');
   // socketLink = io('http://localhost:8080/');
 
   const form = document.querySelector('form');
   const formData = new FormData(form);
-  // console.log(formData.get('width'));
 
+  await socket.connect();
   GlobalData.socketCheck(socketLink);
 
   try {
@@ -55,33 +57,8 @@ const sendImageFile = async () => {
     console.log('newData: ', GlobalData.metaData);
   } catch (error) {
     console.error('An error occurred:', error);
+  } finally {
+    socket.disconnect();
   }
 };
-
-// const imageSocket = ref(null);
-// let imageSocket;
-
-// const sendImageFile = async () => {
-//   imageSocket = io('http://localhost:4000');
-//   imageSocket.emit('startConversion');
-
-//   // sending form data via Axios
-//   const form = document.querySelector('form');
-//   const formData = new FormData(form);
-
-//   console.log(formData);
-//   GlobalData.socketCheck(imageSocket);
-
-//   try {
-//     await GlobalData.sendVideoFile(formData, 'image-convert');
-//     console.log('newData: ', GlobalData.metaData);
-
-//     imageSocket.on('endConversion', () => {
-//       imageSocket.disconnect();
-//       console.log('Conversion is completed. Disconnecting socket...');
-//     });
-//   } catch (error) {
-//     console.error('An error occurred:', error);
-//   }
-// };
 </script>

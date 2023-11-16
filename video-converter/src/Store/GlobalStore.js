@@ -47,15 +47,6 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
     imageSocket.on('progress', (progressPercent) => {
       progressElement.value = progressPercent.percentage;
     });
-
-    // // messages from server
-    // imageSocket.on('message', (message) => {
-    //   errMessage.value = message;
-    // });
-    // // errors from server
-    // imageSocket.on('errMessage', (errorMessage) => {
-    //   errMessage.value = errorMessage;
-    // });
   };
 
   const deletedFile = ref();
