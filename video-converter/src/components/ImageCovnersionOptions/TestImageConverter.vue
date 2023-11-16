@@ -42,8 +42,8 @@ const show2 = ref(false);
 let eventSource;
 
 const setupSSE = () => {
-  console.log(1);
-  eventSource = new EventSource('http://localhost:8080/sse');
+  const eventSource = new EventSource('https://video-converter-api.vercel.app/sse');
+  // eventSource = new EventSource('http://localhost:8080/sse');
 
   eventSource.addEventListener('progress', (event) => {
     const data = JSON.parse(event.data);
