@@ -42,7 +42,7 @@ const show2 = ref(false);
 //   autoConnect: false,
 // });
 
-const socket = io('https://video-converter-api.vercel.app:8080', {
+const socketLink = io('https://video-converter-api.vercel.app:8080', {
   transports: ['websocket'],
   query: {
     token: '[your-vercel-token]',
