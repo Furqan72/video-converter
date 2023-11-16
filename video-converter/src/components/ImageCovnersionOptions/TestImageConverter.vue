@@ -41,37 +41,37 @@ const GlobalData = useGlobalStore();
 const show2 = ref(false);
 let eventSource;
 
-const setupSSE = () => {
-  const eventSource = new EventSource('https://video-converter-api.vercel.app/sse');
-  // eventSource = new EventSource('http://localhost:8080/sse');
+// const setupSSE = () => {
+//   const eventSource = new EventSource('https://video-converter-api.vercel.app/sse');
+//   // eventSource = new EventSource('http://localhost:8080/sse');
 
-  eventSource.addEventListener('progress', (event) => {
-    const data = JSON.parse(event.data);
-    GlobalData.progressElement = data.percentage;
-    console.log(data.percentage);
-  });
+//   eventSource.addEventListener('progress', (event) => {
+//     const data = JSON.parse(event.data);
+//     GlobalData.progressElement = data.percentage;
+//     console.log(data.percentage);
+//   });
 
-  eventSource.onerror = (error) => {
-    console.error('SSE Error:', error);
-    eventSource.close();
-  };
-};
+//   eventSource.onerror = (error) => {
+//     console.error('SSE Error:', error);
+//     eventSource.close();
+//   };
+// };
 
 const sendImageFile = async () => {
   const form = document.querySelector('form');
   const formData = new FormData(form);
 
-  setupSSE();
+  // setupSSE();
 
   try {
     await GlobalData.sendVideoFile(formData, 'image-convert');
     console.log('newData: ', GlobalData.metaData);
   } catch (error) {
     console.error('An error occurred:', error);
-  } finally {
-    if (eventSource) {
-      eventSource.close();
-    }
+    // } finally {
+    //   if (eventSource) {
+    //     eventSource.close();
+    //   }
   }
 };
 </script>
