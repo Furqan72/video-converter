@@ -48,7 +48,7 @@ const sendImageFile = async () => {
   const form = document.querySelector('form');
   const formData = new FormData(form);
 
-  await socket.connect();
+  socketLink.connect();
   GlobalData.socketCheck(socketLink);
 
   try {
