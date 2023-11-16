@@ -41,7 +41,7 @@ const show2 = ref(false);
 let socketLink;
 
 const sendImageFile = async () => {
-  imageSocket.value = io('https://video-converter-api.vercel.app');
+  socketLink = io('https://video-converter-api.vercel.app');
   // socketLink = io('http://localhost:8080/');
 
   const form = document.querySelector('form');
