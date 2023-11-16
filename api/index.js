@@ -4,8 +4,8 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const sharp = require('sharp');
 const multer = require('multer');
-const { put } = require('@vercel/blob');
-const { del } = require('@vercel/blob');
+const { put, del } = require('@vercel/blob');
+const fetch = require('node-fetch');
 
 const app = express();
 const server = http.createServer(app);
@@ -26,7 +26,6 @@ const blobReadWriteToken = 'vercel_blob_rw_EFYOeCFX9EdYVGyD_SJr8uIJfOXt7ydLZ7xYt
 const upload = multer().single('uploadFile');
 app.use(upload);
 
-// default
 app.get('/', (req, res) => {
   res.status(200).send('Default');
 });
@@ -37,10 +36,12 @@ app.options('/test', cors(AllowedDomains), (req, res) => {
 
 app.post('/test', async (req, res) => {
   try {
-    const fileUrl = await uploadToVercelBlob(req);
-    const downloadUrl = fileUrl.url;
-
+    const [fileUrl] = await Promise.all([uploadToVercelBlob(req)]);
     console.log('Done Uploading...');
+
+    const downloadUrl = fileUrl.url;
+    const imageResponse = await fetch(downloadUrl);
+    console.log('Done Downloading...');
 
     const options = {
       inputFile: req.file,
@@ -52,83 +53,77 @@ app.post('/test', async (req, res) => {
       orientValue: req.body.orient,
       qualityValue: req.body.quality,
     };
-    const filename = options.inputFile.originalname;
 
-    const imageResponse = await fetch(downloadUrl);
-    // console.log(imageResponse);
-    if (!imageResponse.ok) {
-      throw new Error(`Image download failed with status ${imageResponse.status}`);
-    }
-
-    const imageBuffer = await imageResponse.arrayBuffer();
+    const imageBuffer = await imageResponse.buffer();
     const imageMetadata = await sharp(imageBuffer).metadata();
-
     const formatWithoutLeadingDot = options.selectMenuValues.slice(1);
 
-    // Convert using sharp
-    // const sharpCommand = await sharp(imageBuffer).toFormat(formatWithoutLeadingDot).toBuffer();
-    const sharpCommand = sharp(imageBuffer);
+    let sharpCommand = sharp(imageBuffer);
 
-    // let sharpCommand;
-    // if (options.inputFile.originalname.endsWith('.gif') && options.selectMenuValues === '.gif') {
-    //   sharpCommand = sharp(imageBuffer, { animated: true });
-    // } else {
-    //   sharpCommand = sharp(imageBuffer);
-    // }
+    const processingSteps = [
+      async () => {
+        if (options.fileWidth && options.fileHeight) {
+          sharpCommand = sharpCommand.resize(Number(options.fileWidth), Number(options.fileHeight), { fit: options.fitValue });
+        }
+      },
+      async () => {
+        if (options.stripValue === 'yes') {
+          sharpCommand = sharpCommand.withMetadata(false);
+        }
+      },
+      async () => {
+        if (options.orientValue === 'yes') {
+          sharpCommand = sharpCommand.rotate();
+        }
+      },
+      async () => {
+        if (options.inputFile.originalname.endsWith('.gif') && options.selectMenuValues === '.gif') {
+          sharpCommand = sharpCommand.toFormat('gif');
+        }
+      },
+      async () => {
+        if (imageMetadata.hasAlpha) {
+          sharpCommand = sharpCommand.toFormat('png');
+        }
+      },
+    ];
 
-    if (options.fileWidth && options.fileHeight) {
-      sharpCommand.resize(Number(options.fileWidth), Number(options.fileHeight), { fit: options.fitValue });
-    }
-    if (options.stripValue === 'yes') {
-      sharpCommand.withMetadata(false);
-    }
-    if (options.orientValue === 'yes') {
-      sharpCommand.rotate();
-    }
-    if (options.inputFile.originalname.endsWith('.gif') && options.selectMenuValues === '.gif') {
-      sharpCommand.toFormat('gif');
-    }
-    if (imageMetadata.hasAlpha) {
-      sharpCommand.toFormat('png');
-    }
+    // executing all steps in parallel
+    await Promise.all(processingSteps.map((step) => step()));
+    console.log('Done Converting...');
 
-    sharpCommand.toBuffer();
-
-    console.log('Done Editing...');
+    // using streaming to improve efficiency
+    const sharpStream = sharpCommand.on('info', (info) => console.log('Processing progress:', info));
+    console.log(sharpStream);
 
     // Upload the converted-image to Vercel Blob
-    const webpUrl = await put(`${downloadUrl.split('.')[0]}${options.selectMenuValues}`, sharpCommand, { access: 'public', contentType: `image/${formatWithoutLeadingDot}`, token: blobReadWriteToken });
-
+    const webpUrl = await put(`${downloadUrl.split('.')[0]}${options.selectMenuValues}`, sharpStream, {
+      access: 'public',
+      contentType: `image/${formatWithoutLeadingDot}`,
+      token: blobReadWriteToken,
+    });
     console.log('Done Re-Uploading...');
 
-    del(fileUrl.url, { token: blobReadWriteToken })
-      .then(() => {
-        console.log('Blob deleted');
-      })
-      .catch((error) => {
-        console.error('Error deleting blob', error);
-      });
+    res.json({ downloadUrl: webpUrl.url, filedeleted: fileUrl.url, metadata: imageMetadata });
 
-    const deletedFile = fileUrl.url;
-    // const deletedFile = '';
-
-    res.json({ downloadUrl: webpUrl.url, filedeleted: deletedFile });
+    await del(fileUrl.url, { token: blobReadWriteToken });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).send(error.message);
   }
 });
 
-// uploading file
 const uploadToVercelBlob = async (req) => {
-  const inputFile = await req.file;
+  const inputFile = req.file;
   console.log(inputFile.buffer);
 
-  const uploadUrl = await put(inputFile.originalname, inputFile.buffer, { access: 'public', contentType: `image/${req.body.selectMenu}`, token: blobReadWriteToken });
-  return uploadUrl;
+  return put(inputFile.originalname, inputFile.buffer, {
+    access: 'public',
+    contentType: `image/${req.body.selectMenu}`,
+    token: blobReadWriteToken,
+  });
 };
 
-// server
 server.listen(8080, () => {
   console.log(`Server is running on 8080 port`);
 });

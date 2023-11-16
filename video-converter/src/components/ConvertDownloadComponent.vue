@@ -1,5 +1,5 @@
 <template>
-  <pre v-if="(allowed = true)">
+  <pre v-if="allowed">
     {{ GlobalData.downloadUrlFromNode }}
     {{ GlobalData.downloadName }}
     {{ GlobalData.deletedFile }}
@@ -30,7 +30,7 @@
       </div>
     </div>
     <!-- Download -->
-    <a :href="GlobalData.downloadUrlFromNode" id="downloadBtn" :download="GlobalData.downloadName" class="relative mt-3 flex w-44 rounded-lg border-0 bg-green-500 bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:text-white hover:shadow-xl focus:outline-none">
+    <a v-if="GlobalData.downloadUrlFromNode" :href="GlobalData.downloadUrlFromNode" id="downloadBtn" :download="GlobalData.downloadName" class="relative mt-3 flex w-44 rounded-lg border-0 bg-green-500 bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:text-white hover:shadow-xl focus:outline-none">
       <DownloadIcon />
       Download</a
     >

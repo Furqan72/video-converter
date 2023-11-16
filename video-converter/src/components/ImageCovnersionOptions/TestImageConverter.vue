@@ -25,6 +25,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import io from 'socket.io-client';
 
 // components
 import ReuseableFileUpload from '../../components/reuseableComponents/ReuseableFileUpload.vue';
@@ -50,4 +51,31 @@ const sendImageFile = async () => {
     console.error('An error occurred:', error);
   }
 };
+
+// const imageSocket = ref(null);
+// let imageSocket;
+
+// const sendImageFile = async () => {
+//   imageSocket = io('http://localhost:4000');
+//   imageSocket.emit('startConversion');
+
+//   // sending form data via Axios
+//   const form = document.querySelector('form');
+//   const formData = new FormData(form);
+
+//   console.log(formData);
+//   GlobalData.socketCheck(imageSocket);
+
+//   try {
+//     await GlobalData.sendVideoFile(formData, 'image-convert');
+//     console.log('newData: ', GlobalData.metaData);
+
+//     imageSocket.on('endConversion', () => {
+//       imageSocket.disconnect();
+//       console.log('Conversion is completed. Disconnecting socket...');
+//     });
+//   } catch (error) {
+//     console.error('An error occurred:', error);
+//   }
+// };
 </script>
