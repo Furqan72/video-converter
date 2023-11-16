@@ -64,7 +64,7 @@ const sendImageFile = async () => {
   } catch (error) {
     console.error('An error occurred:', error);
   } finally {
-    socket.disconnect();
+    socketLink.disconnect();
   }
 };
 </script>
