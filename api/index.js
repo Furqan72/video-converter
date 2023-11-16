@@ -6,9 +6,11 @@ const sharp = require('sharp');
 const multer = require('multer');
 const { put, del } = require('@vercel/blob');
 const fetch = require('node-fetch');
+const socketIo = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
+const io = socketIo(server);
 
 const AllowedDomains = {
   origin: ['http://localhost:5173', 'https://video-converter2.vercel.app'],
@@ -36,11 +38,15 @@ app.options('/test', cors(AllowedDomains), (req, res) => {
 
 app.post('/test', async (req, res) => {
   try {
+    emitProgress(5);
+
     const [fileUrl] = await Promise.all([uploadToVercelBlob(req)]);
+    emitProgress(20);
     console.log('Done Uploading...');
 
     const downloadUrl = fileUrl.url;
     const imageResponse = await fetch(downloadUrl);
+    emitProgress(40);
     console.log('Done Downloading...');
 
     const options = {
@@ -88,13 +94,14 @@ app.post('/test', async (req, res) => {
       },
     ];
 
+    emitProgress(50);
     // executing all steps in parallel
     await Promise.all(processingSteps.map((step) => step()));
     console.log('Done Converting...');
 
     // using streaming to improve efficiency
     const sharpStream = sharpCommand.on('info', (info) => console.log('Processing progress:', info));
-    console.log(sharpStream);
+    emitProgress(70);
 
     // Upload the converted-image to Vercel Blob
     const webpUrl = await put(`${downloadUrl.split('.')[0]}${options.selectMenuValues}`, sharpStream, {
@@ -102,11 +109,14 @@ app.post('/test', async (req, res) => {
       contentType: `image/${formatWithoutLeadingDot}`,
       token: blobReadWriteToken,
     });
+    emitProgress(90);
     console.log('Done Re-Uploading...');
 
+    emitProgress(100);
     res.json({ downloadUrl: webpUrl.url, filedeleted: fileUrl.url, metadata: imageMetadata });
 
     await del(fileUrl.url, { token: blobReadWriteToken });
+    console.log('Done Deleting Input File...');
   } catch (error) {
     console.error(error);
     res.status(500).send(error.message);
@@ -122,6 +132,10 @@ const uploadToVercelBlob = async (req) => {
     contentType: `image/${req.body.selectMenu}`,
     token: blobReadWriteToken,
   });
+};
+
+const emitProgress = (percentage) => {
+  io.emit('progress', { percentage });
 };
 
 server.listen(8080, () => {

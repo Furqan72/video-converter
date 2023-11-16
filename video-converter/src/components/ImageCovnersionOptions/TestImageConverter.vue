@@ -38,11 +38,17 @@ import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 
 const show2 = ref(false);
+let socketLink;
 
 const sendImageFile = async () => {
+  imageSocket.value = io('https://video-converter-api.vercel.app');
+  // socketLink = io('http://localhost:8080/');
+
   const form = document.querySelector('form');
   const formData = new FormData(form);
   // console.log(formData.get('width'));
+
+  GlobalData.socketCheck(socketLink);
 
   try {
     await GlobalData.sendVideoFile(formData, 'image-convert');

@@ -4,16 +4,15 @@
     {{ GlobalData.downloadName }}
     {{ GlobalData.deletedFile }}
     <!-- {{ GlobalData.errMessage }} -->
-    <!-- {{ GlobalData.progressElement }} -->
+    {{ GlobalData.progressElement }}
   </pre>
   <!-- Convert -->
   <div class="mx-28 flex flex-col items-center justify-center bg-white py-12">
     <p class="my-5 text-center text-xl font-semibold text-red-600" v-if="GlobalData.errMessage">{{ GlobalData.errMessage === ' Conversion failed!!' ? 'Conversion failed!! Try some other editing options or change the video.' : getErrorDescription(GlobalData.errMessage) + ' Conversion failed!!' }}</p>
-    <button type="submit" class="flex w-44 items-center justify-center rounded-lg border-0 bg-[#b53836ff] bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:shadow-xl focus:outline-none" :disabled="GlobalData.fileSizeExceeded === true || GlobalData.markWrongFormat === true || GlobalData.formatCheck === true || (GlobalData.progressElement !== 0 && GlobalData.progressElement !== 100)">
+    <button type="submit" class="flex w-44 items-center justify-center rounded-lg border-0 bg-[#b53836ff] bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:shadow-xl focus:outline-none">
       <ConvertIcon :class="GlobalData.progressElement !== 0 && GlobalData.progressElement !== 100 ? 'rectangle' : ''" />
       <span>Convert</span>
     </button>
-
     <!-- loading -->
     <div class="flex w-full flex-col items-center justify-center py-5" v-if="GlobalData.progressElement !== 0">
       <div class="mt-5 flex h-8 w-96 items-center rounded-full bg-gray-200 px-3 shadow-lg">
@@ -30,7 +29,7 @@
       </div>
     </div>
     <!-- Download -->
-    <a v-if="GlobalData.downloadUrlFromNode" :href="GlobalData.downloadUrlFromNode" id="downloadBtn" :download="GlobalData.downloadName" class="relative mt-3 flex w-44 rounded-lg border-0 bg-green-500 bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:text-white hover:shadow-xl focus:outline-none">
+    <a :href="GlobalData.downloadUrlFromNode" id="downloadBtn" :download="GlobalData.downloadName" class="mt-3 flex w-44 rounded-lg border-0 bg-green-500 bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:text-white hover:shadow-xl focus:outline-none" :class="[GlobalData.progressElement === 100 ? 'flex' : 'hidden', GlobalData.progressElement !== 100 ? 'pointer-events-none' : 'cursor-pointer']">
       <DownloadIcon />
       Download</a
     >
@@ -39,6 +38,8 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
+import io from 'socket.io-client';
+
 // import io from 'socket.io-client';
 // icons
 import DownloadIcon from '../../src/assets/icons/DownloadIcon.vue';
@@ -127,6 +128,12 @@ watch(
     errorMessage.value = getErrorDescription(newErrMessage);
   }
 );
+
+// const imageSocket = io('http://localhost:8080');
+
+// imageSocket.on('progress', (data) => {
+//   console.log(`Conversion Progress: ${data.percentage}%`);
+// });
 </script>
 
 <style scoped>
