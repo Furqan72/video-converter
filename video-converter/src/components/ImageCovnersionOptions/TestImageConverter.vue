@@ -38,8 +38,7 @@ import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 
 const show2 = ref(false);
-let socketLink;
-socket = io('https://video-converter-api.vercel.app', {
+let socketLink = io('https://video-converter-api.vercel.app', {
   autoConnect: false,
 });
 
