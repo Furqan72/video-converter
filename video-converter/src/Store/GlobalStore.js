@@ -42,20 +42,20 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
   const progressElement = ref(0);
 
   // socket events for client side
-  const socketCheck = (imageSocket) => {
-    // progess
-    imageSocket.on('progress', (progressPercent) => {
-      progressElement.value = progressPercent.percentage;
-    });
-  };
+  // const socketCheck = (imageSocket) => {
+  //   // progess
+  //   imageSocket.on('progress', (progressPercent) => {
+  //     progressElement.value = progressPercent.percentage;
+  //   });
+  // };
 
   const deletedFile = ref();
 
   //  sending and receiving data from the server
   const sendVideoFile = async (formData, convert) => {
     await axios
-      .post('https://video-converter-api.vercel.app/test', formData, {
-        // .post('http://localhost:8080/test', formData, {
+      // .post('https://video-converter-api.vercel.app/test', formData, {
+      .post('http://localhost:8080/test', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -98,6 +98,6 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
     // functions
     // updateSelectedFormat,
     sendVideoFile,
-    socketCheck,
+    // socketCheck,
   };
 });

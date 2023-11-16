@@ -6,19 +6,10 @@ const sharp = require('sharp');
 const multer = require('multer');
 const { put, del } = require('@vercel/blob');
 const fetch = require('node-fetch');
-const socketIo = require('socket.io');
+const EventEmitter = require('events');
 
 const app = express();
 const server = http.createServer(app);
-// const io = socketIo(server);
-const io = socketIo(server, {
-  cors: {
-    origin: ['http://localhost:5173', 'https://video-converter2.vercel.app '],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type'],
-    optionsSuccessStatus: 200,
-  },
-});
 
 const AllowedDomains = {
   origin: ['http://localhost:5173', 'https://video-converter2.vercel.app'],
@@ -36,6 +27,27 @@ const blobReadWriteToken = 'vercel_blob_rw_EFYOeCFX9EdYVGyD_SJr8uIJfOXt7ydLZ7xYt
 const upload = multer().single('uploadFile');
 app.use(upload);
 
+const eventEmitter = new EventEmitter();
+
+app.get('/sse', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
+
+  const sendProgress = (percentage) => {
+    console.log(percentage);
+    res.write(`event: progress\ndata: ${JSON.stringify({ percentage })}\n\n`);
+  };
+
+  eventEmitter.on('progress', sendProgress);
+
+  req.on('close', () => {
+    eventEmitter.off('progress', sendProgress);
+    res.end();
+  });
+});
+
 app.get('/', (req, res) => {
   res.status(200).send('Default');
 });
@@ -44,17 +56,24 @@ app.options('/test', cors(AllowedDomains), (req, res) => {
   res.sendStatus(200);
 });
 
+const emitProgress = (res, percentage) => {
+  res.write(`event: progress\ndata: ${JSON.stringify({ percentage })}\n\n`);
+  console.log(percentage);
+};
+
 app.post('/test', async (req, res) => {
   try {
-    emitProgress(5);
+    const sendProgress = (percentage) => emitProgress(res, percentage);
+
+    eventEmitter.emit('progress', 5);
 
     const [fileUrl] = await Promise.all([uploadToVercelBlob(req)]);
-    emitProgress(20);
+    eventEmitter.emit('progress', 20);
     console.log('Done Uploading...');
 
     const downloadUrl = fileUrl.url;
     const imageResponse = await fetch(downloadUrl);
-    emitProgress(40);
+    eventEmitter.emit('progress', 40);
     console.log('Done Downloading...');
 
     const options = {
@@ -102,14 +121,14 @@ app.post('/test', async (req, res) => {
       },
     ];
 
-    emitProgress(50);
+    eventEmitter.emit('progress', 50);
     // executing all steps in parallel
     await Promise.all(processingSteps.map((step) => step()));
     console.log('Done Converting...');
 
     // using streaming to improve efficiency
     const sharpStream = sharpCommand.on('info', (info) => console.log('Processing progress:', info));
-    emitProgress(70);
+    eventEmitter.emit('progress', 70);
 
     // Upload the converted-image to Vercel Blob
     const webpUrl = await put(`${downloadUrl.split('.')[0]}${options.selectMenuValues}`, sharpStream, {
@@ -117,10 +136,10 @@ app.post('/test', async (req, res) => {
       contentType: `image/${formatWithoutLeadingDot}`,
       token: blobReadWriteToken,
     });
-    emitProgress(90);
+    eventEmitter.emit('progress', 90);
     console.log('Done Re-Uploading...');
 
-    emitProgress(100);
+    eventEmitter.emit('progress', 100);
     res.json({ downloadUrl: webpUrl.url, filedeleted: fileUrl.url, metadata: imageMetadata });
 
     await del(fileUrl.url, { token: blobReadWriteToken });
@@ -142,9 +161,11 @@ const uploadToVercelBlob = async (req) => {
   });
 };
 
-const emitProgress = (percentage) => {
-  io.emit('progress', { percentage });
-};
+// const emitProgress = (res, percentage) => {
+//   res.write(`event: progress\ndata: ${JSON.stringify({ percentage })}\n\n`);
+//   console.log(percentage);
+//   // server.emit('progress', { percentage });
+// };
 
 server.listen(8080, () => {
   console.log(`Server is running on 8080 port`);

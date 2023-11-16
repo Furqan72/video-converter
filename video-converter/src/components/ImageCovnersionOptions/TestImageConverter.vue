@@ -24,8 +24,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import io from 'socket.io-client';
+import { ref, onMounted } from 'vue';
+// import EventSource from 'eventsource';
+// import io from 'socket.io-client';
 
 // components
 import ReuseableFileUpload from '../../components/reuseableComponents/ReuseableFileUpload.vue';
@@ -35,24 +36,32 @@ import ConvertDownloadComponent from '../ConvertDownloadComponent.vue';
 
 // global store
 import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
+
 const GlobalData = useGlobalStore();
 const show2 = ref(false);
+let eventSource;
 
-const socketLink = io('https://video-converter-api.vercel.app:8080', {
-  transports: ['websocket'],
-  query: {
-    token: 'vercel_blob_rw_EFYOeCFX9EdYVGyD_SJr8uIJfOXt7ydLZ7xYtfAcKkm2Vdj',
-  },
-});
+const setupSSE = () => {
+  console.log(1);
+  eventSource = new EventSource('http://localhost:8080/sse');
+
+  eventSource.addEventListener('progress', (event) => {
+    const data = JSON.parse(event.data);
+    GlobalData.progressElement = data.percentage;
+    console.log(data.percentage);
+  });
+
+  eventSource.onerror = (error) => {
+    console.error('SSE Error:', error);
+    eventSource.close();
+  };
+};
 
 const sendImageFile = async () => {
-  // socketLink = io('http://localhost:8080/');
-
   const form = document.querySelector('form');
   const formData = new FormData(form);
 
-  socketLink.connect();
-  GlobalData.socketCheck(socketLink);
+  setupSSE();
 
   try {
     await GlobalData.sendVideoFile(formData, 'image-convert');
@@ -60,7 +69,9 @@ const sendImageFile = async () => {
   } catch (error) {
     console.error('An error occurred:', error);
   } finally {
-    socketLink.disconnect();
+    if (eventSource) {
+      eventSource.close();
+    }
   }
 };
 </script>
