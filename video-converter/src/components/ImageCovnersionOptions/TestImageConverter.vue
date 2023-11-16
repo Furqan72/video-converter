@@ -44,9 +44,6 @@ const show2 = ref(false);
 
 const socketLink = io('https://video-converter-api.vercel.app:8080', {
   transports: ['websocket'],
-  query: {
-    token: '[your-vercel-token]',
-  },
 });
 
 const sendImageFile = async () => {
