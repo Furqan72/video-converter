@@ -41,14 +41,6 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
   const allErrors = ref('');
   const progressElement = ref(0);
 
-  // socket events for client side
-  // const socketCheck = (imageSocket) => {
-  //   // progess
-  //   imageSocket.on('progress', (progressPercent) => {
-  //     progressElement.value = progressPercent.percentage;
-  //   });
-  // };
-
   const deletedFile = ref();
 
   //  sending and receiving data from the server
