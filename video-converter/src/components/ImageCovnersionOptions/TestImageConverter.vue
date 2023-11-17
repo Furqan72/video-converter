@@ -64,7 +64,7 @@ const sendImageFile = async () => {
   // setupSSE();
 
   try {
-    await GlobalData.sendVideoFile(formData, 'image-convert');
+    await GlobalData.sendVideoFile(formData, 'image-conversion');
     console.log('newData: ', GlobalData.metaData);
   } catch (error) {
     console.error('An error occurred:', error);

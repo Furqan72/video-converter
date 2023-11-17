@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
+const { imageConversionFunction } = require('./functions/imageConverterTest');
+
 // const { videoConversionFunction } = require('./functions/converter');
 // const { imageConversionFunctionWithSharp } = require('./functions/imageConverter');
 // //
@@ -30,11 +32,8 @@ const router = express.Router();
 //   handleConversionRoute(req, res, imageConversionFunctionWithSharp);
 // });
 
-router.get('/', (req, res) => {
-  console.log(process.env.NODE_ENV);
-  console.log('working');
-  res.status(200).send('Default');
-});
+router.post('/image-conversion', imageConversionFunction);
+
 router.get('/test', (req, res) => {
   console.log('working');
   res.status(200).send('API is working!');
