@@ -3,7 +3,7 @@
     {{ GlobalData.downloadUrlFromNode }}
     {{ GlobalData.downloadName }}
     {{ GlobalData.deletedFile }}
-    <!-- {{ GlobalData.errMessage }} -->
+    {{ GlobalData.errMessage }}
     {{ GlobalData.progressElement }}
   </pre>
   <!-- Convert -->
