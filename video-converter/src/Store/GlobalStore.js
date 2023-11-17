@@ -61,6 +61,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
         // downloadName.value = response.data.fileName;
         deletedFile.value = response.data.filedeleted;
         metaData.value = response.data.metadata;
+        errMessage.value = response.data.errorMessage;
       })
       .catch((error) => {
         console.error('An error occurred:', error);

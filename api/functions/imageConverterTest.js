@@ -7,7 +7,7 @@ const blobReadWriteToken = 'vercel_blob_rw_EFYOeCFX9EdYVGyD_SJr8uIJfOXt7ydLZ7xYt
 const imageConversionFunction = async (req, res) => {
   try {
     const [fileUrl] = await Promise.all([uploadToVercelBlob(req)]);
-    console.log('Done Uploading...');
+    console.log('Done Uploading... ' + [fileUrl]);
 
     const downloadUrl = fileUrl.url;
     const imageResponse = await fetch(downloadUrl);
@@ -89,25 +89,31 @@ const imageConversionFunction = async (req, res) => {
     });
     console.log('Done Re-Uploading...');
 
-    res.json({ downloadUrl: webpUrl.url, filedeleted: fileUrl.url, metadata: imageMetadata });
+    res.json({ downloadUrl: webpUrl.url, filedeleted: fileUrl.url, metadata: imageMetadata, errorMessage: '' });
 
     await del(fileUrl.url, { token: blobReadWriteToken });
     console.log('Done Deleting Input File...');
   } catch (error) {
     console.error(error);
-    res.status(500).send(error.message);
+    res.json({ downloadUrl: '', filedeleted: '', metadata: '', errorMessage: error.message });
   }
 };
 
+// file upload function
 const uploadToVercelBlob = async (req) => {
-  const inputFile = req.file;
-  console.log(inputFile.buffer);
+  try {
+    const inputFile = req.file;
+    console.log(inputFile.buffer);
 
-  return put(inputFile.originalname, inputFile.buffer, {
-    access: 'public',
-    contentType: `image/${req.body.selectMenu}`,
-    token: blobReadWriteToken,
-  });
+    return await put(inputFile.originalname, inputFile.buffer, {
+      access: 'public',
+      contentType: `image/${req.body.selectMenu}`,
+      token: blobReadWriteToken,
+    });
+  } catch (error) {
+    throw new Error(`Error uploading file to Vercel Blob: ${error}`);
+    res.json({ downloadUrl: '', filedeleted: '', metadata: '', errorMessage: 'Error uploading file' });
+  }
 };
 
 module.exports = { imageConversionFunction };
