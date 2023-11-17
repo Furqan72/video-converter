@@ -51,8 +51,8 @@ const imageToCovnertTo = ref([
   { label: 'JPG', value: '.jpg' },
   { label: 'ODD', value: '.odd' },
   { label: 'PNG', value: '.png', selected: '.png' },
-  { label: 'PS', value: '.ps' },
-  { label: 'PSD', value: '.psd' },
+  // { label: 'PS', value: '.ps' },
+  // { label: 'PSD', value: '.psd' },
   { label: 'TIFF', value: '.tiff' },
   { label: 'WEBP', value: '.webp' },
 ]);
