@@ -89,8 +89,11 @@ app.post('/test', async (req, res) => {
     const imageBuffer = await imageResponse.buffer();
     const imageMetadata = await sharp(imageBuffer).metadata();
     const formatWithoutLeadingDot = options.selectMenuValues.slice(1);
-
     let sharpCommand = sharp(imageBuffer);
+
+    if (options.selectMenuValues !== '.odd' && options.selectMenuValues !== '.bmp') {
+      sharpCommand = sharpCommand.toFormat(formatWithoutLeadingDot);
+    }
 
     const processingSteps = [
       async () => {
@@ -118,6 +121,11 @@ app.post('/test', async (req, res) => {
           sharpCommand = sharpCommand.toFormat('png');
         }
       },
+      // async () => {
+      //   if (options.selectMenuValues === '.png' || options.selectMenuValues === '.jpg' || options.selectMenuValues === '.jpeg' || options.selectMenuValues === '.webp') {
+      // sharpCommand = sharpCommand.({ quality: options.qualityValue });
+      //   }
+      // },
     ];
 
     //eventEmitter.emit('progress', 50);
@@ -135,6 +143,7 @@ app.post('/test', async (req, res) => {
       contentType: `image/${formatWithoutLeadingDot}`,
       token: blobReadWriteToken,
     });
+
     //eventEmitter.emit('progress', 90);
     console.log('Done Re-Uploading...');
 
