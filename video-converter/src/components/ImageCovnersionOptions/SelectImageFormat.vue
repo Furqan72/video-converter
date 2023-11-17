@@ -30,7 +30,7 @@ const GlobalData = useGlobalStore();
 
 // formats to convert from
 const imageFormats = ref([
-  // { label: 'GIF', value: '.gif' },
+  { label: 'GIF', value: '.gif' },
   // { label: 'HEIC', value: '.heic' },
   { label: 'ICO', value: '.ico' },
   { label: 'JPEG', value: '.jpeg' },
@@ -46,7 +46,7 @@ const imageFormats = ref([
 const imageToCovnertTo = ref([
   { label: 'BMP', value: '.bmp' },
   // { label: 'EPS', value: '.eps' },
-  // { label: 'GIF', value: '.gif' },
+  { label: 'GIF', value: '.gif' },
   // { label: 'ICO', value: '.ico' },
   { label: 'JPG', value: '.jpg' },
   { label: 'ODD', value: '.odd' },

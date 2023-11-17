@@ -27,13 +27,19 @@ const imageConversionFunction = async (req, res) => {
     const imageBuffer = await imageResponse.buffer();
     const imageMetadata = await sharp(imageBuffer).metadata();
     const formatWithoutLeadingDot = options.selectMenuValues.slice(1);
-    let sharpCommand = sharp(imageBuffer);
+    let sharpCommand;
+    if (options.inputFile.originalname.endsWith('.gif') && options.selectMenuValues === '.gif') {
+      sharpCommand = sharp(imageBuffer, { animated: true });
+    } else {
+      sharpCommand = sharp(imageBuffer);
+    }
 
     const isImageFormat = ['.png', '.jpg', '.jpeg', '.webp'].includes(options.selectMenuValues);
     if (options.selectMenuValues !== '.odd' && options.selectMenuValues !== '.bmp') {
       sharpCommand = sharpCommand.toFormat(formatWithoutLeadingDot);
+      console.log(formatWithoutLeadingDot);
 
-      if (isImageFormat) {
+      if (isImageFormat && options.qualityValue) {
         sharpCommand = sharpCommand.toFormat(formatWithoutLeadingDot, {
           quality: Number(options.qualityValue),
         });
@@ -57,11 +63,6 @@ const imageConversionFunction = async (req, res) => {
         }
       },
       async () => {
-        if (options.inputFile.originalname.endsWith('.gif') && options.selectMenuValues === '.gif') {
-          sharpCommand = sharpCommand.toFormat('gif');
-        }
-      },
-      async () => {
         if (imageMetadata.hasAlpha) {
           sharpCommand = sharpCommand.toFormat('png');
         }
@@ -71,6 +72,11 @@ const imageConversionFunction = async (req, res) => {
     // executing all steps in parallel
     await Promise.all(processingSteps.map((step) => step()));
     console.log('Done Converting...');
+
+    // for maintaining the animation of the Gif file
+    if (options.inputFile.originalname.endsWith('.gif') && options.selectMenuValues === '.gif') {
+      sharpCommand = sharpCommand.gif();
+    }
 
     // using streaming
     const sharpStream = sharpCommand.on('info', (info) => console.log('Processing progress:', info));
