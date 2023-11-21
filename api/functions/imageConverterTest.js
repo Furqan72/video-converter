@@ -83,18 +83,20 @@ const imageConversionFunction = async (req, res) => {
     // using streaming
     const sharpStream = sharpCommand.on('info', (info) => console.log('Processing progress:', info));
 
+    console.log(sharpStream);
+
     // Upload the converted-image to Vercel Blob
     const webpUrl = await put(`${downloadUrl.split('.')[0]}${options.selectMenuValues}`, sharpStream, {
       access: 'public',
       contentType: `image/${formatWithoutLeadingDot}`,
       token: blobReadWriteToken,
     });
-    console.log('Done Re-Uploading...');
+    console.log('Done Re-Uploading...' + webpUrl.url);
 
     res.json({ downloadUrl: webpUrl.url, filedeleted: fileUrl.url, metadata: imageMetadata, errorMessage: '' });
 
     await del(fileUrl.url, { token: blobReadWriteToken });
-    console.log('Done Deleting Input File...');
+    console.log('Done Deleting Input File...' + fileUrl.url);
   } catch (error) {
     console.error(error);
     res.json({ downloadUrl: '', filedeleted: '', metadata: '', errorMessage: error.message });
