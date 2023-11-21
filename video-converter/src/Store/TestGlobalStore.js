@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
 import axios from 'axios';
-import io from 'socket.io-client';
+// import io from 'socket.io-client';
 
 export const useGlobalStore = defineStore('GlobalStore', () => {
   // video

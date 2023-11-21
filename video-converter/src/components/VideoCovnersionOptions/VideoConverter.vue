@@ -44,7 +44,7 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue';
-import io from 'socket.io-client';
+// import io from 'socket.io-client';
 
 // components
 import SelectMenu from '../../../src/components/VideoCovnersionOptions/SelectMenu.vue';

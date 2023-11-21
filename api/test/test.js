@@ -933,5 +933,245 @@ const OptionsOnRequest = (req) => {
 //   console.log(`Server is running on 8080 port`);
 // });
 
+//  ^
+// +-----------------------------------------------------------------------------------------------------------------------------------------+
+//     let subtitleResponse, watermarkResponse;
+//     // subtitle/(.SRT .ART)
+//     const [subtitleUrl] = editingoptions.subtitleFiles ? await Promise.all([uploadToVercelBlob(req.files.subtitleFile)]) : '';
+//     if (subtitleUrl) {
+//       console.log('Done Uploading Subtitles... ' + subtitleUrl.url);
+//       const subtitleDownloadUrl = subtitleUrl.url;
+//       subtitleResponse = await fetch(subtitleDownloadUrl);
+//       console.log('Done Downloading...' + subtitleResponse);}
+
+//     // watermark/image
+//     const [watermarkUrl] = editingoptions.imageWatermark ? await Promise.all([uploadToVercelBlob(req.files.waterMarkImage)]) : '';
+//     if (watermarkUrl) {
+//       console.log('Done Uploading Watermark... ' + watermarkUrl.url);
+//       const watermarkDownloadUrl = watermarkUrl.url;
+//       watermarkResponse = await fetch(watermarkDownloadUrl);
+//       console.log('Done Downloading...' + watermarkResponse);}
+
+// -----------------------------+++++++++                                      +++++++++++++++++++____________________________________
+// if (editingoptions.startingTime && editingoptions.endingTime) {
+//   command.setStartTime(editingoptions.startingTime);
+//   command.setDuration(editingoptions.endingTime - editingoptions.startingTime);
+// }
+
+//
+//
+//
+
+// const processedVideoUrl = await put(`${downloadUrl.split('.')[0]}${req.body.selectMenuValues}`, command.output, {
+//   access: 'public',
+//   contentType: `video/${formatWithoutLeadingDot}`,
+//   token: blobReadWriteToken,
+// });
+
 // most recent ^
 // +-----------------------------------------------------------------------------------------------------------------------------------------+
+
+// Video Configuration
+const configureVideoConversion = (command, options, originalDimensions) => {
+  console.log(`Video resolution ORGINAL DIMENSIONS : ${originalDimensions.width}x${originalDimensions.height}`);
+
+  let filtersForVideo = [];
+  let [width, height] = options.resolution.split('x');
+
+  // copy-codec
+  if (options.videoCOdec === 'copy') {
+    command.videoCodec(options.videoCOdec);
+
+    // videoCodec without 'copy' . using codec other than copy
+  } else {
+    command.videoCodec(options.videoCOdec);
+
+    // resolution is 'no change'
+    if (options.resolution === 'no change') {
+      filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, originalDimensions.width, originalDimensions.height, options.aspectRatio));
+      console.log(`Video resolution ORGINAL DIMENSIONS (condition working ==='no change') : ${originalDimensions.width}x${originalDimensions.height}`);
+
+      // any reolution other than  'no change'
+    } else if (options.resolution !== 'no change') {
+      filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, width, height, options.aspectRatio)); // pre-defined values are all even-numbers
+    }
+
+    if (filtersForVideo[0] && filtersForVideo[0].length > 0) {
+      const complexFilterExpression = filtersForVideo[0].join(';');
+      command.complexFilter(complexFilterExpression);
+    }
+
+    const asyncOptionsFunctions = [
+      async () => {
+        if (options.qualityConstant) {
+          command.addOptions([`-crf ${options.qualityConstant}`]);
+        }
+      },
+      async () => {
+        if (options.tuning && options.tuning !== 'none') {
+          command.addOptions([`-tune ${options.tuning}`]);
+        }
+      },
+      async () => {
+        if (options.profileValue && options.profileValue !== 'none') {
+          command.addOption(`-profile:v ${options.profileValue}`);
+        }
+      },
+      async () => {
+        if (options.levelValue && options.levelValue !== 'none') {
+          command.addOptions([`-level ${options.levelValue}`]);
+        }
+      },
+      async () => {
+        if (options.presetValue) {
+          command.addOptions([`-preset ${options.presetValue}`]);
+        }
+      },
+      async () => {
+        if (options.QscaleValue && options.selectMenuValues === '.wmv') {
+          command.addOption(`-q:v ${options.QscaleValue}`);
+        }
+      },
+      async () => {
+        if (options.framePersecond) {
+          command.addOption('-r', options.framePersecond);
+        }
+      },
+      async () => {
+        if (options.desiredKeyframeInterval) {
+          command.addOption(`-g ${options.desiredKeyframeInterval}`);
+        }
+      },
+      async () => {
+        if (originalDimensions.buffer_size && originalDimensions.max_bitrate) {
+          command.addOptions([`-bufsize ${originalDimensions.buffer_size}`]);
+          command.addOptions([`-maxrate ${originalDimensions.max_bitrate}`]);
+        }
+      },
+    ];
+
+    Promise.all(asyncOptionsFunctions.map((asyncFn) => asyncFn()));
+  }
+};
+
+// Audio Configuration
+const configureAudioConversion = (command, options) => {
+  // audio filter chain
+  let audioFilterValues = '';
+  if (options.AudioCodecSelect !== 'copy' && options.AudioCodecSelect !== 'none') {
+    if (options.videoVolume !== '') {
+      audioFilterValues += `volume=${options.videoVolume},`;
+    }
+    if (options.SampleRate !== '') {
+      audioFilterValues += `asetrate=${options.SampleRate},`;
+    }
+    if (options.audioFilterValues !== '') {
+      audioFilterValues = audioFilterValues.slice(0, -1);
+    }
+  }
+
+  // Audio Settings
+  if (options.AudioCodecSelect === 'none') {
+    command.addOption('-an');
+  } else if (options.AudioCodecSelect === 'copy') {
+    command.audioCodec(options.AudioCodecSelect);
+  } else if (options.AudioCodecSelect !== '') {
+    // Audio Codec
+    command.audioCodec(options.AudioCodecSelect);
+    // audio Bitrate
+    if (options.AudioBitrateValue !== '') {
+      command.audioBitrate(`${options.AudioBitrateValue}`);
+    }
+
+    // audio channels
+    if (options.Channels !== '') {
+      command.audioChannels(`${options.Channels}`);
+    }
+    if (audioFilterValues.length > 0) {
+      command.audioFilter(`${audioFilterValues}`);
+    }
+  }
+};
+
+// Trimming
+const configureMetadataTrimming = async (command, options, path) => {
+  let [errorMessages, checkSubtitles, videoStream, completeData] = ['', false, '', ''];
+
+  try {
+    const metadata = await functions.getVideoMetadata(path);
+    const totalVideoDurationInSeconds = metadata.format.duration;
+    console.log('Video Duration: ', totalVideoDurationInSeconds, 'seconds');
+    checkSubtitles = metadata.streams.some((stream) => stream.codec_type === 'subtitle');
+    videoStream = metadata.streams.find((stream) => stream.codec_type === 'video');
+    completeData = metadata; // all metadata
+
+    let startingInSeconds = functions.parseTime(options.startingTime);
+    let endingInSeconds = functions.parseTime(options.endingTime);
+
+    if (startingInSeconds < 0 || endingInSeconds < 0) {
+      errorMessages = 'Start and end times must be non-negative values.';
+    } else if (startingInSeconds >= endingInSeconds || totalVideoDurationInSeconds <= startingInSeconds || totalVideoDurationInSeconds < endingInSeconds) {
+      errorMessages = 'Invalid start or end time. The duration of this video is ' + totalVideoDurationInSeconds + ' seconds.';
+
+      // trimming
+    } else if (options.startingTime && options.endingTime && options.endingTime !== '00:00:00') {
+      let formattedDuration = functions.formatTime(totalVideoDurationInSeconds);
+      console.log('formattedDuration------>>> ', formattedDuration);
+      let totalDuration = functions.calculateDuration(options.startingTime, options.endingTime);
+
+      console.log('Starting Time (in sec): >>>>>>>>>>>>>>>>>>>  ' + startingInSeconds);
+      console.log('Ending Time (in sec): >>>>>>>>>>>>>>>>>>>  ' + endingInSeconds);
+      console.log('Total Time (Duration): >>>>>>>>>>>>>>>>>>>  ' + totalDuration);
+
+      command.setStartTime(options.startingTime || `00:00:00`);
+      command.setDuration(totalDuration || formattedDuration);
+    }
+  } catch (err) {
+    console.log('not working');
+    errorMessages = 'Error retrieving video metadata. Please try again or upload another file.';
+  }
+
+  return { errorMessages, checkSubtitles, videoStream, completeData };
+};
+
+// WaterMark
+const configurewaterMark = (command, options, path) => {
+  if (options.imageWatermark) {
+    console.log(`checking for the path of watermark image -->> ${path}`);
+    console.log('Image Watermark Path:', path);
+    if (options.resolution === 'no change') {
+      console.log('Applying Watermark without Scaling');
+      command.complexFilter(`[0:v][1:v]overlay=(W-w)/2:(H-h)/2`);
+    } else {
+      console.log('Scaling Watermark and Overlaying');
+      command.complexFilter(`[1:v]scale=150:150 [watermark];[0:v][watermark]overlay=(W-w)/2:(H-h)/2`);
+    }
+    command.input(path);
+  }
+};
+
+// Subtitles
+const configureSubtitles = (command, options, path, checkSubtitles) => {
+  if (options.subtitlesType !== 'none' && options.subtitleFiles) {
+    console.log(checkSubtitles);
+    if (!checkSubtitles) {
+      command.input(path);
+      command.complexFilter(`[0:v]subtitles=${path}:force_style='Fontsize=20'[noPriorSubtitles]`);
+      command.map('[noPriorSubtitles]');
+    } else {
+      console.log('Embedded subtitles exist');
+      if (options.subtitlesType === 'soft') {
+        command.complexFilter('[0:v][0:s]overlay[soft_v]');
+        command.map('[soft_v]');
+      } else if (options.subtitlesType === 'hard') {
+        command.complexFilter(`[0:v][0:s]subtitles=${path}:force_style='Fontsize=20'[hard_v]`);
+        command.map('[hard_v]');
+      } else if (options.subtitlesType === 'copy') {
+        command.addOption('-map', '0:s');
+      }
+    }
+  }
+};
+
+// +-----------------------------------------------------------------------------------------------------------------------------------------+
+//

@@ -42,7 +42,7 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
-import io from 'socket.io-client';
+// import io from 'socket.io-client';
 
 // import io from 'socket.io-client';
 // icons

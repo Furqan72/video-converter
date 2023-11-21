@@ -1,5 +1,5 @@
 const ffmpeg = require('fluent-ffmpeg');
-const socketIo = require('socket.io');
+// const socketIo = require('socket.io');
 
 // functions
 const globalFunctions = require('../global/globalFunctions');
@@ -403,5 +403,4 @@ app.post('/test', async (req, res, next) => {
 
   res.json({ downloadUrl: filePathOutput, fileName: imageName });
   command.save(filePathOutput);
-});
 });

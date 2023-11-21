@@ -6,15 +6,17 @@ const blobReadWriteToken = 'vercel_blob_rw_EFYOeCFX9EdYVGyD_SJr8uIJfOXt7ydLZ7xYt
 
 const imageConversionFunction = async (req, res) => {
   try {
-    const [fileUrl] = await Promise.all([uploadToVercelBlob(req)]);
-    console.log('Done Uploading... ' + [fileUrl]);
+    const [fileUrl] = await Promise.all([uploadToVercelBlob(req.files.uploadFile)]);
+    // const [videoUrl] = await Promise.all([uploadToVercelBlob(req.files.uploadFile)]);
+
+    console.log('Done Uploading... ' + fileUrl.url);
 
     const downloadUrl = fileUrl.url;
     const imageResponse = await fetch(downloadUrl);
     console.log('Done Downloading...');
 
     const options = {
-      inputFile: req.file,
+      inputFile: req.files.uploadFile,
       selectMenuValues: req.body.selectMenu,
       fileWidth: req.body.width,
       fileHeight: req.body.height,
@@ -28,7 +30,7 @@ const imageConversionFunction = async (req, res) => {
     const imageMetadata = await sharp(imageBuffer).metadata();
     const formatWithoutLeadingDot = options.selectMenuValues.slice(1);
     let sharpCommand;
-    if (options.inputFile.originalname.endsWith('.gif') && options.selectMenuValues === '.gif') {
+    if (options.inputFile[0].originalname.endsWith('.gif') && options.selectMenuValues === '.gif') {
       sharpCommand = sharp(imageBuffer, { animated: true });
     } else {
       sharpCommand = sharp(imageBuffer);
@@ -73,8 +75,8 @@ const imageConversionFunction = async (req, res) => {
     await Promise.all(processingSteps.map((step) => step()));
     console.log('Done Converting...');
 
-    // for maintaining the animation of the Gif file
-    if (options.inputFile.originalname.endsWith('.gif') && options.selectMenuValues === '.gif') {
+    // for maintaining the animation of the Gif file >> It should be applied at the very end to not lose the animation of the image file
+    if (options.inputFile[0].originalname.endsWith('.gif') && options.selectMenuValues === '.gif') {
       sharpCommand = sharpCommand.gif();
     }
 
@@ -100,19 +102,16 @@ const imageConversionFunction = async (req, res) => {
 };
 
 // file upload function
-const uploadToVercelBlob = async (req) => {
+const uploadToVercelBlob = async (image) => {
   try {
-    const inputFile = req.file;
-    console.log(inputFile.buffer);
-
-    return await put(inputFile.originalname, inputFile.buffer, {
+    return await put(image[0].originalname, image[0].buffer, {
       access: 'public',
-      contentType: `image/${req.body.selectMenu}`,
+      contentType: image[0].mimetype,
       token: blobReadWriteToken,
     });
   } catch (error) {
-    throw new Error(`Error uploading file to Vercel Blob: ${error}`);
-    res.json({ downloadUrl: '', filedeleted: '', metadata: '', errorMessage: 'Error uploading file' });
+    console.log(error);
+    // res.json({ downloadUrl: '', filedeleted: '', metadata: '', errorMessage: 'Error uploading file' });
   }
 };
 

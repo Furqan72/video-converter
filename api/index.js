@@ -2,11 +2,8 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const sharp = require('sharp');
+// const fileUpload = require('express-fileupload');
 const multer = require('multer');
-const { put, del } = require('@vercel/blob');
-const fetch = require('node-fetch');
-const EventEmitter = require('events');
 
 const app = express();
 const server = http.createServer(app);
@@ -25,7 +22,20 @@ app.use(cors(AllowedDomains));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-const upload = multer().single('uploadFile');
+// app.use(
+//   fileUpload({
+//     useTempFiles: true,
+//     tempFileDir: './temp-files/',
+//   })
+// );
+// app.use('/temp-output', express.static('temp-output'));
+
+// const upload = multer().single('uploadFile');
+const upload = multer().fields([
+  { name: 'uploadFile', maxCount: 1 },
+  { name: 'subtitleFile', maxCount: 1 },
+  { name: 'waterMarkImage', maxCount: 1 },
+]);
 app.use(upload);
 
 app.get('/', (req, res) => {

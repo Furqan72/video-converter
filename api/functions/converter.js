@@ -1,5 +1,5 @@
 const ffmpeg = require('fluent-ffmpeg');
-const socketIo = require('socket.io');
+// const socketIo = require('socket.io');
 
 // functions
 const globalFunctions = require('../global/globalFunctions');

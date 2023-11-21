@@ -26,7 +26,7 @@
 <script setup>
 import { ref } from 'vue';
 import axios from 'axios';
-import io from 'socket.io-client';
+// import io from 'socket.io-client';
 
 // components
 // import FileUploadComponent from '../../components/FileUploadComponent.vue';

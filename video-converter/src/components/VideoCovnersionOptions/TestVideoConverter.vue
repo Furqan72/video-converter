@@ -1,10 +1,10 @@
 <template>
   <div class="bg-[#f9f9f9ff] pb-16">
-    <!-- <div class="fixed bottom-0 right-0 z-50 max-h-[550px] max-w-[550px] overflow-scroll bg-white">
+    <div class="fixed bottom-0 right-0 z-50 max-h-[550px] max-w-[550px] overflow-scroll bg-white">
       <button class="m-3 h-9 w-9 rounded-full bg-red-700" @click="show2 = !show2"></button>
       <pre v-if="show2">{{ meta }}</pre>
       <pre v-if="show2">{{ GlobalData.metaData }}</pre>
-    </div> -->
+    </div>
 
     <form @submit.prevent="sendVideoFile">
       <!-- select format -->
@@ -44,11 +44,9 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue';
-import io from 'socket.io-client';
 
 // components
 import SelectMenu from '../../../src/components/VideoCovnersionOptions/SelectMenu.vue';
-// import FileUploadComponent from '../../components/FileUploadComponent.vue';
 import ReuseableFileUpload from '../../components/reuseableComponents/ReuseableFileUpload.vue';
 import VideoOptionComponent from '../../../src/components/VideoCovnersionOptions/VideoOptionComponent.vue';
 import AudioOptionComponent from '../../../src/components/VideoCovnersionOptions/AudioOptionComponent.vue';
@@ -62,30 +60,16 @@ import ConvertDownloadComponent from '../../components/ConvertDownloadComponent.
 import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 
-// const moduleUrl = import.meta.env.VITE_ROOT_URL;
-
 const meta = ref();
 const show2 = ref(false);
-let videoSocket = null;
 
 const sendVideoFile = async () => {
-  // videoSocket = io('https://video-converter-api.vercel.app/');
-
-  // videoSocket.emit('startConversion');
-
   // Prepare and send the form data via Axios
   const form = document.querySelector('form');
   const formData = new FormData(form);
 
-  // GlobalData.socketCheck(videoSocket);
-
-  await GlobalData.sendVideoFile(formData, 'video-convert').then(() => {
+  await GlobalData.sendVideoFile(formData, 'video-conversion').then(() => {
     console.log('newData: ', GlobalData.metaData);
-
-    // videoSocket.on('endConversion', () => {
-    //   videoSocket.disconnect();
-    //   console.log('Conversion is completed. Disconnecting socket...');
-    // });
   });
 };
 
