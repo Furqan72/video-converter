@@ -1,8 +1,14 @@
-const ffmpeg = require('fluent-ffmpeg');
+const fluentFfmpeg = require('fluent-ffmpeg');
+const ffmpeg = require('ffmpeg-static');
 const { put, del } = require('@vercel/blob');
 const fetch = require('node-fetch');
 
-// // vercel token
+// const ffmpegPath = require('ffmpeg-static').path;
+
+// Set FFmpeg path (if necessary)
+fluentFfmpeg.setFfmpegPath(ffmpeg.path);
+
+// vercel token
 const blobReadWriteToken = 'vercel_blob_rw_EFYOeCFX9EdYVGyD_SJr8uIJfOXt7ydLZ7xYtfAcKkm2Vdj';
 
 // Extracting Options From Request
@@ -42,7 +48,59 @@ const extractOptionsFromRequest = (req) => {
   return options;
 };
 
-// video conversion function
+// // video conversion function
+// const videoConversionFunction = async (req, res) => {
+//   try {
+//     console.log('Process Start....');
+//     const editingoptions = extractOptionsFromRequest(req);
+
+//     const [videoUrl] = await Promise.all([uploadToVercelBlob(req.files.uploadFile)]);
+//     console.log('Done Uploading... ' + videoUrl.url);
+
+//     const downloadUrl = videoUrl.url;
+//     const videoResponse = await fetch(downloadUrl);
+//     console.log('Done Downloading...');
+
+//     const videoStream = await videoResponse.buffer();
+//     const videoMetadata = await getVideoMetadata(downloadUrl);
+//     const formatWithoutLeadingDot = editingoptions.selectMenuValues.slice(1);
+
+//     const command = new ffmpeg(videoStream);
+
+//     if (editingoptions.videoCOdec) {
+//       command.videoCodec(editingoptions.videoCOdec);
+//     }
+
+//     if (editingoptions.AudioCodecSelect) {
+//       command.audioCodec(editingoptions.AudioCodecSelect);
+//     }
+
+//     command.format(formatWithoutLeadingDot);
+//     const ffmpegStream = await command.on('info', (info) => console.log('Processing progress:', info));
+//     console.log('Done Conversion...');
+
+//     const processedVideo = await put(`${downloadUrl.split('.')[0]}${editingoptions.selectMenuValues}`, ffmpegStream.options, {
+//       access: 'public',
+//       contentType: `video/${formatWithoutLeadingDot}`,
+//       token: blobReadWriteToken,
+//     });
+
+//     console.log('Done Re-Uploading...' + processedVideo.url);
+//     res.json({ downloadUrl: processedVideo.url, filedeleted: videoUrl.url, metadata: videoMetadata, errorMessage: '' });
+//     await del(videoUrl.url, { token: blobReadWriteToken });
+
+//     console.log('Done Deleting Input File...' + videoUrl.url);
+//   } catch (error) {
+//     console.error(error);
+//     res.json({ downloadUrl: '', filedeleted: '', metadata: '', errorMessage: error.message });
+//   }
+// };
+
+// const ffmpeg = require('fluent-ffmpeg');
+// const ffmpegPath = require('ffmpeg-static').path;
+// // Set FFmpeg path (no longer necessary if using fluent-ffmpeg >= 2.0.0)
+// ffmpeg.setFfmpegPath(ffmpegPath);
+
 const videoConversionFunction = async (req, res) => {
   try {
     console.log('Process Start....');
@@ -56,10 +114,10 @@ const videoConversionFunction = async (req, res) => {
     console.log('Done Downloading...');
 
     const videoStream = await videoResponse.buffer();
-    const videoMetadata = await getVideoMetadata(downloadUrl);
-    const formatWithoutLeadingDot = editingoptions.selectMenuValues.slice(1);
+    // const videoMetadata = await getVideoMetadata(downloadUrl);
+    // const videoMetadata = await getVideoMetadata(videoStream);
 
-    const command = new ffmpeg(videoStream);
+    const command = fluentFfmpeg(videoStream);
 
     if (editingoptions.videoCOdec) {
       command.videoCodec(editingoptions.videoCOdec);
@@ -69,18 +127,17 @@ const videoConversionFunction = async (req, res) => {
       command.audioCodec(editingoptions.AudioCodecSelect);
     }
 
-    command.format(formatWithoutLeadingDot);
-    const ffmpegStream = await command.on('info', (info) => console.log('Processing progress:', info));
+    const ffmpegStream = command.on('info', (info) => console.log('Processing progress:', info));
     console.log('Done Conversion...');
 
     const processedVideo = await put(`${downloadUrl.split('.')[0]}${editingoptions.selectMenuValues}`, ffmpegStream.options, {
       access: 'public',
-      contentType: `video/${formatWithoutLeadingDot}`,
+      contentType: `video/${editingoptions.selectMenuValues}`,
       token: blobReadWriteToken,
     });
 
     console.log('Done Re-Uploading...' + processedVideo.url);
-    res.json({ downloadUrl: processedVideo.url, filedeleted: videoUrl.url, metadata: videoMetadata, errorMessage: '' });
+    res.json({ downloadUrl: processedVideo.url, filedeleted: videoUrl.url, metadata: '', errorMessage: '' });
     await del(videoUrl.url, { token: blobReadWriteToken });
 
     console.log('Done Deleting Input File...' + videoUrl.url);
@@ -106,15 +163,20 @@ const uploadToVercelBlob = async (file) => {
 };
 
 // getting metadata
-function getVideoMetadata(inputPath) {
+function getVideoMetadata(videoBuffer) {
   return new Promise((resolve, reject) => {
-    ffmpeg.ffprobe(inputPath, (err, metadata) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(metadata);
-      }
-    });
+    const command = new fluentFfmpeg();
+
+    command
+      .input(videoBuffer)
+      .inputFormat('buffer')
+      .ffprobe((err, metadata) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(metadata);
+        }
+      });
   });
 }
 
