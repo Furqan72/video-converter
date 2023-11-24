@@ -3,7 +3,12 @@
   "builds": [
     {
       "src": "./index.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "env": {
+        "FFMPEG_PATH": "/vercel/ffmpeg",
+        "FFPROBE_PATH": "/vercel/ffprobe"
+      },
+      "commands": ["ffmpeg-static -d ffmpeg", "ffprobe-static -d ffprobe"]
     }
   ],
   "routes": [
