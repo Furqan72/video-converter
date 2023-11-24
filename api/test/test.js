@@ -935,23 +935,31 @@ const OptionsOnRequest = (req) => {
 
 //  ^
 // +-----------------------------------------------------------------------------------------------------------------------------------------+
-//     let subtitleResponse, watermarkResponse;
-//     // subtitle/(.SRT .ART)
-//     const [subtitleUrl] = editingoptions.subtitleFiles ? await Promise.all([uploadToVercelBlob(req.files.subtitleFile)]) : '';
-//     if (subtitleUrl) {
-//       console.log('Done Uploading Subtitles... ' + subtitleUrl.url);
-//       const subtitleDownloadUrl = subtitleUrl.url;
-//       subtitleResponse = await fetch(subtitleDownloadUrl);
-//       console.log('Done Downloading...' + subtitleResponse);}
+let subtitleResponse, watermarkResponse;
+// subtitle/(.SRT .ART)
+const [subtitleUrl] = editingoptions.subtitleFiles ? await Promise.all([uploadToVercelBlob(req.files.subtitleFile)]) : '';
+if (subtitleUrl) {
+  console.log('Done Uploading Subtitles... ' + subtitleUrl.url);
+  const subtitleDownloadUrl = subtitleUrl.url;
+  subtitleResponse = await fetch(subtitleDownloadUrl);
+  console.log('Done Downloading...');
+}
 
-//     // watermark/image
-//     const [watermarkUrl] = editingoptions.imageWatermark ? await Promise.all([uploadToVercelBlob(req.files.waterMarkImage)]) : '';
-//     if (watermarkUrl) {
-//       console.log('Done Uploading Watermark... ' + watermarkUrl.url);
-//       const watermarkDownloadUrl = watermarkUrl.url;
-//       watermarkResponse = await fetch(watermarkDownloadUrl);
-//       console.log('Done Downloading...' + watermarkResponse);}
+// watermark/image
+const [watermarkUrl] = editingoptions.imageWatermark ? await Promise.all([uploadToVercelBlob(req.files.waterMarkImage)]) : '';
+if (watermarkUrl) {
+  console.log('Done Uploading Watermark... ' + watermarkUrl.url);
+  const watermarkDownloadUrl = watermarkUrl.url;
+  watermarkResponse = await fetch(watermarkDownloadUrl);
+  console.log('Done Downloading...');
+}
 
+if (subtitleUrl) {
+  await del(subtitleUrl.url, { token: blobReadWriteToken });
+}
+if (watermarkUrl) {
+  await del(watermarkUrl.url, { token: blobReadWriteToken });
+}
 // -----------------------------+++++++++                                      +++++++++++++++++++____________________________________
 // if (editingoptions.startingTime && editingoptions.endingTime) {
 //   command.setStartTime(editingoptions.startingTime);
