@@ -40,7 +40,7 @@ const videoConversionFunction = async (req, res) => {
     const videoStream = await videoResponse.body;
     const outputStream = new PassThrough();
 
-    const command = new fluentFfmpeg();
+    const command = fluentFfmpeg();
     command.input(videoStream);
     command.format(withoutDotSelectMenu);
 
