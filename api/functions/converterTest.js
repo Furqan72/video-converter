@@ -1,14 +1,17 @@
 const fluentFfmpeg = require('fluent-ffmpeg');
 const ffmpegStatic = require('ffmpeg-static');
 const ffprobeStatic = require('ffprobe-static');
+const ffmpegFfprobeStatic = require('ffmpeg-ffprobe-static');
 const { put, del } = require('@vercel/blob');
 const fetch = require('node-fetch');
 const { PassThrough } = require('stream');
 
-fluentFfmpeg.setFfmpegPath(ffmpegStatic);
-fluentFfmpeg.setFfprobePath(ffprobeStatic.path);
-console.log(ffmpegStatic);
-console.log(ffprobeStatic.path);
+fluentFfmpeg.setFfmpegPath(ffmpegFfprobeStatic.ffmpegPath);
+fluentFfmpeg.setFfprobePath(ffmpegFfprobeStatic.ffprobePath);
+// console.log(ffmpegStatic);
+// console.log(ffprobeStatic.path);
+console.log(ffmpegFfprobeStatic.ffmpegPath);
+console.log(ffmpegFfprobeStatic.ffprobePath);
 
 // vercel token
 const blobReadWriteToken = 'vercel_blob_rw_EFYOeCFX9EdYVGyD_SJr8uIJfOXt7ydLZ7xYtfAcKkm2Vdj';
@@ -40,7 +43,7 @@ const videoConversionFunction = async (req, res) => {
     const videoStream = await videoResponse.body;
     const outputStream = new PassThrough();
 
-    const command = fluentFfmpeg();
+    const command = fluentFfmpeg().setFfmpegPath(ffmpegStatic);
     command.input(videoStream);
     command.format(withoutDotSelectMenu);
 
