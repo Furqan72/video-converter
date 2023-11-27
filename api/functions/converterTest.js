@@ -1,17 +1,21 @@
 const fluentFfmpeg = require('fluent-ffmpeg');
-const ffmpegStatic = require('ffmpeg-static');
-const ffprobeStatic = require('ffprobe-static');
-const ffmpegFfprobeStatic = require('ffmpeg-ffprobe-static');
+// const ffmpegStatic = require('ffmpeg-static');
+const ffprobeStatic = require('ffprobe-static').path;
+// const ffmpegFfprobeStatic = require('ffmpeg-ffprobe-static');
+// const ffmpeg = require('@ffmpeg-installer/ffmpeg');
+const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const { put, del } = require('@vercel/blob');
 const fetch = require('node-fetch');
 const { PassThrough } = require('stream');
 
-fluentFfmpeg.setFfmpegPath(ffmpegFfprobeStatic.ffmpegPath);
-fluentFfmpeg.setFfprobePath(ffmpegFfprobeStatic.ffprobePath);
+// ffmpeg.setFfmpegPath(ffmpegPath);
+fluentFfmpeg.setFfprobePath(ffprobeStatic);
+fluentFfmpeg.setFfmpegPath(ffmpegPath);
 // console.log(ffmpegStatic);
 // console.log(ffprobeStatic.path);
-console.log(ffmpegFfprobeStatic.ffmpegPath);
-console.log(ffmpegFfprobeStatic.ffprobePath);
+// console.log(ffmpegFfprobeStatic.ffmpegPath);
+console.log(ffmpegPath);
+console.log(ffprobeStatic);
 
 // vercel token
 const blobReadWriteToken = 'vercel_blob_rw_EFYOeCFX9EdYVGyD_SJr8uIJfOXt7ydLZ7xYtfAcKkm2Vdj';
