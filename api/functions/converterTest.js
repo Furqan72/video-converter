@@ -5,8 +5,11 @@ const { put, del } = require('@vercel/blob');
 const fetch = require('node-fetch');
 const { PassThrough } = require('stream');
 
-fluentFfmpeg.setFfmpegPath('/vercel/ffmpeg');
-fluentFfmpeg.setFfprobePath('/vercel/ffprobe');
+fluentFfmpeg.setFfmpegPath(ffmpegStatic);
+fluentFfmpeg.setFfprobePath(ffprobeStatic.path);
+
+console.log(ffmpegStatic);
+console.log(ffprobeStatic.path);
 
 // vercel token
 const blobReadWriteToken = 'vercel_blob_rw_EFYOeCFX9EdYVGyD_SJr8uIJfOXt7ydLZ7xYtfAcKkm2Vdj';
