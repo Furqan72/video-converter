@@ -5,9 +5,9 @@ const { put, del } = require('@vercel/blob');
 const fetch = require('node-fetch');
 const { PassThrough } = require('stream');
 
-fluentFfmpeg.setFfmpegPath(ffmpegStatic.path);
+fluentFfmpeg.setFfmpegPath(ffmpegStatic);
 fluentFfmpeg.setFfprobePath(ffprobeStatic.path);
-console.log(ffmpegStatic.path);
+console.log(ffmpegStatic);
 console.log(ffprobeStatic.path);
 
 // vercel token
