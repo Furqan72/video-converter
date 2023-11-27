@@ -40,7 +40,7 @@ const videoConversionFunction = async (req, res) => {
     const videoStream = await videoResponse.body;
     const outputStream = new PassThrough();
 
-    const command = fluentFfmpeg();
+    const command = new fluentFfmpeg();
     command.input(videoStream);
     command.format(withoutDotSelectMenu);
 
@@ -65,7 +65,7 @@ const videoConversionFunction = async (req, res) => {
       token: blobReadWriteToken,
     });
 
-    console.log('Done Re-Uploading...' + downloadUrl);
+    console.log('Done Re-Uploading...' + processedVideo.url);
     // await del(videoUrl.url, { token: blobReadWriteToken });
     res.json({ downloadUrl: processedVideo.url, filedeleted: downloadUrl, metadata: videoMetadata, errorMessage: '' });
 
@@ -76,6 +76,7 @@ const videoConversionFunction = async (req, res) => {
   }
 };
 
+// uploading to vercel blob
 const uploadToVercelBlob = async (file) => {
   try {
     return await put(file[0].originalname, file[0].buffer, {
@@ -88,6 +89,7 @@ const uploadToVercelBlob = async (file) => {
   }
 };
 
+// Metadata of the video
 function getVideoMetadata(inputPath) {
   return new Promise((resolve, reject) => {
     fluentFfmpeg.ffprobe(inputPath, (err, metadata) => {
