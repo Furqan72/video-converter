@@ -7,7 +7,6 @@ const { PassThrough } = require('stream');
 
 fluentFfmpeg.setFfmpegPath(ffmpegStatic);
 fluentFfmpeg.setFfprobePath(ffprobeStatic.path);
-
 console.log(ffmpegStatic);
 console.log(ffprobeStatic.path);
 
@@ -27,14 +26,17 @@ const videoConversionFunction = async (req, res) => {
     const withoutDotFileName = editingoptions.inputFile[0].originalname.split('.');
     console.log(withoutDotFileName[0]);
 
-    const [videoUrl] = await Promise.all([uploadToVercelBlob(req.files.uploadFile)]);
-    console.log('Done Uploading... ' + videoUrl.url);
+    // const [videoUrl] = await Promise.all([uploadToVercelBlob(req.files.uploadFile)]);
+    // console.log('Done Uploading... ' + videoUrl.url);
+    // const downloadUrl = videoUrl.url;
 
-    const downloadUrl = videoUrl.url;
-    const videoMetadata = await getVideoMetadata(downloadUrl);
-
+    const downloadUrl = 'https://efyoecfx9edyvgyd.public.blob.vercel-storage.com/sample-mp4-file-small%20(2)-8jy8Xkh393l7usOgtXqpFJcJ6VJv4j.mp4';
     const videoResponse = await fetch(downloadUrl);
     console.log('Done Downloading...');
+    const videoMetadata = await getVideoMetadata(downloadUrl);
+    console.log('Done Getting Metadata...');
+    console.log(videoMetadata);
+
     const videoStream = await videoResponse.body;
     const outputStream = new PassThrough();
 
@@ -63,11 +65,11 @@ const videoConversionFunction = async (req, res) => {
       token: blobReadWriteToken,
     });
 
-    console.log('Done Re-Uploading...' + processedVideo.url);
-    await del(videoUrl.url, { token: blobReadWriteToken });
-    res.json({ downloadUrl: processedVideo.url, filedeleted: videoUrl.url, metadata: videoMetadata, errorMessage: '' });
+    console.log('Done Re-Uploading...' + downloadUrl);
+    // await del(videoUrl.url, { token: blobReadWriteToken });
+    res.json({ downloadUrl: processedVideo.url, filedeleted: downloadUrl, metadata: videoMetadata, errorMessage: '' });
 
-    console.log('Done Deleting Input File...' + videoUrl.url);
+    // console.log('Done Deleting Input File...' + videoUrl.url);
   } catch (error) {
     console.error(error);
     res.json({ downloadUrl: '', filedeleted: '', metadata: '', errorMessage: error.message });
