@@ -937,7 +937,7 @@ const OptionsOnRequest = (req) => {
 // +-----------------------------------------------------------------------------------------------------------------------------------------+
 let subtitleResponse, watermarkResponse;
 // subtitle/(.SRT .ART)
-const [subtitleUrl] = editingoptions.subtitleFiles ? await Promise.all([uploadToVercelBlob(req.files.subtitleFile)]) : '';
+// const [subtitleUrl] = editingoptions.subtitleFiles ? await Promise.all([uploadToVercelBlob(req.files.subtitleFile)]) : '';
 if (subtitleUrl) {
   console.log('Done Uploading Subtitles... ' + subtitleUrl.url);
   const subtitleDownloadUrl = subtitleUrl.url;
@@ -946,7 +946,7 @@ if (subtitleUrl) {
 }
 
 // watermark/image
-const [watermarkUrl] = editingoptions.imageWatermark ? await Promise.all([uploadToVercelBlob(req.files.waterMarkImage)]) : '';
+// const [watermarkUrl] = editingoptions.imageWatermark ? await Promise.all([uploadToVercelBlob(req.files.waterMarkImage)]) : '';
 if (watermarkUrl) {
   console.log('Done Uploading Watermark... ' + watermarkUrl.url);
   const watermarkDownloadUrl = watermarkUrl.url;
@@ -954,12 +954,12 @@ if (watermarkUrl) {
   console.log('Done Downloading...');
 }
 
-if (subtitleUrl) {
-  await del(subtitleUrl.url, { token: blobReadWriteToken });
-}
-if (watermarkUrl) {
-  await del(watermarkUrl.url, { token: blobReadWriteToken });
-}
+// if (subtitleUrl) {
+//   await del(subtitleUrl.url, { token: blobReadWriteToken });
+// }
+// if (watermarkUrl) {
+//   await del(watermarkUrl.url, { token: blobReadWriteToken });
+// }
 // -----------------------------+++++++++                                      +++++++++++++++++++____________________________________
 // if (editingoptions.startingTime && editingoptions.endingTime) {
 //   command.setStartTime(editingoptions.startingTime);
