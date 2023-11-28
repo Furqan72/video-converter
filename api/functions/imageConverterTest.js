@@ -2,7 +2,8 @@ const sharp = require('sharp');
 const { put, del } = require('@vercel/blob');
 const fetch = require('node-fetch');
 
-const blobReadWriteToken = 'vercel_blob_rw_EFYOeCFX9EdYVGyD_SJr8uIJfOXt7ydLZ7xYtfAcKkm2Vdj';
+// const blobReadWriteToken = 'vercel_blob_rw_EFYOeCFX9EdYVGyD_SJr8uIJfOXt7ydLZ7xYtfAcKkm2Vdj';
+const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_bOTWCUbFieaFtB6h_V4MX4bG2XZyRDsVqgCrWOw23fqAuSs';
 
 const imageConversionFunction = async (req, res) => {
   try {
@@ -89,13 +90,13 @@ const imageConversionFunction = async (req, res) => {
     const webpUrl = await put(`${downloadUrl.split('.')[0]}${options.selectMenuValues}`, sharpStream, {
       access: 'public',
       contentType: `image/${formatWithoutLeadingDot}`,
-      token: blobReadWriteToken,
+      token: BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN,
     });
     console.log('Done Re-Uploading...' + webpUrl.url);
 
     res.json({ downloadUrl: webpUrl.url, filedeleted: fileUrl.url, metadata: imageMetadata, errorMessage: '' });
 
-    await del(fileUrl.url, { token: blobReadWriteToken });
+    await del(fileUrl.url, { token: BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN });
     console.log('Done Deleting Input File...' + fileUrl.url);
   } catch (error) {
     console.error(error);
@@ -109,7 +110,7 @@ const uploadToVercelBlob = async (image) => {
     return await put(image[0].originalname, image[0].buffer, {
       access: 'public',
       contentType: image[0].mimetype,
-      token: blobReadWriteToken,
+      token: BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN,
     });
   } catch (error) {
     console.log(error);
