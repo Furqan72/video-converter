@@ -1,26 +1,41 @@
 const fluentFfmpeg = require('fluent-ffmpeg');
+const ffmpegStatic = require('ffmpeg-static');
 const ffprobeStatic = require('ffprobe-static').path;
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const { put, del } = require('@vercel/blob');
 const fetch = require('node-fetch');
 const { PassThrough } = require('stream');
+const { log } = require('console');
 
-fluentFfmpeg.setFfprobePath(ffprobeStatic);
+const ffmpegBinaryPath = './ffmpegBinary/ffmpeg.exe';
+// const ffmpegBinaryPath = 'G:\\video-converter\\api\\ffmpeg\\ffmpeg.exe';
+
 fluentFfmpeg.setFfmpegPath(ffmpegPath);
+fluentFfmpeg.setFfprobePath(ffprobeStatic);
 
-// vercel token
 const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_bOTWCUbFieaFtB6h_V4MX4bG2XZyRDsVqgCrWOw23fqAuSs';
 
 // functions
 const functions = require('../functions/functions');
 
-const handleError = (message, error) => {
-  console.error(message, error || '');
-  // res.json;
-};
+// const { fileName } = require('../global/globalFunctions');
+// const { exec } = require('child_process');
+
+// const command = `${ffmpegBinaryPath} -formats`;
+
+// exec(command, (error, stdout, stderr) => {
+//   if (error) {
+//     console.error(`Error executing FFmpeg: ${error.message}`);
+//     return;
+//   }
+
+//   console.log('Available Formats:', stdout);
+// });
+
+// console.log(ffmpegPath);
 
 // Extracting Options From Request
-const extractOptionsFromRequest = (req) => {
+function extractOptionsFromRequest(req) {
   const selectedvaluesincluded = ['.wmv', '.webm', '.3g2', '.3gp', '.cavs', '.dv', '.m2ts', '.m4v', '.mpg', '.mpeg', '.mts', '.mxf', '.ogg', '.rm'];
   // values when not to include
   const notincludevalues = selectedvaluesincluded.some((format) => req.body.selectMenu.includes(format));
@@ -43,8 +58,8 @@ const extractOptionsFromRequest = (req) => {
     levelValue: notincludevalues ? '' : req.body.levelSelect,
     fitValue: req.body.fitSelect,
     framePersecond: req.body.fpsSelect,
-    AudioCodecSelect: req.body.AudioCodec,
-    Channels: req.body.ChannelsSelect,
+    audioCodecSelect: req.body.AudioCodec,
+    audioChannels: req.body.ChannelsSelect,
     videoVolume: req.body.VolumeSelect,
     SampleRate: req.body.SampleRateSelect,
     AudioBitrateValue: req.body.BitrateValuesSelect,
@@ -53,11 +68,12 @@ const extractOptionsFromRequest = (req) => {
     QscaleValue: req.body.selectMenu === '.wmv' ? req.body.Qscale : '',
   };
   // console.log(options);
-  return options;
-};
 
-// uploading to vercel blob
-const uploadToVercelBlob = async (file) => {
+  return options;
+}
+
+// file upload
+async function uploadToVercelBlob(file) {
   try {
     return await put(file[0].originalname, file[0].buffer, {
       access: 'public',
@@ -65,16 +81,19 @@ const uploadToVercelBlob = async (file) => {
       token: BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
-};
+}
 
 // Metadata of the video
-function getVideoMetadata(inputPath) {
+function videoMetadata(inputPath) {
   return new Promise((resolve, reject) => {
-    fluentFfmpeg.ffprobe(inputPath, (err, metadata) => {
+    const command = new fluentFfmpeg();
+
+    command.input(inputPath);
+    command.ffprobe((err, metadata) => {
       if (err) {
-        console.log('error in metadata');
+        console.error('Error in metadata:', err);
         reject(err);
       } else {
         // console.log(metadata);
@@ -84,242 +103,202 @@ function getVideoMetadata(inputPath) {
   });
 }
 
+// file download
+async function downloadVideo(url) {
+  const response = await fetch(url);
+  const videoStream = await response.body;
+  return videoStream;
+}
+
 // Trimming
-const configureTrimming = (command, options, metadata) => {
-  try {
-    const totalVideoDurationInSeconds = metadata.format.duration;
-    console.log(totalVideoDurationInSeconds);
-    const startingInSeconds = functions.parseTime(options.startingTime);
-    const endingInSeconds = functions.parseTime(options.endingTime);
+const configureTrimming = async (startingTime, endingTime, duration) => {
+  console.log('Video Duration: ', duration, 'seconds');
+  let startingInSeconds = functions.parseTime(startingTime);
+  let endingInSeconds = functions.parseTime(endingTime);
+  let totalDuration, errorMessages;
 
-    if (startingInSeconds < 0 || endingInSeconds < 0) {
-      handleError('Start and end times must be non-negative values.');
-    } else if (startingInSeconds >= endingInSeconds || totalVideoDurationInSeconds <= startingInSeconds || totalVideoDurationInSeconds < endingInSeconds) {
-      handleError(`Invalid start or end time. The duration of this video is ${totalVideoDurationInSeconds} seconds.`);
-    } else if (options.startingTime && options.endingTime && options.endingTime !== '00:00:00') {
-      const formattedTotalDuration = functions.formatTime(totalVideoDurationInSeconds);
-      const requiredDuration = functions.calculateDuration(options.startingTime, options.endingTime);
-
-      command.seekInput(options.startingTime || `00:00:00`);
-      command.duration(requiredDuration || formattedTotalDuration);
-    }
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-// Video Conversion FFmepg events
-const configureFFmpegEvents = (command) => {
-  command
-    .on('start', () => {
-      console.log('message', 'Conversion Started.');
-    })
-    .on('progress', (progress) => {
-      if (progress.percent !== undefined) {
-        const progressPercent = progress.percent.toFixed(2);
-        console.log(progressPercent);
-      }
-    })
-    .on('end', () => {
-      console.log('message', 'Conversion Finished.');
-    })
-    .on('error', (err, stdout, stderr) => {
-      try {
-        console.error('Error:', err);
-        console.error('FFmpeg stderr:', stderr);
-        console.error('FFmpeg stdout:', stdout);
-
-        const errorLines = stderr.split('\n');
-        const errorPatterns = /(Could not find|width not|compatible|Unsupported codec|width must be|Only VP8 or VP9 or AV1|Streamcopy|Unable to find|encoder setup failed|does not yet support|can only be written|only supports|is not available|codec tag found for|only supported in|codec failed|is not supported in|Packet is missing PTS|at most one|Error setting option profile|Possible tunes: psnr ssim grain|Error setting option tune to|Unsupported audio codec. Must be one of| not create encoder reference|Cannot open libx265 encoder)/;
-        const errorMessages = errorLines.filter((line) => errorPatterns.test(line));
-
-        let extractedText = '';
-        errorMessages.forEach((errorMessage) => {
-          const indexOfClosingBracket = errorMessage.indexOf(']');
-          if (indexOfClosingBracket !== -1) {
-            extractedText = errorMessage.substring(indexOfClosingBracket + 1).trim();
-          }
-        });
-        console.log('Error  -----------  ', extractedText);
-
-        console.log('message', extractedText + ' Conversion failed!!');
-      } catch (error) {
-        console.error('An error occurred while handling the FFmpeg error:', error);
-      }
-    });
-};
-
-// Video Configuration
-const configureVideoConversion = (command, options, videoMetadata) => {
-  try {
-    const originalWidth = videoMetadata.streams[0].width;
-    const originalHeight = videoMetadata.streams[0].height;
-
-    command.addOption('-progress', '-');
-
-    // console.log(videoMetadata.streams[0]);
-    console.log(`Video resolution ORIGINAL DIMENSIONS: ${originalWidth}x${originalHeight}`);
-
-    let filtersForVideo = [];
-    const [width, height] = options.resolution.split('x');
-
-    if (options.videoCOdec === 'copy') {
-      command.videoCodec(options.videoCOdec);
-    } else {
-      command.videoCodec(options.videoCOdec);
-
-      if (options.resolution === 'no change') {
-        filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, originalWidth, originalHeight, options.aspectRatio));
-        console.log(`Video resolution ORIGINAL DIMENSIONS (condition working === 'no change'): ${originalWidth}x${originalHeight}`);
-      } else {
-        filtersForVideo.push(functions.createComplexVideoFilter(options.fitValue, width, height, options.aspectRatio));
-      }
-
-      const complexFilterExpression = filtersForVideo.flat().join(';');
-      if (complexFilterExpression) {
-        command.complexFilter(complexFilterExpression);
-      }
-
-      // CRF
-      if (options.qualityConstant) command.addOptions([`-crf ${options.qualityConstant}`]);
-      // Tune
-      if (options.tuning && options.tuning !== 'none') command.addOptions([`-tune ${options.tuning}`]);
-      // Profile
-      if (options.profileValue && options.profileValue !== 'none') command.addOption(`-profile:v ${options.profileValue}`);
-      // Levels
-      if (options.levelValue && options.levelValue !== 'none') command.addOptions([`-level ${options.levelValue}`]);
-      // Preset
-      if (options.presetValue) command.addOptions([`-preset ${options.presetValue}`]);
-      // Qscale
-      if (options.QscaleValue && options.selectMenuValues === '.wmv') command.addOption(`-q:v ${options.QscaleValue}`);
-      // FPS
-      if (options.framePersecond) command.addOption('-r', options.framePersecond);
-      // Key Frame Interval
-      if (options.desiredKeyframeInterval) command.addOption(`-g ${options.desiredKeyframeInterval}`);
-      // buffer-size and max-bitrate
-      const { buffer_size, max_bitrate } = videoMetadata.streams[0];
-      if (buffer_size && max_bitrate) {
-        command.addOptions([`-bufsize ${buffer_size}`, `-maxrate ${max_bitrate}`]);
-      }
-    }
-  } catch (err) {
-    handleError('Error configuring video conversion:', err);
-  }
-};
-
-// Audio Configuration
-const configureAudioConversion = (command, options) => {
-  try {
-    command.addOption('-progress', '-');
-
-    if (options.AudioCodecSelect === 'none') {
-      command.addOption('-an'); // Disable audio
-    } else if (options.AudioCodecSelect === 'copy') {
-      command.audioCodec(options.AudioCodecSelect); // Copy audio stream
-    } else if (options.AudioCodecSelect) {
-      // If not empty then 'Audio Codec'
-      command.audioCodec(options.AudioCodecSelect);
-
-      // Audio Bitrate
-      if (options.AudioBitrateValue !== '') {
-        command.audioBitrate(options.AudioBitrateValue);
-      }
-      // Audio Channels
-      if (options.Channels !== '') {
-        command.audioChannels(options.Channels);
-      }
-      // Audio Volume and Sample Rate
-      let audioFilterValues = [];
-      if (options.videoVolume !== '') {
-        audioFilterValues.push(`volume=${options.videoVolume}`);
-      }
-      if (options.SampleRate !== '') {
-        audioFilterValues.push(`asetrate=${options.SampleRate}`);
-      }
-      if (audioFilterValues.length > 0) {
-        command.audioFilter(audioFilterValues.join(','));
-      }
-    }
-  } catch (err) {
-    console.log('Error configuring audio conversion:', err);
-    handleError('Error configuring audio conversion:', err);
-  }
-};
-
-// video conversion function
-const videoConversionFunction = async (req, res) => {
-  try {
-    console.log('Process Start....');
-    const editingoptions = extractOptionsFromRequest(req);
-    const withoutDotSelectMenu = editingoptions.selectMenuValues.slice(1);
-    const withoutDotFileName = editingoptions.inputFile[0].originalname.split('.');
-    console.log(withoutDotFileName[0]);
-
-    const videoUrl = await uploadToVercelBlob(req.files.uploadFile);
-    console.log('Done Uploading... ' + videoUrl.url);
-    const downloadUrl = videoUrl.url;
-
-    // uploading watermark & subtitle
-    let subtitleResponse, watermarkResponse;
-    const [watermarkUrl] = editingoptions.imageWatermark ? await Promise.all([uploadToVercelBlob(req.files.waterMarkImage)]) : '';
-    const [subtitleUrl] = editingoptions.subtitleFiles ? await Promise.all([uploadToVercelBlob(req.files.subtitleFile)]) : '';
-    if (editingoptions.waterMarkImage) {
-      console.log('WaterMark Image Uploaded...' + subtitleUrl.url);
-    }
-    if (editingoptions.subtitleFiles) {
-      console.log('Subtitles File Uploaded...' + watermarkUrl.url);
-    }
-
-    const videoResponse = await fetch(downloadUrl);
-    console.log('Done Downloading...');
-
-    const videoMetadata = await getVideoMetadata(downloadUrl);
-    console.log('Done Getting Metadata...');
-    // console.log(videoMetadata);
-
-    const videoStream = await videoResponse.body;
-    const outputStream = new PassThrough();
-
-    const command = new fluentFfmpeg();
-    command.input(videoStream);
-    command.format(withoutDotSelectMenu);
+  if (startingInSeconds < 0 || endingInSeconds < 0) {
+    errorMessages = 'Start and end times must be non-negative values.';
+  } else if (startingInSeconds >= endingInSeconds || duration <= startingInSeconds || duration < endingInSeconds) {
+    errorMessages = 'Invalid start or end time. The duration of this video is ' + duration + ' seconds.';
 
     // trimming
-    configureTrimming(command, editingoptions, videoMetadata);
-    const errorMessages = '';
-
-    configureFFmpegEvents(command);
-
-    // Video Configuration
-    configureVideoConversion(command, editingoptions, videoMetadata);
-
-    // Audio Configuration
-    configureAudioConversion(command, editingoptions);
-
-    command.pipe(outputStream);
-    console.log('Done Conversion...');
-
-    const processedVideo = await put(`${withoutDotFileName}${editingoptions.selectMenuValues}`, outputStream, {
-      access: 'public',
-      contentType: `video/${editingoptions.selectMenuValues}`,
-      token: BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN,
-    });
-
-    console.log('Done Re-Uploading...' + processedVideo.url);
-    // await del(videoUrl.url, { token: BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN });
-    // if (subtitleUrl) {
-    //   await del(subtitleUrl.url, { token: BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN });
-    // }
-    // if (watermarkUrl) {
-    //   await del(watermarkUrl.url, { token: BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN });
-    // }
-    res.json({ downloadUrl: processedVideo.url, filedeleted: 'downloadUrl', metadata: videoMetadata, errorMessage: errorMessages || '' });
-
-    console.log('Done Deleting Input File...' + 'videoUrl.url' + 'subtitile.url' + 'watermark.url');
-  } catch (error) {
-    handleError('Error in videoConversionFunction:', error);
-    res.json({ downloadUrl: '', filedeleted: '', metadata: '', errorMessage: error.message });
+  } else if (startingTime && endingTime && endingTime !== '00:00:00') {
+    let formattedDuration = functions.formatTime(duration);
+    console.log('formattedDuration------>>> ', formattedDuration);
+    totalDuration = functions.calculateDuration(startingTime, endingTime);
   }
+  return { totalDuration, errorMessages };
 };
+
+// Converting the file
+async function convertVideo(videoStream, editingoptions, metadata) {
+  const completeDuration = metadata.format.duration;
+
+  const withoutDotSelectMenu = editingoptions.selectMenuValues.slice(1);
+  const withoutDotFileName = editingoptions.inputFile[0].originalname.split('.');
+  console.log(withoutDotFileName[0]);
+  let [cropWidth, cropHeight] = editingoptions.resolution.split('x');
+
+  let requiredDuration, trimError;
+
+  if (editingoptions.startingTime && editingoptions.endingTime) {
+    requiredDuration = await configureTrimming(editingoptions.startingTime, editingoptions.endingTime, completeDuration);
+    trimError = requiredDuration.errorMessages;
+  }
+  console.log(trimError);
+
+  const outputStream = new PassThrough();
+  const command = fluentFfmpeg();
+  command.input(videoStream);
+  // Add the following line to enable faststart for mp4 format
+  if (editingoptions.selectMenuValues === '.mp4') {
+    command.outputOptions(['-movflags', '+faststart']);
+  }
+  // command.output(`converted-video${editingoptions.selectMenuValues}`);
+  command.format(withoutDotSelectMenu);
+
+  // AV-COdecs
+  command.videoCodec(editingoptions.videoCOdec);
+  command.audioCodec(editingoptions.audioCodecSelect);
+
+  // Video-Options
+
+  // Set Resolution
+  if (editingoptions.resolution && editingoptions.resolution !== 'no change') {
+    if (editingoptions.fitValue === 'scale') {
+      command.size(editingoptions.resolution);
+      command.crop;
+      console.log(editingoptions.resolution);
+    } else if (editingoptions.fitValue === 'max') {
+      command.autoPad();
+    } else if (editingoptions.fitValue === 'crop') {
+      // command.complexFilter(`crop=${cropWidth}:${cropHeight}`);
+      console.log('Provided Inputs: ', cropHeight, cropWidth, '  --  Provided by File: ', metadata.streams[0].width, metadata.streams[0].height);
+    }
+  }
+
+  // Set Aspect Ratio
+  if (editingoptions.aspectRatio && editingoptions.aspectRatio !== 'no change') {
+    command.aspect(editingoptions.aspectRatio);
+    console.log(editingoptions.aspectRatio);
+  }
+  // Set Constant Quality (CRF)
+  if (editingoptions.qualityConstant && editingoptions.qualityConstant !== 'none') {
+    command.videoBitrate(editingoptions.qualityConstant);
+    console.log(editingoptions.qualityConstant);
+  }
+  // Set FPS (Frames Per Second)
+  if (editingoptions.framePersecond && editingoptions.framePersecond !== 'none') {
+    command.fps(editingoptions.framePersecond);
+  }
+  // Set Channels
+  if (editingoptions.audioChannels && editingoptions.audioChannels !== 'no change') {
+    command.audioChannels(editingoptions.audioChannels);
+  }
+  // Set Sample Rate
+  if (editingoptions.SampleRate) {
+    command.audioFrequency(editingoptions.SampleRate);
+  }
+  // Set Audio Bitrate
+  if (editingoptions.AudioBitrateValue && editingoptions.aspectRatio !== 'none') {
+    command.audioBitrate(editingoptions.AudioBitrateValue);
+  }
+  // Set Volume
+  if (editingoptions.videoVolume && editingoptions.videoVolume !== 'no change') {
+    command.audioFilters([`volume=${editingoptions.videoVolume}`]);
+  }
+
+  // Set Profile
+  if (editingoptions.profileValue && editingoptions.profileValue !== 'none') {
+    command.addOption('-profile:v', editingoptions.profileValue);
+    console.log(editingoptions.profileValue);
+  }
+  // Set Level
+  if (editingoptions.levelValue && editingoptions.levelValue !== 'none') {
+    command.addOption('-level:v', editingoptions.levelValue);
+    console.log(editingoptions.levelValue);
+  }
+  // Set Preset
+  if (editingoptions.presetValue && editingoptions.presetValue !== 'none') {
+    command.addOption('-preset', editingoptions.presetValue);
+    console.log(editingoptions.presetValue);
+  }
+  // Set Tune
+  if (editingoptions.tuning && editingoptions.tuning !== 'none') {
+    command.addOption('-tune', editingoptions.tuning);
+    console.log(editingoptions.tuning);
+  }
+
+  // Key Frame Interval
+  if (editingoptions.desiredKeyframeInterval) {
+    command.addOption(`-g ${editingoptions.desiredKeyframeInterval}`);
+  }
+
+  // trimming
+  if (requiredDuration) {
+    command.setStartTime(editingoptions.startingTime);
+    command.setDuration(requiredDuration.totalDuration);
+  }
+
+  // await new Promise((resolve, reject) => {
+  command.on('end', () => {
+    console.log('Video conversion completed');
+    // resolve(outputStream);
+  });
+
+  command.on('error', (error, stderr, stdout) => {
+    console.error('Error during video conversion:', error);
+    console.error('Error during STDERR:', stderr);
+    console.error('Error during STDERR:', stdout);
+    // reject(error);
+  });
+  command.pipe(outputStream);
+
+  // });
+
+  return outputStream;
+}
+
+// Re-uploading the file
+async function uploadConvertedVideo(outputStream, options) {
+  const videoData = await outputStream;
+  const withoutDotSelectMenu = options.selectMenuValues.slice(1);
+
+  const outputFileName = `converted-video${options.selectMenuValues}`;
+  const content = `video/${withoutDotSelectMenu}`;
+
+  const processedVideo = await put(outputFileName, videoData, {
+    access: 'public',
+    contentType: content,
+    token: BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN,
+  });
+  return processedVideo;
+}
+
+// Video conversion process
+async function videoConversionFunction(req, res) {
+  try {
+    console.log('Process Start.....');
+    const options = extractOptionsFromRequest(req);
+    // console.log(options);
+    const videoUrl = await uploadToVercelBlob(options.inputFile);
+    console.log('Uploaded Input File >> ' + videoUrl.url);
+
+    const videoStream = await downloadVideo(videoUrl.url);
+    console.log('downloaded.....');
+    const completeVideoMetadata = await videoMetadata(videoUrl.url);
+    // console.log(completeVideoMetadata);
+
+    const convertedStream = await convertVideo(videoStream, options, completeVideoMetadata);
+    const processedVideo = await uploadConvertedVideo(convertedStream, options);
+    console.log(processedVideo.url);
+
+    res.json({ downloadUrl: processedVideo.url, filedeleted: videoUrl.url, metadata: completeVideoMetadata, errorMessage: '' });
+  } catch (error) {
+    console.error(error);
+    res.json({ downloadUrl: 'processedVideo.url', filedeleted: 'inputVideo.url', metadata: 'completeVideoMetadata', errorMessage: error.message });
+  }
+}
 
 module.exports = { videoConversionFunction };

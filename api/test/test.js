@@ -976,7 +976,6 @@ if (watermarkUrl) {
 //   token: blobReadWriteToken,
 // });
 
-// most recent ^
 // +-----------------------------------------------------------------------------------------------------------------------------------------+
 
 // Video Configuration
@@ -1180,6 +1179,201 @@ const configureSubtitles = (command, options, path, checkSubtitles) => {
     }
   }
 };
+
+// +-----------------------------------------------------------------------------------------------------------------------------------------+
+// most recent>>
+
+// const fluentFfmpeg = require('fluent-ffmpeg');
+// const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
+// const ffmpegStatic = require('ffmpeg-static');
+// const ffprobeStatic = require('ffprobe-static').path;
+// const { put, del } = require('@vercel/blob');
+// const fetch = require('node-fetch');
+// const { PassThrough } = require('stream');
+
+// fluentFfmpeg.setFfmpegPath(ffmpegStatic);
+// fluentFfmpeg.setFfprobePath(ffprobeStatic);
+// // console.log(ffmpegPath.path, ffmpegPath.version);
+
+// // vercel token
+// const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_bOTWCUbFieaFtB6h_V4MX4bG2XZyRDsVqgCrWOw23fqAuSs';
+
+// const handleError = (message, error) => {
+//   console.error(message, error || '');
+// };
+
+// // Extracting Options From Request
+// const extractOptionsFromRequest = (req) => {
+//   const selectedvaluesincluded = ['.wmv', '.webm', '.3g2', '.3gp', '.cavs', '.dv', '.m2ts', '.m4v', '.mpg', '.mpeg', '.mts', '.mxf', '.ogg', '.rm'];
+//   // values when not to include
+//   const notincludevalues = selectedvaluesincluded.some((format) => req.body.selectMenu.includes(format));
+
+//   const options = {
+//     inputFile: req.files.uploadFile,
+//     subtitleFiles: req.files.subtitleFile,
+//     imageWatermark: req.files.waterMarkImage,
+//     selectMenuValues: req.body.selectMenu,
+//     selectForFile: req.body.ConvertFromSelect,
+//     startingTime: req.body.StartingTime,
+//     endingTime: req.body.EndingTime,
+//     resolution: req.body.ResolutionMenu,
+//     videoCOdec: req.body.videotCodecSelect,
+//     aspectRatio: req.body.AspectRatioSelect,
+//     qualityConstant: notincludevalues ? '' : req.body.ConstantQualitySelect,
+//     presetValue: notincludevalues ? '' : req.body.presetSelect,
+//     tuning: notincludevalues ? '' : req.body.tuneSelect,
+//     profileValue: notincludevalues ? '' : req.body.profileSelect,
+//     levelValue: notincludevalues ? '' : req.body.levelSelect,
+//     fitValue: req.body.fitSelect,
+//     framePersecond: req.body.fpsSelect,
+//     AudioCodecSelect: req.body.AudioCodec,
+//     Channels: req.body.ChannelsSelect,
+//     videoVolume: req.body.VolumeSelect,
+//     SampleRate: req.body.SampleRateSelect,
+//     AudioBitrateValue: req.body.BitrateValuesSelect,
+//     desiredKeyframeInterval: req.body.KeyframeInterval,
+//     subtitlesType: req.body.subtitleType,
+//     QscaleValue: req.body.selectMenu === '.wmv' ? req.body.Qscale : '',
+//   };
+//   // console.log(options);
+//   return options;
+// };
+
+// // uploading to vercel blob
+// const uploadToVercelBlob = async (file) => {
+//   try {
+//     return await put(file[0].originalname, file[0].buffer, {
+//       access: 'public',
+//       contentType: file[0].mimetype,
+//       token: BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
+// // Metadata of the video
+// function getVideoMetadata(inputPath) {
+//   return new Promise((resolve, reject) => {
+//     fluentFfmpeg.ffprobe(inputPath, (err, metadata) => {
+//       if (err) {
+//         console.log('error in metadata');
+//         reject(err);
+//       } else {
+//         // console.log(metadata);
+//         resolve(metadata);
+//       }
+//     });
+//   });
+// }
+
+// // video conversion function
+// const videoConversionFunction = async (req, res) => {
+//   try {
+//     console.log('Process Start....');
+//     const editingoptions = extractOptionsFromRequest(req);
+//     const withoutDotSelectMenu = editingoptions.selectMenuValues.slice(1);
+//     const withoutDotFileName = editingoptions.inputFile[0].originalname.split('.');
+//     console.log(withoutDotFileName[0]);
+
+//     const videoUrl = await uploadToVercelBlob(req.files.uploadFile);
+//     console.log('Done Uploading... ' + videoUrl.url);
+//     const downloadUrl = videoUrl.url;
+
+//     const videoResponse = await fetch(downloadUrl);
+//     console.log('Done Downloading...');
+//     // console.log(videoResponse);
+
+//     const videoMetadata = await getVideoMetadata(downloadUrl);
+//     console.log('Donetting Metadata.. ');
+//     // console.log(videoMetadata);
+
+//     const videoStream = await videoResponse.body;
+//     // const videoStreaming = await Buffer.videoResponse;
+
+//     // console.log(videoStreaming);
+//     // console.log('------------------------------- ' + videoStreaming);
+
+//     const outputStream = new PassThrough();
+
+//     const command = fluentFfmpeg();
+//     command.input(videoStream);
+//     command.format(withoutDotSelectMenu);
+
+//     // if (options.framePersecond) {
+//     // command.addOption('-r', editingoptions.framePersecond);
+//     // }
+
+//     // command.frames(editingoptions.framePersecond);
+//     // command.setStartTime(videoMetadata.format.start_time);
+//     // command.duration(videoMetadata.format.duration);
+//     // command.videoBitrate(videoMetadata.format.bit_rate);
+
+//     // Video Configuration
+//     command.videoCodec(editingoptions.videoCOdec);
+
+//     // Audio Configuration
+//     command.audioCodec(editingoptions.AudioCodecSelect);
+
+//     // audio filter chain
+//     let audioFilterValues = '';
+//     if (editingoptions.videoVolume !== '') {
+//       audioFilterValues += `volume=${editingoptions.videoVolume},`;
+//     }
+//     if (editingoptions.SampleRate !== '') {
+//       audioFilterValues += `asetrate=${editingoptions.SampleRate},`;
+//     }
+//     if (editingoptions.audioFilterValues !== '') {
+//       audioFilterValues = audioFilterValues.slice(0, -1);
+//     }
+
+//     // audio Bitrate
+//     if (editingoptions.AudioBitrateValue !== '') {
+//       command.audioBitrate(`${editingoptions.AudioBitrateValue}`);
+//     }
+
+//     // audio channels
+//     if (editingoptions.Channels !== '') {
+//       command.audioChannels(`${editingoptions.Channels}`);
+//     }
+//     if (audioFilterValues.length > 0) {
+//       command.audioFilter(`${audioFilterValues}`);
+//     }
+
+//     command.pipe(outputStream);
+//     console.log('Done Conversion...');
+
+//     // async function uploadConvertedVideo(outputStream) {
+//     const videoData = await outputStream.readableStream();
+//     // const processedVideo = await put('converted-video.avi', videoData, {
+//     // access: 'public',
+//     // contentType: 'video/avi',
+//     // token: BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN,
+//     // });
+//     // return processedVideo;
+//     // }
+//     console.log('videoData -------------------------- ');
+//     console.log(videoData);
+
+//     const processedVideo = await put('converted-video.avi', videoData, {
+//       access: 'public',
+//       contentType: 'video/avi',
+//       token: BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN,
+//     });
+
+//     console.log('Done Re-Uploading...' + processedVideo.url);
+
+//     res.json({ downloadUrl: processedVideo.url, filedeleted: 'downloadUrl', metadata: videoMetadata, errorMessage: '' });
+
+//     console.log(' Done Deleting Input File... ' + ' videoUrl.url ');
+//   } catch (error) {
+//     handleError('Error in videoConversionFunction:', error);
+
+//     res.json({ downloadUrl: '', filedeleted: '', metadata: '', errorMessage: error.message });
+//   }
+// };
+
+// most recent ^^
 
 // +-----------------------------------------------------------------------------------------------------------------------------------------+
 //

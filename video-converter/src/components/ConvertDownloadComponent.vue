@@ -127,19 +127,19 @@ const errorArr = ref([
 ]);
 
 // displaying customized errors
-const errorMessage = ref(null);
-const getErrorDescription = (error) => {
-  const matchedError = errorArr.value.find((errorObj) => error.includes(errorObj.label));
-  console.log(matchedError);
-  return matchedError ? matchedError.description : error;
-};
+// const errorMessage = ref(null);
+// const getErrorDescription = (error) => {
+//   const matchedError = errorArr.value.find((errorObj) => error.includes(errorObj.label));
+//   console.log(matchedError);
+//   return matchedError ? matchedError.description : error;
+// };
 
-watch(
-  () => GlobalData.errMessage,
-  (newErrMessage) => {
-    errorMessage.value = getErrorDescription(newErrMessage);
-  }
-);
+// watch(
+//   () => GlobalData.errMessage,
+//   (newErrMessage) => {
+//     errorMessage.value = getErrorDescription(newErrMessage);
+//   }
+// );
 
 // const imageSocket = io('http://localhost:8080');
 

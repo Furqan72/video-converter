@@ -63,9 +63,12 @@ const resolutionOptions = ref([
 // Aspect ratio
 const aspectRatioOptions = ref([
   { value: 'no change', label: 'no change', selected: 'no changes' },
-  { value: '16/9', label: '16:9' },
-  { value: '14/9', label: '14:9' },
-  { value: '4/3', label: '4:3' },
+  { value: '16:9', label: '16:9' },
+  { value: '14:9', label: '14:9' },
+  { value: '4:3', label: '4:3' },
+  // { value: '16/9', label: '16:9' },
+  // { value: '14/9', label: '14:9' },
+  // { value: '4/3', label: '4:3' },
 ]);
 // Constant quality
 const constantQualityOptions = ref([
@@ -186,7 +189,7 @@ const FitOptions = ref([
 ]);
 // FPS
 const FPSvalue = ref([
-  { value: '', label: 'none', selected: '' },
+  { value: '', label: 'none' },
   { value: '1', label: '1' },
   { value: '2', label: '2' },
   { value: '3', label: '3' },
@@ -206,7 +209,7 @@ const FPSvalue = ref([
   { value: '17', label: '17' },
   { value: '18', label: '18' },
   { value: '19', label: '19' },
-  { value: '20', label: '20' },
+  { value: '20', label: '20', selected: '20' },
   { value: '21', label: '21' },
   { value: '22', label: '22' },
   { value: '23', label: '23' },
