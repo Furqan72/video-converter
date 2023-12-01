@@ -12,6 +12,7 @@ const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_bOTWCUbFieaFtB6h_
 
 // functions
 const functions = require('../functions/functions');
+const { stderr, stdout, stdin } = require('process');
 
 // const { fileName } = require('../global/globalFunctions');
 // const { exec } = require('child_process');
@@ -142,13 +143,11 @@ async function convertVideo(videoStream, editingoptions, metadata) {
   const outputStream = new PassThrough();
   const command = fluentFfmpeg();
   command.input(videoStream);
-  // Add the following line to enable faststart for mp4 format
-  // command.output(`converted-video${editingoptions.selectMenuValues}`);
   command.format(withoutDotSelectMenu);
 
   // if (editingoptions.selectMenuValues === '.mp4') {
-  command.outputOptions(['-movflags', '+faststart']);
-  // }
+  // Add the following line to enable faststart for mp4 format
+  // command.outputOptions(['-movflags', '+faststart']);
 
   // AV-COdecs
   command.videoCodec(editingoptions.videoCOdec);
@@ -176,10 +175,17 @@ async function convertVideo(videoStream, editingoptions, metadata) {
     console.log(editingoptions.aspectRatio);
   }
   // Set Constant Quality (CRF)
-  if (editingoptions.qualityConstant && editingoptions.qualityConstant !== 'none') {
+  if (editingoptions.qualityConstant) {
+    command.withVideoBitrate(editingoptions.qualityConstant);
     command.videoBitrate(editingoptions.qualityConstant);
     console.log(editingoptions.qualityConstant);
   }
+
+  // CRF
+  if (editingoptions.qualityConstant) {
+    command.addOptions([`-crf ${editingoptions.qualityConstant}`]);
+  }
+
   // Set FPS (Frames Per Second)
   if (editingoptions.framePersecond && editingoptions.framePersecond !== 'none') {
     command.fps(editingoptions.framePersecond);
@@ -222,6 +228,12 @@ async function convertVideo(videoStream, editingoptions, metadata) {
     console.log(editingoptions.tuning);
   }
 
+  // buffer-size and max-bitrate
+  if (metadata.streams[0].buffer_size && metadata.streams[0].max_bitrate) {
+    command.addOptions([`-bufsize ${metadata.streams[0].buffer_size}`]);
+    command.addOptions([`-maxrate ${metadata.streams[0].max_bitrate}`]);
+  }
+
   // Key Frame Interval
   if (editingoptions.desiredKeyframeInterval) {
     command.addOption(`-g ${editingoptions.desiredKeyframeInterval}`);
@@ -237,11 +249,19 @@ async function convertVideo(videoStream, editingoptions, metadata) {
     console.log('Video conversion completed');
   });
 
+  // console.log(stdin);
+  // console.log(stdout);
+
   command.on('error', (error, stderr, stdout) => {
     console.error('Error during video conversion:', error);
     console.error('Error during STDERR:', stderr);
     console.error('Error during STDERR:', stdout);
   });
+
+  // console.log('FFmpeg Command:', command.toString());
+  // command.inputOptions('-loglevel debug');
+  // console.log(command.inputOptions('-loglevel debug'));
+
   command.pipe(outputStream);
 
   return outputStream;
