@@ -1,14 +1,9 @@
 const fluentFfmpeg = require('fluent-ffmpeg');
-const ffmpegStatic = require('ffmpeg-static');
 const ffprobeStatic = require('ffprobe-static').path;
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const { put, del } = require('@vercel/blob');
 const fetch = require('node-fetch');
 const { PassThrough } = require('stream');
-const { log } = require('console');
-
-const ffmpegBinaryPath = './ffmpegBinary/ffmpeg.exe';
-// const ffmpegBinaryPath = 'G:\\video-converter\\api\\ffmpeg\\ffmpeg.exe';
 
 fluentFfmpeg.setFfmpegPath(ffmpegPath);
 fluentFfmpeg.setFfprobePath(ffprobeStatic);
@@ -20,18 +15,14 @@ const functions = require('../functions/functions');
 
 // const { fileName } = require('../global/globalFunctions');
 // const { exec } = require('child_process');
-
 // const command = `${ffmpegBinaryPath} -formats`;
-
 // exec(command, (error, stdout, stderr) => {
 //   if (error) {
 //     console.error(`Error executing FFmpeg: ${error.message}`);
 //     return;
 //   }
-
 //   console.log('Available Formats:', stdout);
 // });
-
 // console.log(ffmpegPath);
 
 // Extracting Options From Request
@@ -152,11 +143,12 @@ async function convertVideo(videoStream, editingoptions, metadata) {
   const command = fluentFfmpeg();
   command.input(videoStream);
   // Add the following line to enable faststart for mp4 format
-  if (editingoptions.selectMenuValues === '.mp4') {
-    command.outputOptions(['-movflags', '+faststart']);
-  }
   // command.output(`converted-video${editingoptions.selectMenuValues}`);
   command.format(withoutDotSelectMenu);
+
+  // if (editingoptions.selectMenuValues === '.mp4') {
+  command.outputOptions(['-movflags', '+faststart']);
+  // }
 
   // AV-COdecs
   command.videoCodec(editingoptions.videoCOdec);
@@ -241,21 +233,16 @@ async function convertVideo(videoStream, editingoptions, metadata) {
     command.setDuration(requiredDuration.totalDuration);
   }
 
-  // await new Promise((resolve, reject) => {
   command.on('end', () => {
     console.log('Video conversion completed');
-    // resolve(outputStream);
   });
 
   command.on('error', (error, stderr, stdout) => {
     console.error('Error during video conversion:', error);
     console.error('Error during STDERR:', stderr);
     console.error('Error during STDERR:', stdout);
-    // reject(error);
   });
   command.pipe(outputStream);
-
-  // });
 
   return outputStream;
 }
