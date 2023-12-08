@@ -18,17 +18,26 @@ fluentFfmpeg.setFfprobePath(ffprobeStatic);
 const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_bOTWCUbFieaFtB6h_V4MX4bG2XZyRDsVqgCrWOw23fqAuSs';
 
 const app = express();
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://video-converter2.vercel.app');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
+
 const server = http.createServer(app);
 
-// const AllowedDomains = {
-//   origin: '*',
-//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//   allowedHeaders: ['Allow', 'Content-Type'],
-//   optionsSuccessStatus: 200,
-// };
+const AllowedDomains = {
+  // origin: ['http://localhost:5173', 'https://video-converter2.vercel.app'],
+  origin: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Allow', 'Content-Type'],
+  optionsSuccessStatus: 200,
+};
 
-// app.use('*', cors(AllowedDomains));
-app.use(cors({ origin: true }));
+app.use(cors(AllowedDomains));
+// app.use(cors({ origin: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
