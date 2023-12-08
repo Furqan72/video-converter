@@ -279,4 +279,58 @@ async function videoConversionFunction(req, res) {
   }
 }
 
+async function videoConversionFunction(req, res) {
+  try {
+    console.log('Process Start.....');
+    const options = extractOptionsFromRequest(req);
+    // console.log(options);
+
+    const videoUrl = await uploadToVercelBlob(options.inputFile);
+    console.log('Uploaded Input File >> ' + videoUrl.url);
+
+    // const videoStream = await downloadVideo(videoUrl.url);
+    console.log('downloaded.....');
+
+    const fileName = options.inputFile[0].originalname.split('.');
+    const fileNameIwthoutExtension = fileName[0];
+    console.log(fileNameIwthoutExtension);
+    const tmpOutputPath = `/tmp/converted-${fileNameIwthoutExtension}${options.selectMenuValues}`;
+    // let covnertedFile = options.selectMenuValues.tirm();
+    const selectedValues = options.selectMenuValues.slice(1);
+    console.log(selectedValues);
+
+    const command = fluentFfmpeg();
+    command.input(videoUrl.url);
+    command.outputOptions(['-c:v libx264']);
+    command.save(tmpOutputPath);
+
+    command.on('end', async () => {
+      try {
+        const convertedData = await fs.readFileSync(tmpOutputPath);
+
+        // Upload converted file to Vercel Blob
+        const convertedBlob = await put(`converted/${fileNameIwthoutExtension}${options.selectMenuValues}`, convertedData, {
+          access: 'public',
+          contentType: `video/${selectedValues}`,
+          token: BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN,
+        });
+
+        // covnertedFile = convertedBlob.url;
+        console.log(convertedBlob.url);
+        res.json({ downloadUrl: convertedBlob.url, filedeleted: videoUrl.url, metadata: 'jsonData', errorMessage: '' });
+      } catch (error) {
+        console.error(error);
+        res.json({ downloadUrl: 'covnertedFile', filedeleted: 'videoUrl.url', metadata: 'jsonData', errorMessage: '' });
+      } finally {
+        fs.unlinkSync(tmpOutputPath);
+      }
+    });
+
+    console.log('process end');
+  } catch (error) {
+    console.log(error);
+    res.json({ downloadUrl: 'inputDownloadUrl', filedeleted: 'inputDownloadUrl', metadata: 'completeVideoMetadata', errorMessage: error.message });
+  }
+}
+
 module.exports = { videoConversionFunction };
