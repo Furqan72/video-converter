@@ -27,7 +27,7 @@ const AllowedDomains = {
   optionsSuccessStatus: 200,
 };
 
-app.use(cors(AllowedDomains));
+app.use('*', cors(AllowedDomains));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
