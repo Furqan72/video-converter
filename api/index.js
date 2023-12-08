@@ -19,7 +19,7 @@ const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_bOTWCUbFieaFtB6h_
 const app = express();
 
 const AllowedDomains = {
-  origin: 'https://video-converter2.vercel.app',
+  origin: ['https://video-converter2.vercel.app', 'https://video-converter2.vercel.app/image-converter'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Access-Control-Allow-Origin', 'Allow', 'Content-Type'],
   optionsSuccessStatus: 200,
