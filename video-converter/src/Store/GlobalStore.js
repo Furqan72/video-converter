@@ -44,16 +44,20 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
 
   //  sending and receiving data from the server
   const sendVideoFile = async (formData, convert) => {
+    console.log(typeof formData);
+    // console.log(formData.get('ResolutionMenu'));
+
     await axios
-      .post('https://video-converter-api.vercel.app/' + convert, formData, {
-        // .post('http://localhost:8080/' + convert, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          uploadLoading.value = percentCompleted;
-        },
+      .post('https://video-converter-api.vercel.app/convert', formData, {
+        // .post('http://127.0.0.1:5001/converter-tools-2f30a/us-central1/api/convert', formData, {
+        // .post('https://us-central1-converter-tools-2f30a.cloudfunctions.net/api/convert', formData, {
+        // headers: {
+        //   'Content-Type': 'multipart/form-data',
+        // },
+        // onUploadProgress: (progressEvent) => {
+        //   const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        //   uploadLoading.value = percentCompleted;
+        // },
       })
       .then((response) => {
         downloadUrlFromNode.value = response.data.downloadUrl;

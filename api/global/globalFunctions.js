@@ -5,7 +5,7 @@ const fs = require('fs');
 const fsPromises = require('fs').promises;
 
 // functions
-const functions = require('../functions/functions');
+const functions = require('../functionsNodejs/functions');
 
 const fileName = '';
 // async function uploadAndHandleFile(file, directory) {

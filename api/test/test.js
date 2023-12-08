@@ -1376,4 +1376,41 @@ const configureSubtitles = (command, options, path, checkSubtitles) => {
 // most recent ^^
 
 // +-----------------------------------------------------------------------------------------------------------------------------------------+
+
+//   console.log('Process Start..........');
+//   const options = extractOptionsFromRequest(req);
+//   console.log(options);
+
+//   const inputFile = req.files.uploadFile;
+
+//   // Download the input file
+//   const inputFileRef = ref(storage, `input-files/${inputFile.name}`);
+//   await uploadBytes(inputFileRef, inputFile.data);
+
+//   const inputDownloadUrl = await getDownloadURL(inputFileRef);
+//   console.log('Uploaded Input File >> ' + inputDownloadUrl);
+
+//   // Construct output file name
+//   const newName = inputFile.name.split('.');
+//   const outputName = newName[0];
+//   const outputFileName = `converted-${outputName}${options.selectMenuValues}`;
+//   const outputPath = `./temp-output/${outputFileName}`;
+//   const outputStoragePath = `output-files/${outputFileName}`;
+
+//   // Convert the file
+//   const command = new fluentFfmpeg();
+//   command.input(inputDownloadUrl);
+//   command.videoCodec(options.videoCOdec);
+//   command.audioCodec(options.audioCodecSelect);
+//   command.save(outputPath);
+
+//   // Wait for the conversion to finish
+//   await new Promise((resolve, reject) => {
+//     command.on('end', resolve).on('error', reject);
+//   });
+
+//   console.log('Conversion completed >> ' + outputPath);
+
 //
+
+// +-----------------------------------------------------------------------------------------------------------------------------------------+

@@ -1,1 +1,0 @@
-import{r as n,y as c,o as r,a as u,b as l,t as p}from"./index-b7287b70.js";const _={class:"h-96 px-40 py-14"},d={__name:"test",setup(i){const t=n(24),o=50,a=(e,s)=>{e<=s&&(t.value=e,setTimeout(()=>{a(e+1,s)},o))};return c(()=>{a(0,t.value)}),(e,s)=>(r(),u("div",_,[l("div",null,p(t.value),1)]))}};export{d as default};

@@ -68,9 +68,10 @@ const sendVideoFile = async () => {
   const form = document.querySelector('form');
   const formData = new FormData(form);
 
-  await GlobalData.sendVideoFile(formData, 'video-conversion').then(() => {
-    console.log('newData: ', GlobalData.metaData);
-  });
+  GlobalData.sendVideoFile(formData, 'video-conversion');
+  // .then(() => {
+  //   console.log('newData: ', GlobalData.metaData);
+  // });
 };
 
 const subtitlesNotIncluded = ['.avi', '.flv', '.wmv', '.webm', '.3g2', '.3gp', '.cavs', '.dv', '.m2ts', '.mpg', '.mpeg', '.mts', '.mxf', '.ogg', '.rm', '.rmvb', '.swf', '.MOD', '.ts', '.wtv'];
