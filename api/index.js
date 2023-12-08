@@ -21,7 +21,7 @@ const app = express();
 const server = http.createServer(app);
 
 const AllowedDomains = {
-  origin: ['localhost:5173', 'video-converter2.vercel.app'],
+  origin: ['http://localhost:5173', 'https://video-converter2.vercel.app/'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type'],
   optionsSuccessStatus: 200,
