@@ -12,7 +12,6 @@ const fluentFfmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const ffprobeStatic = require('ffprobe-static').path;
 
-// const path = '/ffmpeg-6.1-amd64-static/ffmpeg.exe';
 fluentFfmpeg.setFfmpegPath(ffmpegPath);
 fluentFfmpeg.setFfprobePath(ffprobeStatic);
 const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_bOTWCUbFieaFtB6h_V4MX4bG2XZyRDsVqgCrWOw23fqAuSs';
@@ -20,8 +19,7 @@ const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_bOTWCUbFieaFtB6h_
 const app = express();
 
 const AllowedDomains = {
-  // origin: ['http://localhost:5173', 'https://video-converter2.vercel.app'],
-  origin: true,
+  origin: 'https://video-converter2.vercel.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Access-Control-Allow-Origin', 'Allow', 'Content-Type'],
   optionsSuccessStatus: 200,
@@ -132,7 +130,6 @@ app.post('/convert', async (req, res) => {
     command.input(videoUrl.url);
     command.outputOptions(['-c:v libx264']);
     command.save(tmpOutputPath);
-    // command.pipeto
 
     command.on('end', async () => {
       try {
@@ -156,12 +153,7 @@ app.post('/convert', async (req, res) => {
       }
     });
 
-    // await new Promise((resolve, reject) => {
-    //   command.on('end', resolve).on('error', reject);
-    // });
-    // let jsonData;
     console.log('process end');
-    // res.json({ downloadUrl: covnertedFile, filedeleted: videoUrl.url, metadata: 'jsonData', errorMessage: '' });
   } catch (error) {
     console.log(error);
     res.json({ downloadUrl: 'inputDownloadUrl', filedeleted: 'inputDownloadUrl', metadata: 'completeVideoMetadata', errorMessage: error.message });
