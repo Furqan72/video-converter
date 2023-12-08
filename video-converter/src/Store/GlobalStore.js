@@ -54,6 +54,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
         // .post('https://us-central1-converter-tools-2f30a.cloudfunctions.net/api/convert', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Access-Control-Allow-Origin': 'https://video-converter2.vercel.app',
         },
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
