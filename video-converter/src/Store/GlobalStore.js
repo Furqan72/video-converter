@@ -48,8 +48,8 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
     // console.log(formData.get('ResolutionMenu'));
 
     await axios
-      .post('http://localhost:8080/' + convert, formData, {
-        // .post('https://video-converter-api.vercel.app/' + convert, formData, {
+      // .post('http://localhost:8080/' + convert, formData, {
+      .post('https://video-converter-api.vercel.app/' + convert, formData, {
         withCredentials: false,
         // .post('http://127.0.0.1:5001/converter-tools-2f30a/us-central1/api/convert', formData, {
         // .post('https://us-central1-converter-tools-2f30a.cloudfunctions.net/api/convert', formData, {
