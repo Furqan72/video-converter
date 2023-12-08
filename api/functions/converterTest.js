@@ -2,9 +2,6 @@ const fs = require('fs');
 const { put, del } = require('@vercel/blob');
 const fetch = require('node-fetch');
 
-// routes
-// const router = require('./router');
-
 // ffmpeg
 const fluentFfmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
@@ -86,29 +83,30 @@ function videoMetadata(inputPath) {
   });
 }
 
-// // Trimming
-// const configureTrimming = async (startingTime, endingTime, duration) => {
-//   console.log('Video Duration: ', duration, 'seconds');
-//   let startingInSeconds = functions.parseTime(startingTime);
-//   let endingInSeconds = functions.parseTime(endingTime);
-//   let totalDuration, errorMessages;
+// Trimming
+const configureTrimming = (startingTime, endingTime, duration) => {
+  console.log(startingTime, endingTime, duration);
+  console.log('Video Duration: ', duration, 'seconds');
+  let startingInSeconds = functions.parseTime(startingTime);
+  let endingInSeconds = functions.parseTime(endingTime);
+  let totalDuration, errorMessages;
 
-//   if (startingInSeconds < 0 || endingInSeconds < 0) {
-//     errorMessages = 'Start and end times must be non-negative values.';
-//   } else if (startingInSeconds >= endingInSeconds || duration <= startingInSeconds || duration < endingInSeconds) {
-//     errorMessages = 'Invalid start or end time. The duration of this video is ' + duration + ' seconds.';
+  if (startingInSeconds < 0 || endingInSeconds < 0) {
+    errorMessages = 'Start and end times must be non-negative values.';
+  } else if (startingInSeconds >= endingInSeconds || duration <= startingInSeconds || duration < endingInSeconds) {
+    errorMessages = 'Invalid start or end time. The duration of this video is ' + duration + ' seconds.';
 
-//     // trimming
-//   } else if (startingTime && endingTime && endingTime !== '00:00:00') {
-//     let formattedDuration = functions.formatTime(duration);
-//     console.log('formattedDuration------>>> ', formattedDuration);
-//     totalDuration = functions.calculateDuration(startingTime, endingTime);
-//   }
-//   return { totalDuration, errorMessages };
-// };
+    // trimming
+  } else if (startingTime && endingTime && endingTime !== '00:00:00') {
+    let formattedDuration = functions.formatTime(duration);
+    console.log('formattedDuration------>>> ', formattedDuration);
+    totalDuration = functions.calculateDuration(startingTime, endingTime);
+  }
+  return { totalDuration, errorMessages };
+};
 
 // // Converting the file
-// async function convertVideo(videoStream, editingoptions, metadata) {
+// async function convertVideo(videoStream, options, metadata) {
 //   const completeDuration = metadata.format.duration;
 
 //   const withoutDotSelectMenu = editingoptions.selectMenuValues.slice(1);
@@ -279,11 +277,79 @@ function videoMetadata(inputPath) {
 //   }
 // }
 
+// Video Configuration
+async function configureVideoSettings(command, editingoptions) {
+  command.videoCodec(editingoptions.videoCOdec);
+  if (editingoptions.qualityConstant) {
+    command.addOptions([`-crf ${editingoptions.qualityConstant}`]);
+  }
+  if (editingoptions.tuning && editingoptions.tuning !== 'none') {
+    command.addOptions([`-tune ${editingoptions.tuning}`]);
+  }
+  if (editingoptions.profileValue && editingoptions.profileValue !== 'none') {
+    command.addOption(`-profile:v ${editingoptions.profileValue}`);
+  }
+  if (editingoptions.levelValue && editingoptions.levelValue !== 'none') {
+    command.addOptions([`-level ${editingoptions.levelValue}`]);
+  }
+  if (editingoptions.presetValue) {
+    command.addOptions([`-preset ${editingoptions.presetValue}`]);
+  }
+  if (editingoptions.QscaleValue && editingoptions.selectMenuValues === '.wmv') {
+    command.addOption(`-q:v ${editingoptions.QscaleValue}`);
+  }
+  if (editingoptions.framePersecond) {
+    command.addOption('-r', editingoptions.framePersecond);
+  }
+}
+
+// Audio Configuration
+async function configureAudioSettings(command, editingoptions) {
+  // audio filter chain
+  let audioFilterValues = '';
+  if (editingoptions.AudioCodecSelect !== 'copy' && editingoptions.AudioCodecSelect !== 'none') {
+    if (editingoptions.videoVolume !== '') {
+      audioFilterValues += `volume=${editingoptions.videoVolume},`;
+    }
+    if (editingoptions.SampleRate !== '') {
+      audioFilterValues += `asetrate=${editingoptions.SampleRate},`;
+    }
+    if (editingoptions.audioFilterValues !== '') {
+      audioFilterValues = audioFilterValues.slice(0, -1);
+    }
+  }
+
+  // Audio Settings
+  if (editingoptions.audioCodecSelect === 'none') {
+    command.addOption('-an');
+  } else if (editingoptions.audioCodecSelect === 'copy') {
+    command.audioCodec(editingoptions.audioCodecSelect);
+  } else if (editingoptions.audioCodecSelect !== '') {
+    // Audio Codec
+    command.audioCodec(editingoptions.audioCodecSelect);
+
+    // audio Bitrate
+    if (editingoptions.AudioBitrateValue !== '') {
+      command.audioBitrate(`${editingoptions.AudioBitrateValue}`);
+    }
+
+    // audio channels
+    if (editingoptions.audioChannels !== '') {
+      console.log(typeof editingoptions.audioChannels);
+      console.log(editingoptions.audioChannels);
+      command.audioChannels(editingoptions.audioChannels);
+    }
+    if (audioFilterValues.length > 0) {
+      command.audioFilter(`${audioFilterValues}`);
+    }
+  }
+}
+
 async function videoConversionFunction(req, res) {
   try {
     console.log('Process Start.....');
     const options = extractOptionsFromRequest(req);
-    // console.log(options);
+    console.log(options);
 
     const videoUrl = await uploadToVercelBlob(options.inputFile);
     console.log('Uploaded Input File >> ' + videoUrl.url);
@@ -301,11 +367,27 @@ async function videoConversionFunction(req, res) {
     const selectedValues = options.selectMenuValues.slice(1);
     console.log(selectedValues);
 
-    const command = fluentFfmpeg();
-    command.input(videoUrl.url);
-    command.outputOptions(['-c:v libx264']);
-    command.save(tmpOutputPath);
+    let requiredDuration;
+    if (options.startingTime && options.endingTime) {
+      requiredDuration = configureTrimming(options.startingTime, options.endingTime, completeVideoMetadata.format.duration);
+      console.log(requiredDuration);
+      trimError = requiredDuration.errorMessages;
+    }
 
+    const command = new fluentFfmpeg();
+    command.input(videoUrl.url);
+    // command.outputOptions(['-c:v libx264']);
+    // configureTrimming(options.startingTime, options.endingTime, completeVideoMetadata.format.duration);
+    // trimming
+    if (requiredDuration) {
+      command.setStartTime(options.startingTime);
+      command.setDuration(requiredDuration.totalDuration);
+    }
+    console.log(`Video resolution ORGINAL DIMENSIONS : ${completeVideoMetadata.streams[0].width}x${completeVideoMetadata.streams[0].height}`);
+    configureVideoSettings(command, options);
+    configureAudioSettings(command, options);
+
+    command.save(tmpOutputPath);
     command.on('end', async () => {
       try {
         const convertedData = await fs.readFileSync(tmpOutputPath);
@@ -317,7 +399,6 @@ async function videoConversionFunction(req, res) {
           token: BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN,
         });
 
-        // covnertedFile = convertedBlob.url;
         console.log(convertedBlob.url);
         res.json({ downloadUrl: convertedBlob.url, filedeleted: videoUrl.url, metadata: completeVideoMetadata, errorMessage: '' });
       } catch (error) {
