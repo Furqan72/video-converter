@@ -25,6 +25,7 @@ const AllowedDomains = {
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Access-Control-Allow-Origin', 'Allow', 'Content-Type'],
   optionsSuccessStatus: 200,
+  credentials: false,
 };
 
 app.use(cors(AllowedDomains));

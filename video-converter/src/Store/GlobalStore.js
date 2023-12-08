@@ -50,12 +50,12 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
     await axios
       // .post('http://localhost:8080/convert', formData, {
       .post('https://video-converter-api.vercel.app/convert', formData, {
-        withCredentials: true,
+        withCredentials: false,
         // .post('http://127.0.0.1:5001/converter-tools-2f30a/us-central1/api/convert', formData, {
         // .post('https://us-central1-converter-tools-2f30a.cloudfunctions.net/api/convert', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Origin': true,
           Accept: 'application/json',
           // 'Access-Control-Allow-Origin': 'https://video-converter2.vercel.app',
         },
