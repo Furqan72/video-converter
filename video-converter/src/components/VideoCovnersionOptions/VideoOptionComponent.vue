@@ -21,7 +21,7 @@
         <div v-if="!shouldHideField(field)" class="grid grid-cols-4 justify-center text-gray-color">
           <label :for="field.name" class="mr-2 mt-2 text-15px">{{ field.label }}</label>
           <div class="col-span-3 flex flex-col">
-            <select :name="field.name" class="w-full rounded-lg border px-4 py-2 outline-none">
+            <select :name="field.name" class="w-full rounded-lg border bg-white px-4 py-2 outline-none">
               <option v-for="(option, optionIndex) in field.options" :key="optionIndex" :value="option.value" :selected="option.selected">{{ option.label }}</option>
             </select>
             <span class="mt-2 text-xs text-light-gray">{{ field.description }}</span>
@@ -31,7 +31,7 @@
       <div class="grid grid-cols-4 justify-center text-gray-color" :class="GlobalData.selectedFormat === '.wmv' ? 'block' : 'hidden'">
         <label for="" class="mr-2 mt-2 text-15px">Qscale</label>
         <div class="col-span-3 flex flex-col">
-          <input type="text" name="Qscale" class="w-full rounded-lg border px-4 py-2 outline-none" value="5" placeholder="" />
+          <input type="text" name="Qscale" class="w-full rounded-lg border bg-white px-4 py-2 outline-none" value="5" placeholder="" />
           <span class="mt-2 text-xs text-light-gray">Video quality ranging from 1-31, with 1 being highest quality/largest filesize and 31 being the lowest quality/smallest filesize.</span>
         </div>
       </div>

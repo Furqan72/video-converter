@@ -68,23 +68,23 @@ function extractOptionsFromRequest(req) {
   return options;
 }
 
-// // Metadata of the video
-// function videoMetadata(inputPath) {
-//   return new Promise((resolve, reject) => {
-//     const command = new fluentFfmpeg();
+// Metadata of the video
+function videoMetadata(inputPath) {
+  return new Promise((resolve, reject) => {
+    const command = new fluentFfmpeg();
 
-//     command.input(inputPath);
-//     command.ffprobe((err, metadata) => {
-//       if (err) {
-//         console.error('Error in metadata:', err);
-//         reject(err);
-//       } else {
-//         // console.log(metadata);
-//         resolve(metadata);
-//       }
-//     });
-//   });
-// }
+    command.input(inputPath);
+    command.ffprobe((err, metadata) => {
+      if (err) {
+        console.error('Error in metadata:', err);
+        reject(err);
+      } else {
+        // console.log(metadata);
+        resolve(metadata);
+      }
+    });
+  });
+}
 
 // // Trimming
 // const configureTrimming = async (startingTime, endingTime, duration) => {
@@ -290,6 +290,8 @@ async function videoConversionFunction(req, res) {
 
     // const videoStream = await downloadVideo(videoUrl.url);
     console.log('downloaded.....');
+    const completeVideoMetadata = await videoMetadata(videoUrl.url);
+    console.log(completeVideoMetadata);
 
     const fileName = options.inputFile[0].originalname.split('.');
     const fileNameIwthoutExtension = fileName[0];
@@ -317,7 +319,7 @@ async function videoConversionFunction(req, res) {
 
         // covnertedFile = convertedBlob.url;
         console.log(convertedBlob.url);
-        res.json({ downloadUrl: convertedBlob.url, filedeleted: videoUrl.url, metadata: 'jsonData', errorMessage: '' });
+        res.json({ downloadUrl: convertedBlob.url, filedeleted: videoUrl.url, metadata: completeVideoMetadata, errorMessage: '' });
       } catch (error) {
         console.error(error);
         res.json({ downloadUrl: 'covnertedFile', filedeleted: 'videoUrl.url', metadata: 'jsonData', errorMessage: '' });
