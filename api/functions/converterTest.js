@@ -3,7 +3,7 @@ const { put, del } = require('@vercel/blob');
 const fetch = require('node-fetch');
 
 // routes
-const router = require('./router');
+// const router = require('./router');
 
 // ffmpeg
 const fluentFfmpeg = require('fluent-ffmpeg');

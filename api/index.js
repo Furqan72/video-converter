@@ -8,7 +8,7 @@ const { put, del } = require('@vercel/blob');
 const fetch = require('node-fetch');
 
 // routes
-const router = require('./router');
+// const router = require('./router');
 
 // ffmpeg
 const fluentFfmpeg = require('fluent-ffmpeg');
@@ -22,7 +22,7 @@ const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_bOTWCUbFieaFtB6h_
 const app = express();
 
 const AllowedDomains = {
-  origin: ['https://video-converter2.vercel.app', 'https://video-converter2.vercel.app/image-converter/'],
+  origin: ['https://video-converter2.vercel.app', 'https://video-converter2.vercel.app/image-converter', 'http://localhost:5173'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Access-Control-Allow-Origin', 'Allow', 'Content-Type'],
   optionsSuccessStatus: 200,
@@ -172,8 +172,8 @@ const { imageConversionFunction } = require('./functions/imageConverterTest');
 const { videoConversionFunction } = require('./functions/converterTest');
 
 // post routes
-router.post('/image-conversion', imageConversionFunction);
-router.post('/video-conversion', videoConversionFunction);
+app.use('/image-conversion', imageConversionFunction);
+app.use('/video-conversion', videoConversionFunction);
 
 // app.use('/', router);
 

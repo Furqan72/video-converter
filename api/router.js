@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 
 // functions
-const { imageConversionFunction } = require('./functions/imageConverterTest');
-const { videoConversionFunction } = require('./functions/converterTest');
+const { imageConversionFunction } = require('./functions/converterTest');
+const { videoConversionFunction } = require('./functions/imageConverterTest');
 
 // post routes
 router.post('/image-conversion', imageConversionFunction);
