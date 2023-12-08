@@ -51,13 +51,13 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
       .post('https://video-converter-api.vercel.app/convert', formData, {
         // .post('http://127.0.0.1:5001/converter-tools-2f30a/us-central1/api/convert', formData, {
         // .post('https://us-central1-converter-tools-2f30a.cloudfunctions.net/api/convert', formData, {
-        // headers: {
-        //   'Content-Type': 'multipart/form-data',
-        // },
-        // onUploadProgress: (progressEvent) => {
-        //   const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        //   uploadLoading.value = percentCompleted;
-        // },
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          uploadLoading.value = percentCompleted;
+        },
       })
       .then((response) => {
         downloadUrlFromNode.value = response.data.downloadUrl;
