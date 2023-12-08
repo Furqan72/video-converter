@@ -164,7 +164,18 @@ app.get('/', (req, res) => {
 //   }
 // });
 
-app.use('/', router);
+// const express = require('express');
+// const router = express.Router();
+
+// functions
+const { imageConversionFunction } = require('./functions/imageConverterTest');
+const { videoConversionFunction } = require('./functions/converterTest');
+
+// post routes
+router.post('/image-conversion', imageConversionFunction);
+router.post('/video-conversion', videoConversionFunction);
+
+// app.use('/', router);
 
 server.listen(8080, () => {
   console.log(`Server is running on 8080 port`);
