@@ -4,6 +4,8 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const fs = require('fs');
+const { put, del } = require('@vercel/blob');
+const fetch = require('node-fetch');
 
 // ffmpeg
 const fluentFfmpeg = require('fluent-ffmpeg');
@@ -83,7 +85,6 @@ function extractOptionsFromRequest(req) {
 
   return options;
 }
-
 // file upload
 async function uploadToVercelBlob(file) {
   try {
@@ -96,7 +97,6 @@ async function uploadToVercelBlob(file) {
     console.error(error);
   }
 }
-
 // file download
 async function downloadVideo(url) {
   const response = await fetch(url);
@@ -113,43 +113,51 @@ app.post('/convert', async (req, res) => {
     const videoUrl = await uploadToVercelBlob(options.inputFile);
     console.log('Uploaded Input File >> ' + videoUrl.url);
 
-    const videoStream = await downloadVideo(videoUrl.url);
+    // const videoStream = await downloadVideo(videoUrl.url);
     console.log('downloaded.....');
 
-    const tmpOutputPath = `/tmp/converted-${outputName}${options.selectMenuValues}`;
-    // const outputFileName = `output-files/converted-${inputFileName.split('.')[0]}.mp4`;
-    // const outputFileName = `output-files/converted-${inputFileName.split('.')[0]}.mp4`;
-    // const outputFile = bucket.file(outputFileName);
-    // const outputBuffer = Buffer.from(outputBufferStream.toBuffer());
-    // await outputFile.save(outputBuffer);
+    const fileName = options.inputFile[0].originalname.split('.');
+    const fileNameIwthoutExtension = fileName[0];
+    console.log(fileNameIwthoutExtension);
+    const tmpOutputPath = `/tmp/converted-${fileNameIwthoutExtension}${options.selectMenuValues}`;
+    // let covnertedFile = options.selectMenuValues.tirm();
+    const selectedValues = options.selectMenuValues.slice(1);
+    console.log(selectedValues);
 
-    const command = new fluentFfmpeg();
-    command.input(videoStream);
+    const command = fluentFfmpeg();
+    command.input(videoUrl.url);
     command.outputOptions(['-c:v libx264']);
     command.save(tmpOutputPath);
+    // command.pipeto
 
-    await new Promise((resolve, reject) => {
-      command.on('end', resolve).on('error', reject);
-    });
-
-    let jsonData = JSON.parse(data);
-
-    // Read the contents of the file
-    fs.readFile(tmpOutputPath, 'utf8', (err, data) => {
-      if (err) {
-        console.error('Error reading file:', err);
-        res.status(500).json({ error: 'Error reading file' });
-        return;
-      }
-
+    command.on('end', async () => {
       try {
-        jsonData = JSON.parse(data);
-      } catch (jsonError) {
-        console.error('Error parsing file contents as JSON:', jsonError);
+        const convertedData = await fs.readFileSync(tmpOutputPath);
+
+        // Upload converted file to Vercel Blob
+        const convertedBlob = await put(`converted/${fileNameIwthoutExtension}${options.selectMenuValues}`, convertedData, {
+          access: 'public',
+          contentType: `video/${selectedValues}`,
+          token: BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN,
+        });
+
+        // covnertedFile = convertedBlob.url;
+        console.log(convertedBlob.url);
+        res.json({ downloadUrl: convertedBlob.url, filedeleted: videoUrl.url, metadata: 'jsonData', errorMessage: '' });
+      } catch (error) {
+        console.error(error);
+        res.json({ downloadUrl: 'covnertedFile', filedeleted: 'videoUrl.url', metadata: 'jsonData', errorMessage: '' });
+      } finally {
+        fs.unlinkSync(tmpOutputPath);
       }
     });
 
-    res.json({ downloadUrl: videoUrl.url, filedeleted: videoUrl.url, metadata: jsonData, errorMessage: error.message });
+    // await new Promise((resolve, reject) => {
+    //   command.on('end', resolve).on('error', reject);
+    // });
+    // let jsonData;
+    console.log('process end');
+    // res.json({ downloadUrl: covnertedFile, filedeleted: videoUrl.url, metadata: 'jsonData', errorMessage: '' });
   } catch (error) {
     console.log(error);
     res.json({ downloadUrl: 'inputDownloadUrl', filedeleted: 'inputDownloadUrl', metadata: 'completeVideoMetadata', errorMessage: error.message });
