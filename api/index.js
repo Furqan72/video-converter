@@ -20,14 +20,15 @@ const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_bOTWCUbFieaFtB6h_
 const app = express();
 const server = http.createServer(app);
 
-const AllowedDomains = {
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type'],
-  optionsSuccessStatus: 200,
-};
+// const AllowedDomains = {
+//   origin: '*',
+//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//   allowedHeaders: ['Allow', 'Content-Type'],
+//   optionsSuccessStatus: 200,
+// };
 
-app.use('*', cors(AllowedDomains));
+// app.use('*', cors(AllowedDomains));
+app.use(cors({ origin: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
