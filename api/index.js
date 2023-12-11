@@ -26,9 +26,9 @@ const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_bOTWCUbFieaFtB6h_
 const app = express();
 
 const AllowedDomains = {
-  origin: ['https://video-converter2.vercel.app', 'https://video-converter2.vercel.app/image-converter', 'http://localhost:5173'],
+  origin: ['https://video-converter2.vercel.app', 'https://video-converter2.vercel.app/image-converter', 'https://video-converter2.vercel.app/image-converter/', 'http://localhost:5173'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Access-Control-Allow-Origin', 'Allow', 'Content-Type'],
+  allowedHeaders: ['Content-Type', 'Access-Control-Allow-Origin', 'Allow'],
   optionsSuccessStatus: 200,
   credentials: false,
 };
@@ -61,8 +61,8 @@ app.get('/', (req, res) => {
 });
 
 // post routes
-app.use('/video-conversion', videoConversionFunction);
-app.use('/image-conversion', imageConversionFunction);
+app.post('/video-conversion', videoConversionFunction);
+app.post('/image-conversion', imageConversionFunction);
 
 // app.use('/', router);
 

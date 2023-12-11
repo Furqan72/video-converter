@@ -11,7 +11,6 @@ fluentFfmpeg.setFfmpegPath(ffmpegPath);
 fluentFfmpeg.setFfprobePath(ffprobeStatic);
 const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_8oL0c4E3y4emK5Iq_mNmffcqTL3VgnPvoTKAxDK3jiN3PvD';
 
-
 // functions
 const functions = require('./functions');
 
@@ -279,7 +278,7 @@ async function configureAudioSettings(command, editingoptions) {
   }
 }
 
-async function videoConversionFunction(req, res) {
+async function videoConversionFunction(req, res, next) {
   try {
     console.log('Process Start.....');
     const options = extractOptionsFromRequest(req);
@@ -341,6 +340,7 @@ async function videoConversionFunction(req, res) {
     console.log('process end');
   } catch (error) {
     console.log(error);
+    // next(error);
     res.json({ downloadUrl: 'inputDownloadUrl', filedeleted: 'inputDownloadUrl', metadata: 'completeVideoMetadata', errorMessage: error.message });
   }
 }
