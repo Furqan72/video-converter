@@ -10,7 +10,7 @@
       <div v-for="(audio, index) in audioFields" :key="index" class="grid grid-cols-4 justify-center text-gray-color">
         <label :for="audio.name" class="mr-2 mt-2 text-15px">{{ audio.label }}</label>
         <div class="col-span-3 flex flex-col">
-          <select :name="audio.name" class="w-full rounded-lg border px-4 py-2 outline-none">
+          <select :name="audio.name" class="w-full rounded-lg border px-4 py-2 outline-none bg-white">
             <option v-for="(option, optionIndex) in audio.options" :key="optionIndex" :value="option.value" :selected="option.selected">{{ option.label }}</option>
           </select>
           <span class="mt-2 text-xs text-light-gray">{{ audio.description }}</span>
