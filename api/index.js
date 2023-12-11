@@ -222,7 +222,8 @@ async function configureAudioSettings(command, editingoptions) {
   }
 }
 
-async function videoConversionFunction(req, res, next) {
+// async function videoConversionFunction(req, res, next) {
+app.post('/video-conversion', async (req, res) => {
   try {
     console.log('Process Start.....');
     const options = extractOptionsFromRequest(req);
@@ -287,10 +288,10 @@ async function videoConversionFunction(req, res, next) {
     // next(error);
     res.json({ downloadUrl: 'inputDownloadUrl', filedeleted: 'inputDownloadUrl', metadata: 'completeVideoMetadata', errorMessage: error.message });
   }
-}
+});
 
-app.post('/video-conversion', videoConversionFunction);
-app.post('/image-conversion', imageConversionFunction);
+// app.post('/video-conversion', videoConversionFunction);
+// app.post('/image-conversion', imageConversionFunction);
 
 // app.use('/', router);
 
