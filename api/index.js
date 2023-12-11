@@ -62,7 +62,7 @@ app.get('/', (req, res) => {
 
 // post routes
 app.use('/video-conversion', videoConversionFunction);
-// app.use('/image-conversion', imageConversionFunction);
+app.use('/image-conversion', imageConversionFunction);
 
 // app.use('/', router);
 

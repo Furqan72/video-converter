@@ -9,7 +9,8 @@ const ffprobeStatic = require('ffprobe-static').path;
 
 fluentFfmpeg.setFfmpegPath(ffmpegPath);
 fluentFfmpeg.setFfprobePath(ffprobeStatic);
-const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_bOTWCUbFieaFtB6h_V4MX4bG2XZyRDsVqgCrWOw23fqAuSs';
+const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_8oL0c4E3y4emK5Iq_mNmffcqTL3VgnPvoTKAxDK3jiN3PvD';
+
 
 // functions
 const functions = require('./functions');
@@ -107,22 +108,7 @@ const configureTrimming = (startingTime, endingTime, duration) => {
 
 // // Converting the file
 // async function convertVideo(videoStream, options, metadata) {
-//   const completeDuration = metadata.format.duration;
 
-//   const withoutDotSelectMenu = editingoptions.selectMenuValues.slice(1);
-//   const withoutDotFileName = editingoptions.inputFile[0].originalname.split('.');
-//   console.log(withoutDotFileName[0]);
-//   let [cropWidth, cropHeight] = editingoptions.resolution.split('x');
-
-//   let requiredDuration, trimError;
-
-//   if (editingoptions.startingTime && editingoptions.endingTime) {
-//     requiredDuration = await configureTrimming(editingoptions.startingTime, editingoptions.endingTime, completeDuration);
-//     trimError = requiredDuration.errorMessages;
-//   }
-//   console.log(trimError);
-
-//   const outputStream = new PassThrough();
 //   const command = fluentFfmpeg();
 //   command.input(videoStream);
 //   command.format(withoutDotSelectMenu);
@@ -130,12 +116,6 @@ const configureTrimming = (startingTime, endingTime, duration) => {
 //   // if (editingoptions.selectMenuValues === '.mp4') {
 //   // Add the following line to enable faststart for mp4 format
 //   // command.outputOptions(['-movflags', '+faststart']);
-
-//   // AV-COdecs
-//   command.videoCodec(editingoptions.videoCOdec);
-//   command.audioCodec(editingoptions.audioCodecSelect);
-
-//   // Video-Options
 
 //   // Set Resolution
 //   if (editingoptions.resolution && editingoptions.resolution !== 'no change') {
@@ -156,26 +136,12 @@ const configureTrimming = (startingTime, endingTime, duration) => {
 //     command.aspect(editingoptions.aspectRatio);
 //     console.log(editingoptions.aspectRatio);
 //   }
-//   // Set Constant Quality (CRF)
-//   if (editingoptions.qualityConstant) {
-//     command.withVideoBitrate(editingoptions.qualityConstant);
-//     command.videoBitrate(editingoptions.qualityConstant);
-//     console.log(editingoptions.qualityConstant);
-//   }
-
-//   // CRF
-//   if (editingoptions.qualityConstant) {
-//     command.addOptions([`-crf ${editingoptions.qualityConstant}`]);
-//   }
 
 //   // Set FPS (Frames Per Second)
 //   if (editingoptions.framePersecond && editingoptions.framePersecond !== 'none') {
 //     command.fps(editingoptions.framePersecond);
 //   }
-//   // Set Channels
-//   if (editingoptions.audioChannels && editingoptions.audioChannels !== 'no change') {
-//     command.audioChannels(editingoptions.audioChannels);
-//   }
+
 //   // Set Sample Rate
 //   if (editingoptions.SampleRate) {
 //     command.audioFrequency(editingoptions.SampleRate);
@@ -243,38 +209,6 @@ const configureTrimming = (startingTime, endingTime, duration) => {
 //   // console.log('FFmpeg Command:', command.toString());
 //   // command.inputOptions('-loglevel debug');
 //   // console.log(command.inputOptions('-loglevel debug'));
-
-//   command.pipe(outputStream);
-
-//   return outputStream;
-// }
-
-// // Video conversion process
-// async function videoConversionFunction(req, res) {
-//   try {
-//     console.log('Process Start.....');
-//     const options = extractOptionsFromRequest(req);
-//     // console.log(options);
-
-//     const inputFileRef = ref(storage, `${options.inputFile[0].originalname}`);
-//     await uploadBytes(inputFileRef, options.inputFile[0].buffer);
-
-//     const inputDownloadUrl = await getDownloadURL(inputFileRef);
-//     console.log('Uploaded Input File >> ' + inputDownloadUrl);
-
-//     // console.log('downloaded.....');
-//     const completeVideoMetadata = await videoMetadata(inputDownloadUrl);
-//     // console.log(completeVideoMetadata);
-
-//     // const convertedStream = await convertVideo(videoStream, options, completeVideoMetadata);
-
-//     res.json({ downloadUrl: inputDownloadUrl, filedeleted: inputDownloadUrl, metadata: completeVideoMetadata, errorMessage: '' });
-
-//     console.log('process end');
-//   } catch (error) {
-//     console.error(error);
-//     res.json({ downloadUrl: 'processedVideo.url', filedeleted: 'inputVideo.url', metadata: 'completeVideoMetadata', errorMessage: error.message });
-//   }
 // }
 
 // Video Configuration
@@ -354,8 +288,6 @@ async function videoConversionFunction(req, res) {
     const videoUrl = await uploadToVercelBlob(options.inputFile);
     console.log('Uploaded Input File >> ' + videoUrl.url);
 
-    // const videoStream = await downloadVideo(videoUrl.url);
-    console.log('downloaded.....');
     const completeVideoMetadata = await videoMetadata(videoUrl.url);
     console.log(completeVideoMetadata);
 
@@ -363,7 +295,6 @@ async function videoConversionFunction(req, res) {
     const fileNameIwthoutExtension = fileName[0];
     console.log(fileNameIwthoutExtension);
     const tmpOutputPath = `/tmp/converted-${fileNameIwthoutExtension}${options.selectMenuValues}`;
-    // let covnertedFile = options.selectMenuValues.tirm();
     const selectedValues = options.selectMenuValues.slice(1);
     console.log(selectedValues);
 
@@ -376,8 +307,6 @@ async function videoConversionFunction(req, res) {
 
     const command = new fluentFfmpeg();
     command.input(videoUrl.url);
-    // command.outputOptions(['-c:v libx264']);
-    // configureTrimming(options.startingTime, options.endingTime, completeVideoMetadata.format.duration);
     // trimming
     if (requiredDuration) {
       command.setStartTime(options.startingTime);
