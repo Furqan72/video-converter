@@ -1,6 +1,5 @@
 const fs = require('fs');
 const { put, del } = require('@vercel/blob');
-const fetch = require('node-fetch');
 
 // ffmpeg
 const fluentFfmpeg = require('fluent-ffmpeg');
@@ -105,134 +104,125 @@ const configureTrimming = (startingTime, endingTime, duration) => {
   return { totalDuration, errorMessages };
 };
 
-// // Converting the file
-// async function convertVideo(videoStream, options, metadata) {
+// Video Conversion FFmepg events
+const configureFFmpegEvents = (command, tmpOutputPath, fileNameIwthoutExtension, selectMenuValues, selectedValues, completeVideoMetadata, res) => {
+  command
+    .on('start', () => {
+      console.log('message', 'Conversion Started.');
+    })
+    .on('progress', (progress) => {
+      if (progress.percent !== undefined) {
+        const progressPercent = progress.percent.toFixed(2);
+        console.log(progressPercent);
+      }
+    })
+    .on('end', async () => {
+      console.log('100');
+      console.log('A Conversion has ended.');
+      try {
+        const convertedData = await fs.readFileSync(tmpOutputPath);
+        // Upload converted file to Vercel Blob
+        const convertedBlob = await put(`converted/${fileNameIwthoutExtension}${selectMenuValues}`, convertedData, {
+          access: 'public',
+          contentType: `video/${selectedValues}`,
+          token: BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN,
+        });
 
-//   const command = fluentFfmpeg();
-//   command.input(videoStream);
-//   command.format(withoutDotSelectMenu);
+        console.log(convertedBlob.url);
+        res.json({ downloadUrl: convertedBlob.url, filedeleted: fileNameIwthoutExtension + selectMenuValues, metadata: completeVideoMetadata, errorMessage: '' });
+      } catch (error) {
+        console.log(error);
+      } finally {
+        fs.unlinkSync(tmpOutputPath);
+      }
+    })
+    .on('error', (err, stdout, stderr) => {
+      try {
+        console.error('Error:', err);
+        console.error('FFmpeg stderr:', stderr);
+        console.error('FFmpeg stdout:', stdout);
 
-//   // if (editingoptions.selectMenuValues === '.mp4') {
-//   // Add the following line to enable faststart for mp4 format
-//   // command.outputOptions(['-movflags', '+faststart']);
+        const errorLines = stderr.split('\n');
+        const errorPatterns = /(Could not find|width not|timeline data missing|does not support|muxer does not|compatible|Unsupported codec|width must be|Only VP8 or VP9 or AV1|Streamcopy|Unable to find|encoder setup failed|does not yet support|No such filter|can only be written|only supports|is not available|codec tag found for|only supported in|codec failed|is not supported in|Packet is missing PTS|at most one|Error setting option profile|Possible tunes: psnr ssim grain|Error setting option tune to|Unsupported audio codec. Must be one of| not create encoder reference|Cannot open libx265 encoder | Filter scale)/;
+        const errorMessages = errorLines.filter((line) => errorPatterns.test(line));
 
-//   // Set Resolution
-//   if (editingoptions.resolution && editingoptions.resolution !== 'no change') {
-//     if (editingoptions.fitValue === 'scale') {
-//       command.size(editingoptions.resolution);
-//       command.crop;
-//       console.log(editingoptions.resolution);
-//     } else if (editingoptions.fitValue === 'max') {
-//       command.autoPad();
-//     } else if (editingoptions.fitValue === 'crop') {
-//       // command.complexFilter(`crop=${cropWidth}:${cropHeight}`);
-//       console.log('Provided Inputs: ', cropHeight, cropWidth, '  --  Provided by File: ', metadata.streams[0].width, metadata.streams[0].height);
-//     }
-//   }
+        let extractedText = '';
+        errorMessages.forEach((errorMessage) => {
+          const indexOfClosingBracket = errorMessage.indexOf(']');
+          if (indexOfClosingBracket !== -1) {
+            extractedText = errorMessage.substring(indexOfClosingBracket + 1).trim();
+          }
+        });
+        console.log('Error  -----------  ', extractedText);
 
-//   // Set Aspect Ratio
-//   if (editingoptions.aspectRatio && editingoptions.aspectRatio !== 'no change') {
-//     command.aspect(editingoptions.aspectRatio);
-//     console.log(editingoptions.aspectRatio);
-//   }
-
-//   // Set FPS (Frames Per Second)
-//   if (editingoptions.framePersecond && editingoptions.framePersecond !== 'none') {
-//     command.fps(editingoptions.framePersecond);
-//   }
-
-//   // Set Sample Rate
-//   if (editingoptions.SampleRate) {
-//     command.audioFrequency(editingoptions.SampleRate);
-//   }
-//   // Set Audio Bitrate
-//   if (editingoptions.AudioBitrateValue && editingoptions.aspectRatio !== 'none') {
-//     command.audioBitrate(editingoptions.AudioBitrateValue);
-//   }
-//   // Set Volume
-//   if (editingoptions.videoVolume && editingoptions.videoVolume !== 'no change') {
-//     command.audioFilters([`volume=${editingoptions.videoVolume}`]);
-//   }
-
-//   // Set Profile
-//   if (editingoptions.profileValue && editingoptions.profileValue !== 'none') {
-//     command.addOption('-profile:v', editingoptions.profileValue);
-//     console.log(editingoptions.profileValue);
-//   }
-//   // Set Level
-//   if (editingoptions.levelValue && editingoptions.levelValue !== 'none') {
-//     command.addOption('-level:v', editingoptions.levelValue);
-//     console.log(editingoptions.levelValue);
-//   }
-//   // Set Preset
-//   if (editingoptions.presetValue && editingoptions.presetValue !== 'none') {
-//     command.addOption('-preset', editingoptions.presetValue);
-//     console.log(editingoptions.presetValue);
-//   }
-//   // Set Tune
-//   if (editingoptions.tuning && editingoptions.tuning !== 'none') {
-//     command.addOption('-tune', editingoptions.tuning);
-//     console.log(editingoptions.tuning);
-//   }
-
-//   // buffer-size and max-bitrate
-//   if (metadata.streams[0].buffer_size && metadata.streams[0].max_bitrate) {
-//     command.addOptions([`-bufsize ${metadata.streams[0].buffer_size}`]);
-//     command.addOptions([`-maxrate ${metadata.streams[0].max_bitrate}`]);
-//   }
-
-//   // Key Frame Interval
-//   if (editingoptions.desiredKeyframeInterval) {
-//     command.addOption(`-g ${editingoptions.desiredKeyframeInterval}`);
-//   }
-
-//   // trimming
-//   if (requiredDuration) {
-//     command.setStartTime(editingoptions.startingTime);
-//     command.setDuration(requiredDuration.totalDuration);
-//   }
-
-//   command.on('end', () => {
-//     console.log('Video conversion completed');
-//   });
-
-//   // console.log(stdin);
-//   // console.log(stdout);
-
-//   command.on('error', (error, stderr, stdout) => {
-//     console.error('Error during video conversion:', error);
-//     console.error('Error during STDERR:', stderr);
-//     console.error('Error during STDERR:', stdout);
-//   });
-
-//   // console.log('FFmpeg Command:', command.toString());
-//   // command.inputOptions('-loglevel debug');
-//   // console.log(command.inputOptions('-loglevel debug'));
-// }
+        res.status(500).send('Conversion Error: ' + err.message);
+      } catch (error) {
+        console.error('An error occurred while handling the FFmpeg error:', error);
+      }
+    });
+};
 
 // Video Configuration
-async function configureVideoSettings(command, editingoptions) {
-  command.videoCodec(editingoptions.videoCOdec);
+async function configureVideoSettings(command, editingoptions, metadata) {
+  const originalWidth = metadata.streams[0].width;
+  const originalHeight = metadata.streams[0].height;
+  console.log(originalWidth, originalHeight);
+
+  const [givenWidth, givenHeight] = editingoptions.resolution.split('x');
+  console.log(givenWidth, givenHeight);
+
   if (editingoptions.qualityConstant) {
     command.addOptions([`-crf ${editingoptions.qualityConstant}`]);
   }
+
+  // Set Resolution
+  if (editingoptions.resolution && editingoptions.resolution !== 'no change') {
+    command.complexFilter(functions.createComplexVideoFilter(editingoptions.fitValue, givenWidth, givenHeight));
+  }
+
+  // Set Aspect Ratio
+  if (editingoptions.aspectRatio !== 'no change') {
+    command.complexFilter(`setdar=${editingoptions.aspectRatio}`);
+    console.log('aspect ---------------------------- ' + editingoptions.aspectRatio);
+  }
+
+  // tune
   if (editingoptions.tuning && editingoptions.tuning !== 'none') {
     command.addOptions([`-tune ${editingoptions.tuning}`]);
   }
+  // profile
   if (editingoptions.profileValue && editingoptions.profileValue !== 'none') {
     command.addOption(`-profile:v ${editingoptions.profileValue}`);
   }
+  // level
   if (editingoptions.levelValue && editingoptions.levelValue !== 'none') {
     command.addOptions([`-level ${editingoptions.levelValue}`]);
   }
+  // preset
   if (editingoptions.presetValue) {
     command.addOptions([`-preset ${editingoptions.presetValue}`]);
   }
+  // Qscale
   if (editingoptions.QscaleValue && editingoptions.selectMenuValues === '.wmv') {
     command.addOption(`-q:v ${editingoptions.QscaleValue}`);
   }
+  // FPS
+  if (options.framePersecond) {
+    command.addOption('-r', options.framePersecond);
+  }
+  // frame Per second
   if (editingoptions.framePersecond) {
     command.addOption('-r', editingoptions.framePersecond);
+  }
+  // Key Frame Interval
+  if (editingoptions.desiredKeyframeInterval) {
+    command.addOption(`-g ${editingoptions.desiredKeyframeInterval}`);
+  }
+
+  // buffer-size and max-bitrate
+  if (metadata.streams[0].buffer_size && metadata.streams[0].max_bitrate) {
+    command.addOptions([`-bufsize ${metadata.streams[0].buffer_size}`]);
+    command.addOptions([`-maxrate ${metadata.streams[0].max_bitrate}`]);
   }
 }
 
@@ -278,16 +268,47 @@ async function configureAudioSettings(command, editingoptions) {
   }
 }
 
+// Subtitles
+const configureSubtitleSettings = (command, editingoptions, subtitleFileURL) => {
+  if (editingoptions.subtitlesType === 'soft' || editingoptions.subtitlesType === 'hard') {
+    command.outputOption('-c:s ass');
+  }
+};
+
+// Watermark
+const configureWatermarkSettings = (command) => {
+  command.complexFilter(['[1:v]format=rgba,colorchannelmixer=aa=0.8[watermark]', '[0:v][watermark]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2']);
+};
+
+// Function
 async function videoConversionFunction(req, res, next) {
   try {
     console.log('Process Start.....');
     const options = extractOptionsFromRequest(req);
     console.log(options);
 
-    const videoUrl = await uploadToVercelBlob(options.inputFile);
-    console.log('Uploaded Input File >> ' + videoUrl.url);
+    // uploading the files
+    const videoPromise = uploadToVercelBlob(options.inputFile);
+    let subtitlePromise, waterMarkImagePromise;
+    if (options.subtitleFiles && options.subtitlesType !== 'none' && options.subtitlesType !== 'copy') {
+      subtitlePromise = uploadToVercelBlob(options.subtitleFiles);
+    }
+    if (options.imageWatermark) {
+      waterMarkImagePromise = uploadToVercelBlob(options.imageWatermark);
+    }
 
+    const [videoUrl, subtitleUrl, watermarkUrl] = await Promise.all([videoPromise, subtitlePromise, waterMarkImagePromise]);
+    // metadata
     const completeVideoMetadata = await videoMetadata(videoUrl.url);
+
+    // checking the link for the file
+    console.log('Uploaded Input File >> ' + videoUrl.url);
+    if (subtitleUrl) {
+      console.log('Uploaded Subtitle File >> ' + subtitleUrl.url);
+    }
+    if (watermarkUrl) {
+      console.log('Uploaded Watermark File >> ' + watermarkUrl.url);
+    }
     console.log(completeVideoMetadata);
 
     const fileName = options.inputFile[0].originalname.split('.');
@@ -296,6 +317,7 @@ async function videoConversionFunction(req, res, next) {
     const tmpOutputPath = `/tmp/converted-${fileNameIwthoutExtension}${options.selectMenuValues}`;
     const selectedValues = options.selectMenuValues.slice(1);
     console.log(selectedValues);
+    const videoStream = completeVideoMetadata.streams.find((stream) => stream.codec_type === 'video');
 
     let requiredDuration;
     if (options.startingTime && options.endingTime) {
@@ -305,42 +327,62 @@ async function videoConversionFunction(req, res, next) {
     }
 
     const command = new fluentFfmpeg();
+
+    // video File
     command.input(videoUrl.url);
+
+    // Image(watermark) File
+    if (options.imageWatermark) {
+      command.input(watermarkUrl.url);
+    }
+
+    // SRT|ASS (Subtitle) File
+    if (options.subtitleFiles && options.subtitlesType !== 'none' && options.subtitlesType !== 'copy') {
+      command.input(subtitleUrl.url);
+    }
+
+    // FFmpeg-Events (Start, Progress, End, Error)
+    configureFFmpegEvents(command, tmpOutputPath, fileNameIwthoutExtension, options.selectMenuValues, selectedValues, completeVideoMetadata, res);
+
     // trimming
     if (requiredDuration) {
       command.setStartTime(options.startingTime);
       command.setDuration(requiredDuration.totalDuration);
     }
     console.log(`Video resolution ORGINAL DIMENSIONS : ${completeVideoMetadata.streams[0].width}x${completeVideoMetadata.streams[0].height}`);
-    configureVideoSettings(command, options);
+
+    // checking for multiple video streams
+    if (options.selectMenuValues === '.flv' || options.selectMenuValues === '.mkv') {
+      if (videoStream && videoStream.length > 1) {
+        command.inputOptions(['-map 0:v:0']);
+      }
+    }
+
+    command.videoCodec(options.videoCOdec);
+    if (options.videoCOdec !== 'copy') {
+      configureVideoSettings(command, options, completeVideoMetadata);
+    }
     configureAudioSettings(command, options);
 
+    // subtitle
+    if (options.subtitleFiles && options.subtitlesType !== 'none' && options.subtitlesType !== 'copy') {
+      configureSubtitleSettings(command, options, subtitleUrl.url);
+    }
+
+    // watermark
+    if (options.imageWatermark) {
+      configureWatermarkSettings(command);
+    }
+
+    if (options.selectMenuValues !== '.flv' && options.selectMenuValues !== '.mkv') {
+      command.outputOptions(['-map 0', '-dn']);
+    }
+
     command.save(tmpOutputPath);
-    command.on('end', async () => {
-      try {
-        const convertedData = await fs.readFileSync(tmpOutputPath);
-
-        // Upload converted file to Vercel Blob
-        const convertedBlob = await put(`converted/${fileNameIwthoutExtension}${options.selectMenuValues}`, convertedData, {
-          access: 'public',
-          contentType: `video/${selectedValues}`,
-          token: BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN,
-        });
-
-        console.log(convertedBlob.url);
-        res.json({ downloadUrl: convertedBlob.url, filedeleted: videoUrl.url, metadata: completeVideoMetadata, errorMessage: '' });
-      } catch (error) {
-        console.error(error);
-        res.json({ downloadUrl: 'covnertedFile', filedeleted: 'videoUrl.url', metadata: 'jsonData', errorMessage: '' });
-      } finally {
-        fs.unlinkSync(tmpOutputPath);
-      }
-    });
 
     console.log('process end');
   } catch (error) {
     console.log(error);
-    // next(error);
     res.json({ downloadUrl: 'inputDownloadUrl', filedeleted: 'inputDownloadUrl', metadata: 'completeVideoMetadata', errorMessage: error.message });
   }
 }

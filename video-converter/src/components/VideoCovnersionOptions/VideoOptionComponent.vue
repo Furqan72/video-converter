@@ -63,12 +63,12 @@ const resolutionOptions = ref([
 // Aspect ratio
 const aspectRatioOptions = ref([
   { value: 'no change', label: 'no change', selected: 'no changes' },
-  { value: '16:9', label: '16:9' },
-  { value: '14:9', label: '14:9' },
-  { value: '4:3', label: '4:3' },
-  // { value: '16/9', label: '16:9' },
-  // { value: '14/9', label: '14:9' },
-  // { value: '4/3', label: '4:3' },
+  // { value: '16:9', label: '16:9' },
+  // { value: '14:9', label: '14:9' },
+  // { value: '4:3', label: '4:3' },
+  { value: '16/9', label: '16:9' },
+  { value: '14/9', label: '14:9' },
+  { value: '4/3', label: '4:3' },
 ]);
 // Constant quality
 const constantQualityOptions = ref([

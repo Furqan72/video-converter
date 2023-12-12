@@ -16,7 +16,7 @@
       <div class="grid grid-cols-4 justify-center text-gray-color">
         <label class="mr-2 mt-2 text-15px">Width</label>
         <div class="col-span-3 flex flex-col">
-          <input type="number" name="width" class="w-full rounded-lg border px-4 py-2 outline-none" value="500" />
+          <input type="number" name="width" class="w-full rounded-lg border bg-white px-4 py-2 outline-none" value="500" />
           <span class="mt-2 text-xs text-light-gray">Output width in pixels.</span>
         </div>
       </div>
@@ -24,7 +24,7 @@
       <div class="grid grid-cols-4 justify-center text-gray-color">
         <label class="mr-2 mt-2 text-15px">Height</label>
         <div class="col-span-3 flex flex-col">
-          <input type="number" name="height" class="w-full rounded-lg border px-4 py-2 outline-none" value="500" />
+          <input type="number" name="height" class="w-full rounded-lg border bg-white px-4 py-2 outline-none" value="500" />
           <span class="mt-2 text-xs text-light-gray">Output height in pixels.</span>
         </div>
       </div>
@@ -32,7 +32,7 @@
       <div class="grid grid-cols-4 justify-center text-gray-color">
         <label class="mr-2 mt-2 text-15px">Fit</label>
         <div class="col-span-3 flex flex-col">
-          <select name="fit" class="w-full rounded-lg border px-4 py-2 outline-none">
+          <select name="fit" class="w-full rounded-lg border bg-white px-4 py-2 outline-none">
             <option value="inside">max</option>
             <option value="cover">crop</option>
             <option value="fill">scale</option>
@@ -45,11 +45,11 @@
         <label class="mr-2 mt-2 text-15px">Strip</label>
         <div class="col-span-3 flex flex-col">
           <div class="flex items-center">
-            <input type="radio" id="yes" name="strip" value="yes" class="mr-2 h-4 w-4 border outline-none" />
+            <input type="radio" id="yes" name="strip" value="yes" class="mr-2 h-4 w-4 border bg-white outline-none" />
             <label for="yes" class="text-black">Yes</label>
           </div>
           <div class="flex items-center">
-            <input type="radio" id="no" name="strip" value="no" class="mr-2 h-4 w-4 border outline-none" checked />
+            <input type="radio" id="no" name="strip" value="no" class="mr-2 h-4 w-4 border bg-white outline-none" checked />
             <label for="no" class="text-black">No</label>
           </div>
           <span class="mt-2 text-xs text-light-gray">Remove any metadata such as EXIF data.</span>
@@ -59,7 +59,7 @@
       <div v-if="GlobalData.imageSelectedFormat === '.png' || GlobalData.imageSelectedFormat === '.webp' || GlobalData.imageSelectedFormat === '.jpg'" class="grid grid-cols-4 justify-center text-gray-color">
         <label class="mr-2 mt-2 text-15px">Quality</label>
         <div class="col-span-3 flex flex-col">
-          <input type="number" name="quality" class="w-full rounded-lg border px-4 py-2 outline-none" :value="GlobalData.imageSelectedFormat === '.png' ? '75' : ''" />
+          <input type="number" name="quality" class="w-full rounded-lg border bg-white px-4 py-2 outline-none" :value="GlobalData.imageSelectedFormat === '.png' ? '75' : ''" />
           <span class="mt-2 text-xs text-light-gray">{{ GlobalData.imageSelectedFormat === '.png' ? 'Zlib compression level (quality / 10) and filter-type (quality % 10).' : 'WEBP compression level.' }}</span>
         </div>
       </div>
@@ -68,11 +68,11 @@
         <label class="mr-2 mt-2 text-15px">Auto Orient</label>
         <div class="col-span-3 flex flex-col">
           <div class="flex items-center">
-            <input type="radio" id="orientYes" name="orient" value="yes" class="mr-2 h-4 w-4 border outline-none" checked />
+            <input type="radio" id="orientYes" name="orient" value="yes" class="mr-2 h-4 w-4 border bg-white outline-none" checked />
             <label for="orientYes" class="text-black">Yes</label>
           </div>
           <div class="flex items-center">
-            <input type="radio" id="orientNo" name="orient" value="no" class="mr-2 h-4 w-4 border outline-none" />
+            <input type="radio" id="orientNo" name="orient" value="no" class="mr-2 h-4 w-4 border bg-white outline-none" />
             <label for="orientNo" class="text-black">No</label>
           </div>
           <span class="mt-2 text-xs text-light-gray">Automatically rotate the image correctly, based on EXIF information which usually is set using a gravity sensor in digital cameras.</span>
