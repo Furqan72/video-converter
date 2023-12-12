@@ -207,10 +207,6 @@ async function configureVideoSettings(command, editingoptions, metadata) {
     command.addOption(`-q:v ${editingoptions.QscaleValue}`);
   }
   // FPS
-  if (options.framePersecond) {
-    command.addOption('-r', options.framePersecond);
-  }
-  // frame Per second
   if (editingoptions.framePersecond) {
     command.addOption('-r', editingoptions.framePersecond);
   }
