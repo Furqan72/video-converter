@@ -334,7 +334,8 @@ async function videoConversionFunction(req, res, next) {
 
     // SRT|ASS (Subtitle) File
     if (options.subtitleFiles && options.subtitlesType !== 'none' && options.subtitlesType !== 'copy') {
-      command.input(subtitleUrl.url);
+      // command.input(subtitleUrl.url);
+      command.input(subtitleUrl.url).inputOption('-map 0');
     }
 
     // FFmpeg-Events (Start, Progress, End, Error)
@@ -342,9 +343,14 @@ async function videoConversionFunction(req, res, next) {
 
     // trimming
     if (requiredDuration) {
+      // Adjust the start time and duration for trimming
       command.setStartTime(options.startingTime);
       command.setDuration(requiredDuration.totalDuration);
+
+      // to properly apply subtitles during trimming
+      command.inputOption(`-ss ${options.startingTime}`).inputOption(`-t ${requiredDuration.totalDuration}`);
     }
+
     console.log(`Video resolution ORGINAL DIMENSIONS : ${completeVideoMetadata.streams[0].width}x${completeVideoMetadata.streams[0].height}`);
 
     // checking for multiple video streams
