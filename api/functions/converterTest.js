@@ -344,14 +344,6 @@ async function videoConversionFunction(req, res, next) {
       command.setDuration(requiredDuration.totalDuration);
     }
 
-    // Video-Configuration
-    command.videoCodec(options.videoCOdec);
-    if (options.videoCOdec !== 'copy') {
-      configureVideoSettings(command, options, completeVideoMetadata);
-    }
-    // Audio-Configuration
-    configureAudioSettings(command, options);
-
     // SRT|ASS (Subtitle) File
     if (options.subtitleFiles && options.subtitlesType !== 'none' && options.subtitlesType !== 'copy') {
       command.input(subtitleUrl.url);
@@ -361,6 +353,14 @@ async function videoConversionFunction(req, res, next) {
     if (options.imageWatermark) {
       command.input(watermarkUrl.url);
     }
+
+    // Video-Configuration
+    command.videoCodec(options.videoCOdec);
+    if (options.videoCOdec !== 'copy') {
+      configureVideoSettings(command, options, completeVideoMetadata);
+    }
+    // Audio-Configuration
+    configureAudioSettings(command, options);
 
     console.log(`Video resolution ORGINAL DIMENSIONS : ${completeVideoMetadata.streams[0].width}x${completeVideoMetadata.streams[0].height}`);
 
