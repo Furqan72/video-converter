@@ -1798,3 +1798,21 @@ async function videoConversionFunction(req, res, next) {
 // }
 
 // +-----------------------------------------------------------------------------------------------------------------------------------------+
+
+// Subtitles
+const configureSubtitleSettings = (command, editingoptions, subtitleFileURL) => {
+  if (editingoptions.subtitlesType === 'soft' || editingoptions.subtitlesType === 'hard') {
+    command.outputOption('-c:s ass');
+  }
+};
+
+// Watermark
+const configureWatermarkSettings = (command, startingTime, duration) => {
+  const startSeconds = functions.parseTime(startingTime);
+  const durationSeconds = functions.parseTime(duration);
+
+  command.complexFilter(`[0:v][1:v]overlay=(W-w)/2:(H-h)/2:enable='between(t,${startSeconds},${durationSeconds})'`);
+  // command.complexFilter(`[0:v][1:v]overlay=(W-w)/2:(H-h)/2`);
+};
+
+// +-----------------------------------------------------------------------------------------------------------------------------------------+

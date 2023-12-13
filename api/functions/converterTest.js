@@ -162,7 +162,7 @@ const configureFFmpegEvents = (command, tmpOutputPath, fileNameIwthoutExtension,
     });
 };
 
-// Video Configuration
+// Video Configuration => Without Trimmed
 async function configureVideoSettings(command, editingoptions, metadata) {
   const originalWidth = metadata.streams[0].width;
   const originalHeight = metadata.streams[0].height;
@@ -172,7 +172,7 @@ async function configureVideoSettings(command, editingoptions, metadata) {
   console.log(givenWidth, givenHeight);
 
   if (editingoptions.qualityConstant) {
-    command.addOptions([`-crf ${editingoptions.qualityConstant}`]);
+    command.outputOptions([`-crf ${editingoptions.qualityConstant}`]);
   }
 
   // Set Resolution
@@ -182,13 +182,14 @@ async function configureVideoSettings(command, editingoptions, metadata) {
 
   // Set Aspect Ratio
   if (editingoptions.aspectRatio !== 'no change') {
-    command.complexFilter(`setdar=${editingoptions.aspectRatio}`);
+    // command.complexFilter(`setdar=${editingoptions.aspectRatio}`);
+    command.addOption('-aspect', editingoptions.aspectRatio);
     console.log('aspect ---------------------------- ' + editingoptions.aspectRatio);
   }
 
   // tune
   if (editingoptions.tuning && editingoptions.tuning !== 'none') {
-    command.addOptions([`-tune ${editingoptions.tuning}`]);
+    command.addOption(`-tune ${editingoptions.tuning}`);
   }
   // profile
   if (editingoptions.profileValue && editingoptions.profileValue !== 'none') {
@@ -196,11 +197,11 @@ async function configureVideoSettings(command, editingoptions, metadata) {
   }
   // level
   if (editingoptions.levelValue && editingoptions.levelValue !== 'none') {
-    command.addOptions([`-level ${editingoptions.levelValue}`]);
+    command.addOption(`-level ${editingoptions.levelValue}`);
   }
   // preset
   if (editingoptions.presetValue) {
-    command.addOptions([`-preset ${editingoptions.presetValue}`]);
+    command.addOption(`-preset ${editingoptions.presetValue}`);
   }
   // Qscale
   if (editingoptions.QscaleValue && editingoptions.selectMenuValues === '.wmv') {
@@ -217,8 +218,8 @@ async function configureVideoSettings(command, editingoptions, metadata) {
 
   // buffer-size and max-bitrate
   if (metadata.streams[0].buffer_size && metadata.streams[0].max_bitrate) {
-    command.addOptions([`-bufsize ${metadata.streams[0].buffer_size}`]);
-    command.addOptions([`-maxrate ${metadata.streams[0].max_bitrate}`]);
+    command.addOption(`-bufsize ${metadata.streams[0].buffer_size}`);
+    command.addOption(`-maxrate ${metadata.streams[0].max_bitrate}`);
   }
 }
 
@@ -265,14 +266,21 @@ async function configureAudioSettings(command, editingoptions) {
 }
 
 // Subtitles
-const configureSubtitleSettings = (command, editingoptions, subtitleFileURL) => {
-  if (editingoptions.subtitlesType === 'soft' || editingoptions.subtitlesType === 'hard') {
+const configureSubtitleSettings = (command, options, path) => {
+  if (options.subtitlesType === 'soft' || options.subtitlesType === 'hard') {
     command.outputOption('-c:s ass');
+    // } else if (options.subtitlesType === 'hard') {
+    // const subtitlesFilter = `[0:v][0:s]subtitles=${path}[v]`;
+    // command.complexFilter(subtitlesFilter);
+    // command.map('[v]');
+  } else if (options.subtitlesType === 'copy') {
+    command.addOption('-map', '0:s');
   }
 };
 
-// Watermark
-const configureWatermarkSettings = (command) => {
+// WaterMark
+const configureWatermarkSettings = (command, options, imageFileULR) => {
+  // command.complexFilter(`[0:v][1:v]overlay=(W-w)/2:(H-h)/2`);
   command.complexFilter(['[1:v]format=rgba,colorchannelmixer=aa=0.8[watermark]', '[0:v][watermark]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2']);
 };
 
@@ -327,28 +335,31 @@ async function videoConversionFunction(req, res, next) {
     // video File
     command.input(videoUrl.url);
 
-    // Image(watermark) File
-    if (options.imageWatermark) {
-      command.input(watermarkUrl.url);
-    }
-
-    // SRT|ASS (Subtitle) File
-    if (options.subtitleFiles && options.subtitlesType !== 'none' && options.subtitlesType !== 'copy') {
-      // command.input(subtitleUrl.url);
-      command.input(subtitleUrl.url).inputOption('-map 0');
-    }
-
     // FFmpeg-Events (Start, Progress, End, Error)
     configureFFmpegEvents(command, tmpOutputPath, fileNameIwthoutExtension, options.selectMenuValues, selectedValues, completeVideoMetadata, res);
 
     // trimming
     if (requiredDuration) {
-      // Adjust the start time and duration for trimming
       command.setStartTime(options.startingTime);
       command.setDuration(requiredDuration.totalDuration);
+    }
 
-      // to properly apply subtitles during trimming
-      command.inputOption(`-ss ${options.startingTime}`).inputOption(`-t ${requiredDuration.totalDuration}`);
+    // Video-Configuration
+    command.videoCodec(options.videoCOdec);
+    if (options.videoCOdec !== 'copy') {
+      configureVideoSettings(command, options, completeVideoMetadata);
+    }
+    // Audio-Configuration
+    configureAudioSettings(command, options);
+
+    // SRT|ASS (Subtitle) File
+    if (options.subtitleFiles && options.subtitlesType !== 'none' && options.subtitlesType !== 'copy') {
+      command.input(subtitleUrl.url);
+    }
+
+    // Image(watermark) File
+    if (options.imageWatermark) {
+      command.input(watermarkUrl.url);
     }
 
     console.log(`Video resolution ORGINAL DIMENSIONS : ${completeVideoMetadata.streams[0].width}x${completeVideoMetadata.streams[0].height}`);
@@ -366,14 +377,14 @@ async function videoConversionFunction(req, res, next) {
     }
     configureAudioSettings(command, options);
 
+    // watermark
+    if (options.imageWatermark) {
+      configureWatermarkSettings(command, options, watermarkUrl.url);
+    }
+
     // subtitle
     if (options.subtitleFiles && options.subtitlesType !== 'none' && options.subtitlesType !== 'copy') {
       configureSubtitleSettings(command, options, subtitleUrl.url);
-    }
-
-    // watermark
-    if (options.imageWatermark) {
-      configureWatermarkSettings(command);
     }
 
     if (options.selectMenuValues !== '.flv' && options.selectMenuValues !== '.mkv') {

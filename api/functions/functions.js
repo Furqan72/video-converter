@@ -2,21 +2,21 @@ const ffmpeg = require('fluent-ffmpeg');
 const fs = require('fs');
 const fsPromises = require('fs').promises;
 
-// // file upload function
-// function uploadFile(file, directory) {
-//   return new Promise((resolve, reject) => {
-//     let fileDirectory = directory + file.name;
+// file upload function
+function uploadFile(file, directory) {
+  return new Promise((resolve, reject) => {
+    let fileDirectory = directory + file.name;
 
-//     file.mv(fileDirectory, (err) => {
-//       if (err) {
-//         console.error('File Upload Error:', err);
-//         reject(err);
-//       } else {
-//         resolve(fileDirectory);
-//       }
-//     });
-//   });
-// }
+    file.mv(fileDirectory, (err) => {
+      if (err) {
+        console.error('File Upload Error:', err);
+        reject(err);
+      } else {
+        resolve(fileDirectory);
+      }
+    });
+  });
+}
 
 // delete function
 let processedFiles = [];
@@ -132,4 +132,5 @@ module.exports = {
   formatTime,
   calculateDuration,
   createComplexVideoFilter,
+  uploadFile,
 };

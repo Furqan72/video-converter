@@ -1,11 +1,12 @@
 const ffmpeg = require('fluent-ffmpeg');
 // const socketIo = require('socket.io');
 const fs = require('fs');
+const movingFile = require('mv');
 
 const fsPromises = require('fs').promises;
 
 // functions
-const functions = require('../functionsNodejs/functions');
+const functions = require('../functions/functions');
 
 const fileName = '';
 // async function uploadAndHandleFile(file, directory) {
@@ -23,6 +24,28 @@ const fileName = '';
 //   });
 // }
 
+// async function uploadAndHandleFile(file, directory) {
+//   try {
+//     // Upload the file
+//     let fileDirectory = directory + file.name;
+//     await new Promise((resolve, reject) => {
+//       file.mv(fileDirectory, (err) => {
+//         if (err) {
+//           console.error('File Upload Error:', err);
+//           reject(err);
+//         } else {
+//           resolve(fileDirectory);
+//         }
+//       });
+//     });
+
+//     return fileDirectory;
+//   } catch (error) {
+//     console.error('Error uploading file:', error);
+//     throw error;
+//   }
+// }
+
 async function uploadAndHandleFile(file, directory) {
   try {
     // Upload the file
@@ -33,14 +56,22 @@ async function uploadAndHandleFile(file, directory) {
           console.error('File Upload Error:', err);
           reject(err);
         } else {
-          resolve(fileDirectory);
+          // Move the file using the 'mv' library
+          mv(file.path, fileDirectory, { mkdirp: true }, (moveErr) => {
+            if (moveErr) {
+              console.error('File Move Error:', moveErr);
+              reject(moveErr);
+            } else {
+              resolve(fileDirectory);
+            }
+          });
         }
       });
     });
 
     return fileDirectory;
   } catch (error) {
-    console.error('Error uploading file:', error);
+    console.error('Error uploading/moving file:', error);
     throw error;
   }
 }
