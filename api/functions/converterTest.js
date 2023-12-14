@@ -162,6 +162,8 @@ const configureFFmpegEvents = (command, tmpOutputPath, fileNameIwthoutExtension,
     });
 };
 
+let fitValueCheck;
+
 // Video Configuration => Without Trimmed
 async function configureVideoSettings(command, editingoptions, metadata) {
   const originalWidth = metadata.streams[0].width;
@@ -176,13 +178,21 @@ async function configureVideoSettings(command, editingoptions, metadata) {
   }
 
   // Set Resolution
-  if (editingoptions.resolution && editingoptions.resolution !== 'no change') {
-    command.complexFilter(functions.createComplexVideoFilter(editingoptions.fitValue, givenWidth, givenHeight));
+  if (editingoptions.resolution !== 'no change') {
+    if (editingoptions.fitValue === 'scale') {
+      fitValueCheck = `scale=${givenWidth}:${givenHeight}`;
+    } else if (editingoptions.fitValue === 'max') {
+      fitValueCheck = `scale=w=min(iw\\,${givenWidth}):h=min(ih\\,${givenHeight}):force_original_aspect_ratio=decrease`;
+    } else if (editingoptions.fitValue === 'crop') {
+      fitValueCheck = `scale=w=min(iw\\,${widthValue}):h=min(ih\\,${heightValue}):force_original_aspect_ratio=decrease,pad=${widthValue}:${heightValue}:(ow-iw)/2:(oh-ih)/2`;
+    } else if (editingoptions.fitValue === 'pad') {
+      fitValueCheck = `crop=${givenWidth}:${givenHeight}`;
+    }
+    // command.complexFilter(fitValueCheck);
   }
 
   // Set Aspect Ratio
   if (editingoptions.aspectRatio !== 'no change') {
-    // command.complexFilter(`setdar=${editingoptions.aspectRatio}`);
     command.addOption('-aspect', editingoptions.aspectRatio);
     console.log('aspect ---------------------------- ' + editingoptions.aspectRatio);
   }
@@ -278,11 +288,35 @@ const configureSubtitleSettings = (command, options, path) => {
   }
 };
 
-// WaterMark
-const configureWatermarkSettings = (command, options, imageFileULR) => {
-  // command.complexFilter(`[0:v][1:v]overlay=(W-w)/2:(H-h)/2`);
-  command.complexFilter(['[1:v]format=rgba,colorchannelmixer=aa=0.8[watermark]', '[0:v][watermark]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2']);
-};
+// // WaterMark
+// const configureWatermarkSettings = (command, options, imageFileULR) => {
+//   command.complexFilter(['[1:v]format=rgba,colorchannelmixer=aa=0.8[watermark]', '[0:v][watermark]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2']);
+// };
+
+// const configureWatermarkSettings = (command, options, imageFileULR) => {
+//   // // Apply Resolution Filter
+//   // if (options.resolution !== 'no change') {
+//   //   const [givenWidth, givenHeight] = options.resolution.split('x');
+//   //   command.complexFilter(`[0:v]scale=${givenWidth}:${givenHeight}[scaled]`);
+//   // }
+
+//   const resolutionDimensions = '[0:v]scale=w=640:h=480[resolution]';
+//   const watermarkConfig = '[1:v]format=rgba,colorchannelmixer=aa=0.8[watermark]';
+//   const watermarkPosition = '[resolution][watermark]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2';
+//   command.complexFilter([resolutionDimensions, watermarkConfig, watermarkPosition]);
+
+//   // // Apply Watermark Filter
+//   // command.complexFilter('[1:v]format=rgba,colorchannelmixer=aa=0.8[watermark]');
+
+//   // // Overlay Watermark
+//   // command.complexFilter('[watermark]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2[out]');
+// };
+
+let watermarkConfig, watermarkPosition;
+
+watermarkConfig = '[1:v]format=rgba,colorchannelmixer=aa=0.8[watermark]';
+watermarkPosition = '[resolution][watermark]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2';
+resolutionDimensions = '[0:v]scale=w=640:h=480[resolution]';
 
 // Function
 async function videoConversionFunction(req, res, next) {
@@ -329,6 +363,11 @@ async function videoConversionFunction(req, res, next) {
       console.log(requiredDuration);
       trimError = requiredDuration.errorMessages;
     }
+
+    const [givenWidth, givenHeight] = options.resolution.split('x');
+    console.log(givenWidth, givenHeight);
+
+    let resolutionDimensions = `[0:v]scale=w=${givenWidth}:h=${givenHeight}[resolution]`;
 
     const command = new fluentFfmpeg();
 
@@ -379,7 +418,10 @@ async function videoConversionFunction(req, res, next) {
 
     // watermark
     if (options.imageWatermark) {
-      configureWatermarkSettings(command, options, watermarkUrl.url);
+      // configureWatermarkSettings(command, options, watermarkUrl.url);
+      command.complexFilter([resolutionDimensions, watermarkConfig, watermarkPosition]);
+    } else {
+      command.complexFilter(fitValueCheck);
     }
 
     // subtitle
