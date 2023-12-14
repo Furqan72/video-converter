@@ -166,10 +166,12 @@ let fitValueCheck;
 
 // Video Configuration => Without Trimmed
 async function configureVideoSettings(command, editingoptions, metadata) {
+  // original resolution
   const originalWidth = metadata.streams[0].width;
   const originalHeight = metadata.streams[0].height;
   console.log(originalWidth, originalHeight);
 
+  // given resolution
   const [givenWidth, givenHeight] = editingoptions.resolution.split('x');
   console.log(givenWidth, givenHeight);
 
@@ -183,12 +185,12 @@ async function configureVideoSettings(command, editingoptions, metadata) {
       fitValueCheck = `scale=${givenWidth}:${givenHeight}`;
     } else if (editingoptions.fitValue === 'max') {
       fitValueCheck = `scale=w=min(iw\\,${givenWidth}):h=min(ih\\,${givenHeight}):force_original_aspect_ratio=decrease`;
-    } else if (editingoptions.fitValue === 'crop') {
-      fitValueCheck = `scale=w=min(iw\\,${widthValue}):h=min(ih\\,${heightValue}):force_original_aspect_ratio=decrease,pad=${widthValue}:${heightValue}:(ow-iw)/2:(oh-ih)/2`;
     } else if (editingoptions.fitValue === 'pad') {
-      fitValueCheck = `crop=${givenWidth}:${givenHeight}`;
+      fitValueCheck = `scale=w=${givenWidth}:h=${givenHeight},pad=${givenWidth}:${givenHeight}:(ow-iw)/2:(oh-ih)/2`;
+      // fitValueCheck = `scale=w=min(iw\\,${givenWidth}):h=min(ih\\,${givenHeight}):force_original_aspect_ratio=decrease,pad=${givenWidth}:${givenHeight}:(ow-iw)/2:(oh-ih)/2`;
+    } else if (editingoptions.fitValue === 'crop') {
+      fitValueCheck = `scale=w=${givenWidth}:h=${givenHeight},crop=${givenWidth}:${givenHeight}:(ow-iw)/2:(oh-ih)/2`;
     }
-    // command.complexFilter(fitValueCheck);
   }
 
   // Set Aspect Ratio
@@ -367,7 +369,20 @@ async function videoConversionFunction(req, res, next) {
     const [givenWidth, givenHeight] = options.resolution.split('x');
     console.log(givenWidth, givenHeight);
 
-    let resolutionDimensions = `[0:v]scale=w=${givenWidth}:h=${givenHeight}[resolution]`;
+    let resolutionDimensions;
+
+    if (options.resolution !== 'no change') {
+      if (options.fitValue === 'scale') {
+        resolutionDimensions = `[0:v]scale=w=${givenWidth}:h=${givenHeight}[resolution]`;
+      } else if (options.fitValue === 'max') {
+        resolutionDimensions = `[0:v]scale=w=min(iw\\,${givenWidth}):h=min(ih\\,${givenHeight}):force_original_aspect_ratio=decrease[resolution]`;
+      } else if (options.fitValue === 'pad') {
+        resolutionDimensions = `[0:v]pad=${givenWidth}:${givenHeight}:(ow-iw)/2:(oh-ih)/2[resolution]`;
+      } else if (options.fitValue === 'crop') {
+        // resolutionDimensions = `[0:v]crop=${givenWidth}:${givenHeight}:(ow-iw)/2:(oh-ih)/2[resolution]`;
+        resolutionDimensions = `[0:v]scale=w=${givenWidth}:h=${givenHeight},crop=${givenWidth}:${givenHeight}:(ow-iw)/2:(oh-ih)/2[resolution]`;
+      }
+    }
 
     const command = new fluentFfmpeg();
 
