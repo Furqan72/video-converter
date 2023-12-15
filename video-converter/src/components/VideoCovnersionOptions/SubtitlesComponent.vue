@@ -8,7 +8,7 @@
       <div class="grid grid-cols-4 justify-center text-gray-color">
         <label class="mr-2 mt-2 text-15px">Subtitles Mode</label>
         <div class="col-span-3 flex flex-col">
-          <select name="subtitleType" class="w-full rounded-lg border px-4 py-2 outline-none">
+          <select name="subtitleType" class="w-full rounded-lg border bg-white px-4 py-2 outline-none">
             <option value="none">none</option>
             <option value="copy">copy</option>
             <option value="soft">soft</option>
