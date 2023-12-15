@@ -11,23 +11,26 @@
         <span v-if="showTooltip" class="absolute -top-[14px] left-[3px] h-3 w-3 rotate-45 bg-gray-900 duration-300"></span>
       </div>
     </div>
+
     <!-- width -->
     <div class="grid gap-x-8 gap-y-6 px-10 py-7 coxl:grid-cols-2">
       <div class="grid grid-cols-4 justify-center text-gray-color">
         <label class="mr-2 mt-2 text-15px">Width</label>
         <div class="col-span-3 flex flex-col">
-          <input type="number" name="width" class="w-full rounded-lg border bg-white px-4 py-2 outline-none" value="500" />
+          <input type="number" name="width" class="w-full rounded-lg border bg-white px-4 py-2 outline-none" />
           <span class="mt-2 text-xs text-light-gray">Output width in pixels.</span>
         </div>
       </div>
+
       <!-- height -->
       <div class="grid grid-cols-4 justify-center text-gray-color">
         <label class="mr-2 mt-2 text-15px">Height</label>
         <div class="col-span-3 flex flex-col">
-          <input type="number" name="height" class="w-full rounded-lg border bg-white px-4 py-2 outline-none" value="500" />
+          <input type="number" name="height" class="w-full rounded-lg border bg-white px-4 py-2 outline-none" />
           <span class="mt-2 text-xs text-light-gray">Output height in pixels.</span>
         </div>
       </div>
+
       <!-- fit  -->
       <div class="grid grid-cols-4 justify-center text-gray-color">
         <label class="mr-2 mt-2 text-15px">Fit</label>
@@ -40,11 +43,12 @@
           <span class="mt-2 text-xs text-light-gray">Sets the mode of resizing the image. "Max" resizes the image to fit within the width and height, but will not increase the size of the image if it is smaller than width or height. "Crop" resizes the image to fill the width and height dimensions and crops any excess image data. "Scale" enforces the image width and height by scaling.</span>
         </div>
       </div>
+
       <!-- strip -->
       <div class="grid grid-cols-4 justify-center text-gray-color">
         <label class="mr-2 mt-2 text-15px">Strip</label>
         <div class="col-span-3 flex flex-col">
-          <div class="flex items-center">
+          <div class="flex items-center bg-white">
             <input type="radio" id="yes" name="strip" value="yes" class="mr-2 h-4 w-4 border bg-white outline-none" />
             <label for="yes" class="text-black">Yes</label>
           </div>
@@ -55,14 +59,27 @@
           <span class="mt-2 text-xs text-light-gray">Remove any metadata such as EXIF data.</span>
         </div>
       </div>
+
       <!-- quality -->
-      <div v-if="GlobalData.imageSelectedFormat === '.png' || GlobalData.imageSelectedFormat === '.webp' || GlobalData.imageSelectedFormat === '.jpg'" class="grid grid-cols-4 justify-center text-gray-color">
+      <!-- <div v-if="isQualityOptionVisible" class="grid grid-cols-4 justify-center text-gray-color">
         <label class="mr-2 mt-2 text-15px">Quality</label>
         <div class="col-span-3 flex flex-col">
-          <input type="number" name="quality" class="w-full rounded-lg border bg-white px-4 py-2 outline-none" :value="GlobalData.imageSelectedFormat === '.png' ? '75' : ''" />
-          <span class="mt-2 text-xs text-light-gray">{{ GlobalData.imageSelectedFormat === '.png' ? 'Zlib compression level (quality / 10) and filter-type (quality % 10).' : 'WEBP compression level.' }}</span>
+          <span v-show="isError" class="mt-1 text-red-500">Quality must be between 0 and 100.</span>
+          <input @input="handleInput" v-model="inputNumber" type="number" name="quality" min="0" max="100" class="w-full rounded-lg border bg-white px-4 py-2 outline-none" :value="qualityDefaultValue" />
+          <span class="mt-2 text-xs text-light-gray">{{ qualityDescription }}</span>
+        </div>
+      </div> -->
+
+      <!-- quality -->
+      <div v-if="isQualityOptionVisible" class="grid grid-cols-4 justify-center text-gray-color">
+        <label class="mr-2 mt-2 text-15px">Quality</label>
+        <div class="col-span-3 flex flex-col">
+          <!-- <span v-show="isError" class="mt-1 text-red-500">Quality must be between 0 and 100.</span> -->
+          <input v-model="inputNumber" @input="handleInput" type="number" name="quality" min="0" max="100" class="w-full rounded-lg border bg-white px-4 py-2 outline-none" />
+          <span class="mt-2 text-xs text-light-gray">{{ qualityDescription }}</span>
         </div>
       </div>
+
       <!-- auto orient -->
       <div v-if="GlobalData.selectedImageFileFormat === '.jpg'" class="grid grid-cols-4 justify-center text-gray-color">
         <label class="mr-2 mt-2 text-15px">Auto Orient</label>
@@ -83,9 +100,39 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, reactive } from 'vue';
+import { ref, computed, watch, reactive, onMounted } from 'vue';
 // global store
 import { useGlobalStore } from '../../../src/Store/GlobalStore.js';
 const GlobalData = useGlobalStore();
 const showTooltip = ref(false);
+
+const compressionQualityArr = ref([
+  { value: '.webp', description: 'WEBP compression level.' },
+  { value: '.png', description: 'Zlib compression level (quality / 10) and filter-type (quality % 10).' },
+  { value: '.jpg', description: 'JPEG compression level from 1 (lowest image quality and highest compression) to 100 (best quality but least effective compression). The default is to estimate the quality based on your input image.' },
+]);
+
+const isQualityOptionVisible = computed(() => ['.png', '.webp', '.jpg'].includes(GlobalData.imageSelectedFormat));
+
+const qualityDescription = computed(() => {
+  const selectedFormat = compressionQualityArr.value.find((item) => item.value === GlobalData.imageSelectedFormat);
+  return selectedFormat ? selectedFormat.description : '';
+});
+
+const inputNumber = ref(null);
+const isError = ref(false);
+
+const handleInput = () => {
+  isError.value = inputNumber.value > 100;
+  if (isError.value) {
+    inputNumber.value = 100;
+  }
+};
+
+watch(
+  () => GlobalData.imageSelectedFormat,
+  () => {
+    inputNumber.value = GlobalData.imageSelectedFormat === '.png' ? 75 : null;
+  }
+);
 </script>

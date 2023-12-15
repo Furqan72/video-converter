@@ -2,8 +2,8 @@
   <nav class="relative z-50 flex items-center justify-between bg-[#303030ff] px-28 py-5 text-white shadow-sm">
     <div class="flex items-center gap-x-24">
       <router-link to="/" @click="closeTransition('/')" class="flex cursor-pointer items-center text-xl">
-        <img src="../assets/images/nav_icon.png" alt="" class="mr-2 w-12" />
-        <p class="font-bold">Video Converter</p>
+        <!-- <img src="../assets/images/nav_icon.png" alt="" class="mr-2 w-12" /> -->
+        <p class="font-bold">Converter Tools</p>
       </router-link>
       <ul class="font-semibol flex justify-between gap-x-10 maxlg:hidden [&>*]:flex [&>*]:cursor-pointer [&>*]:items-center">
         <li @click="show = !show">Tools<ChevronDownIcon class="ml-2 duration-200" :class="show === true ? 'rotate-180' : ''" /></li>

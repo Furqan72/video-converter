@@ -129,7 +129,7 @@ const configureFFmpegEvents = (command, tmpOutputPath, fileNameIwthoutExtension,
         });
 
         console.log(convertedBlob.url);
-        res.json({ downloadUrl: convertedBlob.url, filedeleted: fileNameIwthoutExtension + selectMenuValues, metadata: completeVideoMetadata, errorMessage: '' });
+        res.json({ downloadUrl: convertedBlob.url, fileName: fileNameIwthoutExtension + selectMenuValues, metadata: completeVideoMetadata, errorMessage: '' });
       } catch (error) {
         console.log(error);
       } finally {
@@ -155,7 +155,8 @@ const configureFFmpegEvents = (command, tmpOutputPath, fileNameIwthoutExtension,
         });
         console.log('Error  -----------  ', extractedText);
 
-        res.status(500).send('Conversion Error: ' + err.message);
+        // res.status(500).send('Conversion Error: ' + err.message);
+        res.json({ downloadUrl: 'convertedBlob.url', fileName: 'fileNameIwthoutExtension + selectMenuValues', metadata: 'completeVideoMetadata', errorMessage: extractedText });
       } catch (error) {
         console.error('An error occurred while handling the FFmpeg error:', error);
       }
@@ -164,7 +165,7 @@ const configureFFmpegEvents = (command, tmpOutputPath, fileNameIwthoutExtension,
 
 let fitValueCheck;
 
-// Video Configuration => Without Trimmed
+// Video Configuration =x> Without Trimmed
 async function configureVideoSettings(command, editingoptions, metadata) {
   // original resolution
   const originalWidth = metadata.streams[0].width;
@@ -435,7 +436,7 @@ async function videoConversionFunction(req, res, next) {
     if (options.imageWatermark) {
       // configureWatermarkSettings(command, options, watermarkUrl.url);
       command.complexFilter([resolutionDimensions, watermarkConfig, watermarkPosition]);
-    } else {
+    } else if (options.resolution !== 'no change') {
       command.complexFilter(fitValueCheck);
     }
 

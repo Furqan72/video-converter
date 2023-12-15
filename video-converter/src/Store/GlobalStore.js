@@ -65,7 +65,7 @@ export const useGlobalStore = defineStore('GlobalStore', () => {
       .then((response) => {
         downloadUrlFromNode.value = response.data.downloadUrl;
         // downloadName.value = response.data.fileName;
-        deletedFile.value = response.data.filedeleted;
+        downloadName.value = response.data.fileName;
         metaData.value = response.data.metadata;
         if (response.data.errorMessage) {
           errMessage.value = response.data.errorMessage;

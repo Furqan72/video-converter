@@ -9,8 +9,8 @@
         </ul>
       </div>
       <div class="col-span-6 text-end">
-        <p>© 2023 Lunaweb GmbH</p>
-        <p class="text-gray-400">Made in Munich, Germany</p>
+        <p>Lorem, ipsum dolor amet.</p>
+        <p class="text-gray-400">Lorem ipsum dolor consectetur.</p>
       </div>
     </div>
     <p class="mb-10 mt-14 text-center text-2xl font-semibold text-gray-400">We've already converted <span class="font-bold text-gray-500">1,672,395,206 files</span> with a total size of <span class="font-bold text-gray-500">12,972 TB.</span></p>

@@ -6,6 +6,7 @@ const fetch = require('node-fetch');
 const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_8oL0c4E3y4emK5Iq_mNmffcqTL3VgnPvoTKAxDK3jiN3PvD';
 
 const imageConversionFunction = async (req, res) => {
+  console.log('process start');
   try {
     const [fileUrl] = await Promise.all([uploadToVercelBlob(req.files.uploadFile)]);
     // const [videoUrl] = await Promise.all([uploadToVercelBlob(req.files.uploadFile)]);
@@ -27,6 +28,8 @@ const imageConversionFunction = async (req, res) => {
       qualityValue: req.body.quality,
     };
 
+    console.log(options);
+
     const imageBuffer = await imageResponse.buffer();
     const imageMetadata = await sharp(imageBuffer).metadata();
     const formatWithoutLeadingDot = options.selectMenuValues.slice(1);
@@ -43,9 +46,7 @@ const imageConversionFunction = async (req, res) => {
       console.log(formatWithoutLeadingDot);
 
       if (isImageFormat && options.qualityValue) {
-        sharpCommand = sharpCommand.toFormat(formatWithoutLeadingDot, {
-          quality: Number(options.qualityValue),
-        });
+        qualityCompression(sharpCommand, options.qualityValue, options.selectMenuValues);
       }
     }
 
@@ -101,6 +102,34 @@ const imageConversionFunction = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.json({ downloadUrl: '', filedeleted: '', metadata: '', errorMessage: error.message });
+  }
+};
+
+// Quality Compression
+const qualityCompression = (sharpCommand, qualityValue, selectMenuValues) => {
+  if (selectMenuValues === '.webp') {
+    const compressionSettings = {
+      quality: Number(qualityValue),
+      lossless: false,
+      webp: 'normal',
+    };
+
+    sharpCommand.webp(compressionSettings);
+  } else if (selectMenuValues === '.jpg') {
+    const compressionSettings = {
+      quality: Number(qualityValue),
+    };
+    sharpCommand.jpeg(compressionSettings);
+  } else if (selectMenuValues === '.png') {
+    const zlibLevel = Math.min(Math.floor(Number(qualityValue) / 10), 9); // Values between 0 and 9
+    const filterType = Math.min(Number(qualityValue) % 10, 6); // Values between 0 and 6
+
+    const compressionSettings = {
+      compressionLevel: zlibLevel,
+      filter: filterType,
+    };
+
+    sharpCommand.png(compressionSettings);
   }
 };
 
