@@ -155,8 +155,9 @@ const configureFFmpegEvents = (command, tmpOutputPath, fileNameIwthoutExtension,
         });
         console.log('Error  -----------  ', extractedText);
 
+        // const finalMessage = !extractedText ? '-----' : extractedText;
         // res.status(500).send('Conversion Error: ' + err.message);
-        res.json({ downloadUrl: 'convertedBlob.url', fileName: 'fileNameIwthoutExtension + selectMenuValues', metadata: 'completeVideoMetadata', errorMessage: extractedText });
+        res.json({ downloadUrl: '', fileName: '', metadata: '', errorMessage: extractedText });
       } catch (error) {
         console.error('An error occurred while handling the FFmpeg error:', error);
       }
@@ -454,7 +455,7 @@ async function videoConversionFunction(req, res, next) {
     console.log('process end');
   } catch (error) {
     console.log(error);
-    res.json({ downloadUrl: 'inputDownloadUrl', filedeleted: 'inputDownloadUrl', metadata: 'completeVideoMetadata', errorMessage: error.message });
+    res.json({ downloadUrl: '', filedeleted: '', metadata: '', errorMessage: error.message });
   }
 }
 
