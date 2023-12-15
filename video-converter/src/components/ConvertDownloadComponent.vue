@@ -10,7 +10,7 @@
   <div class="mx-28 flex flex-col items-center justify-center bg-white py-12">
     <p class="my-5 text-center text-xl font-semibold text-red-600" v-if="GlobalData.errMessage">{{ GlobalData.errMessage === ' Conversion failed!!' ? 'Conversion failed!! Try some other editing options or change the video.' : GlobalData.errMessage + ' Conversion failed!!' }}</p>
     <button @click="conversion()" type="submit" class="flex w-44 items-center justify-center rounded-lg border-0 bg-[#b53836ff] bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:shadow-xl focus:outline-none">
-      <ConvertIcon :class="conversionAnimation === true && GlobalData.downloadUrlFromNode === '' && GlobalData.errMessage !== '' ? 'rectangle' : ''" />
+      <ConvertIcon :class="conversionAnimation === true && GlobalData.downloadUrlFromNode === '' && GlobalData.errMessage === '' ? 'rectangle' : ''" />
       <span>Convert</span>
     </button>
     <!-- loading -->
@@ -29,7 +29,7 @@
       </div>
     </div>
     <!-- Download -->
-    <a :href="GlobalData.downloadUrlFromNode" id="downloadBtn" :download="GlobalData.downloadName" class="mt-3 flex w-44 rounded-lg border-0 bg-green-500 bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:text-white hover:shadow-xl focus:outline-none" :class="GlobalData.downloadUrlFromNode && GlobalData.errMessage !== '' ? 'flex' : 'hidden'">
+    <a :href="GlobalData.downloadUrlFromNode" id="downloadBtn" :download="GlobalData.downloadName" class="mt-3 flex w-44 rounded-lg border-0 bg-green-500 bg-opacity-75 px-8 py-4 text-white outline-none duration-200 hover:bg-opacity-100 hover:text-white hover:shadow-xl focus:outline-none" :class="GlobalData.downloadUrlFromNode && GlobalData.errMessage === '' ? 'flex' : 'hidden'">
       <DownloadIcon />
       Download</a
     >
