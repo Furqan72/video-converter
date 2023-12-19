@@ -105,7 +105,7 @@ const configureTrimming = (startingTime, endingTime, duration) => {
 };
 
 // Video Conversion FFmepg events
-const configureFFmpegEvents = (command, tmpOutputPath, fileNameIwthoutExtension, selectMenuValues, selectedValues, completeVideoMetadata, res) => {
+const configureFFmpegEvents = (command, res, tmpOutputPath, fileNameIwthoutExtension, selectMenuValues, selectedValues, completeVideoMetadata) => {
   command
     .on('start', () => {
       console.log('message', 'Conversion Started.');
@@ -164,9 +164,29 @@ const configureFFmpegEvents = (command, tmpOutputPath, fileNameIwthoutExtension,
     });
 };
 
-let fitValueCheck;
+// Applying resolution normally (with and without filters)
+const resolutionConfigureSettings = (fitValue, resolution, watermarkCheck) => {
+  const [givenWidth, givenHeight] = resolution.split('x');
+  console.log(givenWidth, givenHeight);
+  let resolutionDimensions;
 
-// Video Configuration =x> Without Trimmed
+  if (fitValue === 'scale') {
+    resolutionDimensions = watermarkCheck ? `[0:v]scale=w=${givenWidth}:h=${givenHeight}[resolution]` : `scale=${givenWidth}:${givenHeight}`;
+  } else if (fitValue === 'max') {
+    resolutionDimensions = watermarkCheck ? `[0:v]scale=w=min(iw\\,${givenWidth}):h=min(ih\\,${givenHeight}):force_original_aspect_ratio=decrease[resolution]` : `scale=w=min(iw\\,${givenWidth}):h=min(ih\\,${givenHeight}):force_original_aspect_ratio=decrease`;
+  } else if (fitValue === 'pad') {
+    resolutionDimensions = watermarkCheck ? `[0:v]pad=${givenWidth}:${givenHeight}:(ow-iw)/2:(oh-ih)/2[resolution]` : `scale=w=${givenWidth}:h=${givenHeight},pad=${givenWidth}:${givenHeight}:(ow-iw)/2:(oh-ih)/2`;
+  } else if (fitValue === 'crop') {
+    resolutionDimensions = watermarkCheck ? `[0:v]scale=w=${givenWidth}:h=${givenHeight},crop=${givenWidth}:${givenHeight}:(ow-iw)/2:(oh-ih)/2[resolution]` : `scale=w=${givenWidth}:h=${givenHeight},crop=${givenWidth}:${givenHeight}:(ow-iw)/2:(oh-ih)/2`;
+  }
+
+  let watermarkConfig = '[1:v]format=rgba,colorchannelmixer=aa=0.8[watermark]';
+  let watermarkPosition = '[resolution][watermark]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2';
+
+  return watermarkCheck ? [resolutionDimensions, watermarkConfig, watermarkPosition] : resolutionDimensions;
+};
+
+// Video Configuration
 async function configureVideoSettings(command, editingoptions, metadata) {
   // original resolution
   const originalWidth = metadata.streams[0].width;
@@ -179,20 +199,6 @@ async function configureVideoSettings(command, editingoptions, metadata) {
 
   if (editingoptions.qualityConstant) {
     command.outputOptions([`-crf ${editingoptions.qualityConstant}`]);
-  }
-
-  // Set Resolution
-  if (editingoptions.resolution !== 'no change') {
-    if (editingoptions.fitValue === 'scale') {
-      fitValueCheck = `scale=${givenWidth}:${givenHeight}`;
-    } else if (editingoptions.fitValue === 'max') {
-      fitValueCheck = `scale=w=min(iw\\,${givenWidth}):h=min(ih\\,${givenHeight}):force_original_aspect_ratio=decrease`;
-    } else if (editingoptions.fitValue === 'pad') {
-      fitValueCheck = `scale=w=${givenWidth}:h=${givenHeight},pad=${givenWidth}:${givenHeight}:(ow-iw)/2:(oh-ih)/2`;
-      // fitValueCheck = `scale=w=min(iw\\,${givenWidth}):h=min(ih\\,${givenHeight}):force_original_aspect_ratio=decrease,pad=${givenWidth}:${givenHeight}:(ow-iw)/2:(oh-ih)/2`;
-    } else if (editingoptions.fitValue === 'crop') {
-      fitValueCheck = `scale=w=${givenWidth}:h=${givenHeight},crop=${givenWidth}:${givenHeight}:(ow-iw)/2:(oh-ih)/2`;
-    }
   }
 
   // Set Aspect Ratio
@@ -292,38 +298,95 @@ const configureSubtitleSettings = (command, options, path) => {
   }
 };
 
-// // WaterMark
-// const configureWatermarkSettings = (command, options, imageFileULR) => {
-//   command.complexFilter(['[1:v]format=rgba,colorchannelmixer=aa=0.8[watermark]', '[0:v][watermark]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2']);
-// };
+// WaterMark
+const configureWatermarkSettings = (command) => {
+  command.complexFilter(['[1:v]format=rgba,colorchannelmixer=aa=0.8[watermark]', '[0:v][watermark]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2']);
+};
 
-// const configureWatermarkSettings = (command, options, imageFileULR) => {
-//   // // Apply Resolution Filter
-//   // if (options.resolution !== 'no change') {
-//   //   const [givenWidth, givenHeight] = options.resolution.split('x');
-//   //   command.complexFilter(`[0:v]scale=${givenWidth}:${givenHeight}[scaled]`);
-//   // }
+// checking the link for the file
+function logFileUploads(videoUrl, subtitleUrl, watermarkUrl) {
+  console.log('Uploaded Input File >>', videoUrl.url);
+  if (subtitleUrl) {
+    console.log('Uploaded Subtitle File >>', subtitleUrl.url);
+  }
+  if (watermarkUrl) {
+    console.log('Uploaded Watermark File >>', watermarkUrl.url);
+  }
+}
 
-//   const resolutionDimensions = '[0:v]scale=w=640:h=480[resolution]';
-//   const watermarkConfig = '[1:v]format=rgba,colorchannelmixer=aa=0.8[watermark]';
-//   const watermarkPosition = '[resolution][watermark]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2';
-//   command.complexFilter([resolutionDimensions, watermarkConfig, watermarkPosition]);
+// removing and adding extensions from the file, setting up trimming and path for the output path for converted file
+function prepareConversionData(options, completeVideoMetadata) {
+  const fileName = options.inputFile[0].originalname.split('.');
+  const fileNameWithoutExtension = fileName[0];
+  console.log(fileNameWithoutExtension);
 
-//   // // Apply Watermark Filter
-//   // command.complexFilter('[1:v]format=rgba,colorchannelmixer=aa=0.8[watermark]');
+  const tmpOutputPath = `/tmp/converted-${fileNameWithoutExtension}${options.selectMenuValues}`;
+  const selectedValues = options.selectMenuValues.slice(1);
 
-//   // // Overlay Watermark
-//   // command.complexFilter('[watermark]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2[out]');
-// };
+  let requiredDuration;
+  if (options.startingTime && options.endingTime) {
+    requiredDuration = configureTrimming(options.startingTime, options.endingTime, completeVideoMetadata.format.duration);
+  }
 
-let watermarkConfig, watermarkPosition;
+  return { fileNameWithoutExtension, tmpOutputPath, selectedValues, requiredDuration };
+}
 
-watermarkConfig = '[1:v]format=rgba,colorchannelmixer=aa=0.8[watermark]';
-watermarkPosition = '[resolution][watermark]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2';
-resolutionDimensions = '[0:v]scale=w=640:h=480[resolution]';
+// processing video
+function createFFmpegCommand(res, videoUrl, subtitleUrl, watermarkUrl, options, fileNameWithoutExtension, tmpOutputPath, selectedValues, requiredDuration, completeVideoMetadata) {
+  let watermarkCheck;
+  const command = new fluentFfmpeg();
+  command.input(videoUrl);
+
+  configureFFmpegEvents(command, res, tmpOutputPath, fileNameWithoutExtension, options.selectMenuValues, selectedValues, completeVideoMetadata);
+
+  if (requiredDuration) {
+    command.setStartTime(options.startingTime);
+    command.setDuration(requiredDuration.totalDuration);
+  }
+
+  if (subtitleUrl) {
+    command.input(subtitleUrl.url);
+  }
+
+  if (watermarkUrl) {
+    command.input(watermarkUrl.url);
+  }
+
+  command.videoCodec(options.videoCOdec);
+
+  if (options.videoCOdec !== 'copy') {
+    configureVideoSettings(command, options, completeVideoMetadata);
+  }
+
+  configureAudioSettings(command, options);
+
+  // watermark
+  if (options.imageWatermark && options.resolution === 'no change') {
+    configureWatermarkSettings(command, options, watermarkUrl.url);
+
+    // watermark && resolution
+  } else if (options.imageWatermark && options.resolution !== 'no change') {
+    console.log(resolutionConfigureSettings(options.fitValue, options.resolution, (watermarkCheck = true)));
+    command.complexFilter(resolutionConfigureSettings(options.fitValue, options.resolution, (watermarkCheck = true)));
+
+    // resolution
+  } else if (options.resolution !== 'no change') {
+    command.complexFilter(resolutionConfigureSettings(options.fitValue, options.resolution, (watermarkCheck = false)));
+  }
+
+  if (subtitleUrl) {
+    configureSubtitleSettings(command, options, subtitleUrl.url);
+  }
+
+  if (options.selectMenuValues !== '.flv' && options.selectMenuValues !== '.mkv') {
+    command.outputOptions(['-map 0', '-dn']);
+  }
+
+  command.save(tmpOutputPath);
+}
 
 // Function
-async function videoConversionFunction(req, res, next) {
+async function videoConversionFunction(req, res) {
   try {
     console.log('Process Start.....');
     const options = extractOptionsFromRequest(req);
@@ -340,117 +403,20 @@ async function videoConversionFunction(req, res, next) {
     }
 
     const [videoUrl, subtitleUrl, watermarkUrl] = await Promise.all([videoPromise, subtitlePromise, waterMarkImagePromise]);
+    console.log('Uploading Files.....');
+
     // metadata
     const completeVideoMetadata = await videoMetadata(videoUrl.url);
+    console.log('Metadata.....');
 
     // checking the link for the file
-    console.log('Uploaded Input File >> ' + videoUrl.url);
-    if (subtitleUrl) {
-      console.log('Uploaded Subtitle File >> ' + subtitleUrl.url);
-    }
-    if (watermarkUrl) {
-      console.log('Uploaded Watermark File >> ' + watermarkUrl.url);
-    }
-    console.log(completeVideoMetadata);
+    logFileUploads(videoUrl, subtitleUrl, watermarkUrl);
 
-    const fileName = options.inputFile[0].originalname.split('.');
-    const fileNameIwthoutExtension = fileName[0];
-    console.log(fileNameIwthoutExtension);
-    const tmpOutputPath = `/tmp/converted-${fileNameIwthoutExtension}${options.selectMenuValues}`;
-    const selectedValues = options.selectMenuValues.slice(1);
-    console.log(selectedValues);
     const videoStream = completeVideoMetadata.streams.find((stream) => stream.codec_type === 'video');
+    const { fileNameWithoutExtension, tmpOutputPath, selectedValues, requiredDuration } = prepareConversionData(options, completeVideoMetadata);
+    // console.log('<fileNameWithoutExtension:>', fileNameWithoutExtension, ' <tmpOutputPath:>', tmpOutputPath, ' <selectedValues:>', selectedValues, ' <requiredDuration :>', requiredDuration);
 
-    let requiredDuration;
-    if (options.startingTime && options.endingTime) {
-      requiredDuration = configureTrimming(options.startingTime, options.endingTime, completeVideoMetadata.format.duration);
-      console.log(requiredDuration);
-      trimError = requiredDuration.errorMessages;
-    }
-
-    const [givenWidth, givenHeight] = options.resolution.split('x');
-    console.log(givenWidth, givenHeight);
-
-    let resolutionDimensions;
-
-    if (options.resolution !== 'no change') {
-      if (options.fitValue === 'scale') {
-        resolutionDimensions = `[0:v]scale=w=${givenWidth}:h=${givenHeight}[resolution]`;
-      } else if (options.fitValue === 'max') {
-        resolutionDimensions = `[0:v]scale=w=min(iw\\,${givenWidth}):h=min(ih\\,${givenHeight}):force_original_aspect_ratio=decrease[resolution]`;
-      } else if (options.fitValue === 'pad') {
-        resolutionDimensions = `[0:v]pad=${givenWidth}:${givenHeight}:(ow-iw)/2:(oh-ih)/2[resolution]`;
-      } else if (options.fitValue === 'crop') {
-        // resolutionDimensions = `[0:v]crop=${givenWidth}:${givenHeight}:(ow-iw)/2:(oh-ih)/2[resolution]`;
-        resolutionDimensions = `[0:v]scale=w=${givenWidth}:h=${givenHeight},crop=${givenWidth}:${givenHeight}:(ow-iw)/2:(oh-ih)/2[resolution]`;
-      }
-    }
-
-    const command = new fluentFfmpeg();
-
-    // video File
-    command.input(videoUrl.url);
-
-    // FFmpeg-Events (Start, Progress, End, Error)
-    configureFFmpegEvents(command, tmpOutputPath, fileNameIwthoutExtension, options.selectMenuValues, selectedValues, completeVideoMetadata, res);
-
-    // trimming
-    if (requiredDuration) {
-      command.setStartTime(options.startingTime);
-      command.setDuration(requiredDuration.totalDuration);
-    }
-
-    // SRT|ASS (Subtitle) File
-    if (options.subtitleFiles && options.subtitlesType !== 'none' && options.subtitlesType !== 'copy') {
-      command.input(subtitleUrl.url);
-    }
-
-    // Image(watermark) File
-    if (options.imageWatermark) {
-      command.input(watermarkUrl.url);
-    }
-
-    // Video-Configuration
-    command.videoCodec(options.videoCOdec);
-    if (options.videoCOdec !== 'copy') {
-      configureVideoSettings(command, options, completeVideoMetadata);
-    }
-    // Audio-Configuration
-    configureAudioSettings(command, options);
-
-    console.log(`Video resolution ORGINAL DIMENSIONS : ${completeVideoMetadata.streams[0].width}x${completeVideoMetadata.streams[0].height}`);
-
-    // checking for multiple video streams
-    if (options.selectMenuValues === '.flv' || options.selectMenuValues === '.mkv') {
-      if (videoStream && videoStream.length > 1) {
-        command.inputOptions(['-map 0:v:0']);
-      }
-    }
-
-    command.videoCodec(options.videoCOdec);
-    if (options.videoCOdec !== 'copy') {
-      configureVideoSettings(command, options, completeVideoMetadata);
-    }
-    configureAudioSettings(command, options);
-
-    // watermark
-    if (options.imageWatermark) {
-      // configureWatermarkSettings(command, options, watermarkUrl.url);
-      command.complexFilter([resolutionDimensions, watermarkConfig, watermarkPosition]);
-    } else if (options.resolution !== 'no change') {
-      command.complexFilter(fitValueCheck);
-    }
-
-    // subtitle
-    if (options.subtitleFiles && options.subtitlesType !== 'none' && options.subtitlesType !== 'copy') {
-      configureSubtitleSettings(command, options, subtitleUrl.url);
-    }
-
-    if (options.selectMenuValues !== '.flv' && options.selectMenuValues !== '.mkv') {
-      command.outputOptions(['-map 0', '-dn']);
-    }
-
-    command.save(tmpOutputPath);
+    createFFmpegCommand(res, videoUrl.url, subtitleUrl, watermarkUrl, options, fileNameWithoutExtension, tmpOutputPath, selectedValues, requiredDuration, completeVideoMetadata);
 
     console.log('process end');
   } catch (error) {

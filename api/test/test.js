@@ -2309,3 +2309,29 @@ async function videoConversionFunction(req, res, next) {
 module.exports = { videoConversionFunction };
 
 // +-----------------------------------------------------------------------------------------------------------------------------------------+
+
+// // WaterMark
+// const configureWatermarkSettings = (command, options, imageFileULR) => {
+//   command.complexFilter(['[1:v]format=rgba,colorchannelmixer=aa=0.8[watermark]', '[0:v][watermark]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2']);
+// };
+
+// const configureWatermarkSettings = (command, options, imageFileULR) => {
+//   // // Apply Resolution Filter
+//   // if (options.resolution !== 'no change') {
+//   //   const [givenWidth, givenHeight] = options.resolution.split('x');
+//   //   command.complexFilter(`[0:v]scale=${givenWidth}:${givenHeight}[scaled]`);
+//   // }
+
+//   const resolutionDimensions = '[0:v]scale=w=640:h=480[resolution]';
+//   const watermarkConfig = '[1:v]format=rgba,colorchannelmixer=aa=0.8[watermark]';
+//   const watermarkPosition = '[resolution][watermark]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2';
+//   command.complexFilter([resolutionDimensions, watermarkConfig, watermarkPosition]);
+
+//   // // Apply Watermark Filter
+//   // command.complexFilter('[1:v]format=rgba,colorchannelmixer=aa=0.8[watermark]');
+
+//   // // Overlay Watermark
+//   // command.complexFilter('[watermark]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2[out]');
+// };
+
+// +-----------------------------------------------------------------------------------------------------------------------------------------+
