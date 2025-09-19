@@ -2,7 +2,8 @@ const sharp = require('sharp');
 const { put, del } = require('@vercel/blob');
 const fetch = require('node-fetch');
 
-const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_8oL0c4E3y4emK5Iq_mNmffcqTL3VgnPvoTKAxDK3jiN3PvD';
+// const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_8oL0c4E3y4emK5Iq_mNmffcqTL3VgnPvoTKAxDK3jiN3PvD';
+const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_Wy9muWy4jkmOzgGe_Iea1GKPgVKTIJFJdw6JYTFxVNjEJhW';
 
 // file upload function
 const uploadToVercelBlob = async (image) => {

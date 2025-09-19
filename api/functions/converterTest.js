@@ -8,7 +8,8 @@ const ffprobeStatic = require('ffprobe-static').path;
 
 fluentFfmpeg.setFfmpegPath(ffmpegPath);
 fluentFfmpeg.setFfprobePath(ffprobeStatic);
-const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_8oL0c4E3y4emK5Iq_mNmffcqTL3VgnPvoTKAxDK3jiN3PvD';
+// const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_8oL0c4E3y4emK5Iq_mNmffcqTL3VgnPvoTKAxDK3jiN3PvD';
+const BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN = 'vercel_blob_rw_Wy9muWy4jkmOzgGe_Iea1GKPgVKTIJFJdw6JYTFxVNjEJhW';
 
 // functions
 const functions = require('./functions');
@@ -59,7 +60,7 @@ function extractOptionsFromRequest(req) {
     subtitlesType: req.body.subtitleType,
     QscaleValue: req.body.selectMenu === '.wmv' ? req.body.Qscale : '',
   };
-  // console.log(options);
+  console.log(options);
 
   return options;
 }
